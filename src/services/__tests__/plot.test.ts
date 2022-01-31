@@ -187,6 +187,27 @@ describe('plotter', () => {
 `,
       ],
       [
+        'sorts output',
+        [
+          [3, 0],
+          [1, 5],
+        ] as PlotCoords,
+        undefined,
+        undefined,
+        `
+      
+  ▲   
+ 5┤┓  
+  │┃  
+  │┃  
+  │┃  
+  │┃  
+ 0┤┗━ 
+  └┬┬▶
+   13 
+`,
+      ],
+      [
         'special case',
         [
           [1, 1000],
