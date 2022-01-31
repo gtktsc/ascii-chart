@@ -1,1 +1,3 @@
-export { plot } from './services/plot';
+import { plot } from './services/plot';
+
+export default plot;
