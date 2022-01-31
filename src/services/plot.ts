@@ -44,9 +44,22 @@ export const getPlotCoords = (
 };
 
 export const plot: Plot = (coords, width, height) => {
+  // set default size
   const plotWidth = width || coords.length;
   const plotHeight = height || getExtrema(coords, 'max', 0, 1) - getExtrema(coords, 'min', 0, 1) + 1;
 
+  // sort input by the first value
+  coords.sort(([x1], [x2]) => {
+    if (x1 < x2) {
+      return -1;
+    }
+    if (x1 > x2) {
+      return 1;
+    }
+    return 0;
+  });
+
+  // create empty graph
   const graph = Array.from({ length: plotHeight + 2 }, () => Array(plotWidth + 2).fill(' '));
 
   const scaledCoords = getPlotCoords(coords, plotWidth, plotHeight).map(([x, y], index, arr) => {
@@ -54,14 +67,17 @@ export const plot: Plot = (coords, width, height) => {
     const scaledY = plotHeight - 1 - Math.round((y / plotHeight) * plotHeight);
 
     graph[scaledY + 1][scaledX + 1] = '━';
+
+    // add axis stamps
     graph[graph.length - 1][scaledX + 1] = '┬';
     graph[scaledY + 1][0] = '┤';
+
     if (index - 1 >= 0) {
       const [prevX, prevY] = arr[index - 1];
       const [currX, currY] = arr[index];
 
       if (prevY > currY) {
-        // up
+        // increasing values
         graph[scaledY + 1][scaledX] = '┗';
         Array(Math.abs(Math.round(currY) - Math.round(prevY)))
           .fill('')
@@ -73,7 +89,7 @@ export const plot: Plot = (coords, width, height) => {
             }
           });
       } else {
-        // down or the same
+        // decreasing values
         Array(Math.abs(Math.round(currY) - Math.round(prevY)))
           .fill('')
           .forEach((_, steps) => {
@@ -97,6 +113,7 @@ export const plot: Plot = (coords, width, height) => {
     return [scaledX, scaledY];
   });
 
+  // axis
   graph.forEach((line, index) => {
     line.forEach((char, curr) => {
       let lineChar = '';
