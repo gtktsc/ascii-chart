@@ -1,0 +1,43 @@
+{
+  "name": "ascii-chart",
+  "version": "1.0.0",
+  "description": "Simple ascii chart generator",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc-watch -p tsconfig.json --preserveWatchOutput -w --onSuccess 'node ./dist/index.js'",
+    "lint": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "build": "tsc -p tsconfig.build.json",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.4.0",
+    "@typescript-eslint/eslint-plugin": "^5.8.1",
+    "@typescript-eslint/parser": "^5.8.1",
+    "eslint": "^8.5.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.3",
+    "husky": "^7.0.4",
+    "jest": "^27.4.5",
+    "lint-staged": "^12.1.4",
+    "prettier": "^2.5.1",
+    "ts-jest": "^27.1.2",
+    "tsc-watch": "^4.6.0",
+    "typescript": "^4.5.4"
+  },
+  "lint-staged": {
+    "*.ts": "eslint . --ext .ts,.js --fix",
+    "*.{ts,md}": "prettier --write --ignore-unknown"
+  },
+  "keywords": [
+    "ascii",
+    "js",
+    "ts",
+    "chart"
+  ],
+  "author": "gtktsc",
+  "license": "ISC"
+}

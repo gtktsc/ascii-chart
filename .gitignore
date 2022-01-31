@@ -1,0 +1,17 @@
+# main
+dist/
+node_modules/
+
+# cache
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+
+# logs
+yarn-debug.log*
+yarn-error.log*
+
+# miscellaneous
+.idea
+.DS_Store
+coverage
