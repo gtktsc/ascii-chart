@@ -18,7 +18,7 @@ Where:
 ```
 Input = [x: number, y: number][];
 
-Plot = (input: Input, plotWidth: number, plotHeight: number) => string;
+Plot = (input: Input, plotWidth?: number, plotHeight?: number) => string;
 ```
 
 # Examples
