@@ -61,12 +61,9 @@ export const plot: Plot = (coords, width, height) => {
 
   // create empty graph
   const graph = Array.from({ length: plotHeight + 2 }, () => Array(plotWidth + 2).fill(' '));
-
   const scaledCoords = getPlotCoords(coords, plotWidth, plotHeight).map(([x, y], index, arr) => {
     const scaledX = Math.round((x / plotWidth) * plotWidth);
     const scaledY = plotHeight - 1 - Math.round((y / plotHeight) * plotHeight);
-
-    graph[scaledY + 1][scaledX + 1] = '━';
 
     // add axis stamps
     graph[graph.length - 1][scaledX + 1] = '┬';
@@ -109,6 +106,11 @@ export const plot: Plot = (coords, width, height) => {
         .forEach((_, steps) => {
           graph[plotHeight - Math.round(prevY)][Math.round(prevX) + steps + 1] = '━';
         });
+    }
+
+    // plot the last coordinate
+    if (arr.length - 1 === index) {
+      graph[scaledY + 1][scaledX + 1] = '━';
     }
     return [scaledX, scaledY];
   });
