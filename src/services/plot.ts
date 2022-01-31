@@ -1,4 +1,4 @@
-import { PlotCoords } from '../types';
+import { PlotCoords, Plot } from '../types';
 
 export const getExtrema = (
   arr: PlotCoords,
@@ -6,10 +6,7 @@ export const getExtrema = (
   start = 0,
   position = 1,
 ) => {
-  return arr.reduce(
-    (previous, curr) => Math[type](previous, curr[position]),
-    start,
-  );
+  return arr.reduce((previous, curr) => Math[type](previous, curr[position]), start);
 };
 
 type Get = (value: number) => number;
@@ -41,72 +38,61 @@ export const getPlotCoords = (
   const getXCoord = scaler([minXValue, maxXValue], [0, plotWidth - 1]);
   const getYCoord = scaler([minYValue, maxYValue], [0, plotHeight - 1]);
 
-  const coords: PlotCoords = coordinates.map(([x, y]) => [
-    getXCoord(x),
-    getYCoord(y),
-  ]);
+  const coords: PlotCoords = coordinates.map(([x, y]) => [getXCoord(x), getYCoord(y)]);
 
   return coords;
 };
 
-export const plot = (
-  coords: PlotCoords,
-  plotWidth: number,
-  plotHeight: number,
-): string => {
+export const plot: Plot = (coords, plotWidth, plotHeight) => {
   const graph = Array.from({ length: plotHeight + 2 }, () => Array(plotWidth + 2).fill(' '));
 
-  const scaledCoords = getPlotCoords(coords, plotWidth, plotHeight).map(
-    ([x, y], index, arr) => {
-      const scaledX = Math.round((x / plotWidth) * plotWidth);
-      const scaledY = plotHeight - 1 - Math.round((y / plotHeight) * plotHeight);
+  const scaledCoords = getPlotCoords(coords, plotWidth, plotHeight).map(([x, y], index, arr) => {
+    const scaledX = Math.round((x / plotWidth) * plotWidth);
+    const scaledY = plotHeight - 1 - Math.round((y / plotHeight) * plotHeight);
 
-      graph[scaledY + 1][scaledX + 1] = '━';
-      graph[graph.length - 1][scaledX + 1] = '┬';
-      graph[scaledY + 1][0] = '┤';
-      if (index - 1 >= 0) {
-        const [prevX, prevY] = arr[index - 1];
-        const [currX, currY] = arr[index];
+    graph[scaledY + 1][scaledX + 1] = '━';
+    graph[graph.length - 1][scaledX + 1] = '┬';
+    graph[scaledY + 1][0] = '┤';
+    if (index - 1 >= 0) {
+      const [prevX, prevY] = arr[index - 1];
+      const [currX, currY] = arr[index];
 
-        if (prevY > currY) {
-          // up
-          graph[scaledY + 1][scaledX] = '┗';
-          Array(Math.abs(Math.round(currY) - Math.round(prevY)))
-            .fill('')
-            .forEach((_, steps, array) => {
-              if (steps === array.length - 1) {
-                graph[scaledY - steps][scaledX] = '┓';
-              } else {
-                graph[scaledY - steps][scaledX] = '┃';
-              }
-            });
-        } else {
-          // down or the same
-          Array(Math.abs(Math.round(currY) - Math.round(prevY)))
-            .fill('')
-            .forEach((_, steps) => {
-              graph[scaledY + steps + 2][scaledX] = '┛';
-              graph[scaledY + steps + 1][scaledX] = '┃';
-            });
-
-          if (prevY < currY) {
-            graph[scaledY + 1][scaledX] = '┏';
-          } else if (prevY === currY) {
-            graph[scaledY + 1][scaledX] = '━';
-          }
-        }
-        const distanceX = Math.abs(Math.round(currX) - Math.round(prevX));
-        Array(distanceX ? distanceX - 1 : 0)
+      if (prevY > currY) {
+        // up
+        graph[scaledY + 1][scaledX] = '┗';
+        Array(Math.abs(Math.round(currY) - Math.round(prevY)))
+          .fill('')
+          .forEach((_, steps, array) => {
+            if (steps === array.length - 1) {
+              graph[scaledY - steps][scaledX] = '┓';
+            } else {
+              graph[scaledY - steps][scaledX] = '┃';
+            }
+          });
+      } else {
+        // down or the same
+        Array(Math.abs(Math.round(currY) - Math.round(prevY)))
           .fill('')
           .forEach((_, steps) => {
-            graph[plotHeight - Math.round(prevY)][
-              Math.round(prevX) + steps + 1
-            ] = '━';
+            graph[scaledY + steps + 2][scaledX] = '┛';
+            graph[scaledY + steps + 1][scaledX] = '┃';
           });
+
+        if (prevY < currY) {
+          graph[scaledY + 1][scaledX] = '┏';
+        } else if (prevY === currY) {
+          graph[scaledY + 1][scaledX] = '━';
+        }
       }
-      return [scaledX, scaledY];
-    },
-  );
+      const distanceX = Math.abs(Math.round(currX) - Math.round(prevX));
+      Array(distanceX ? distanceX - 1 : 0)
+        .fill('')
+        .forEach((_, steps) => {
+          graph[plotHeight - Math.round(prevY)][Math.round(prevX) + steps + 1] = '━';
+        });
+    }
+    return [scaledX, scaledY];
+  });
 
   graph.forEach((line, index) => {
     line.forEach((char, curr) => {
@@ -138,9 +124,7 @@ export const plot = (
     });
   });
 
-  const xShift = Math.round(getExtrema(coords, 'max', 0, 1))
-    .toFixed(0)
-    .split('').length;
+  const xShift = Math.round(getExtrema(coords, 'max', 0, 1)).toFixed(0).split('').length;
 
   // shift graph
   graph.unshift(Array(plotWidth + 2).fill(' ')); // top
