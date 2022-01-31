@@ -4,6 +4,7 @@
     "outDir": "dist",
     "allowJs": true,
     "declaration": true,
+    "strict": true
   },
   "include": ["./src"],
   "target": "esnext",
