@@ -1,5 +1,5 @@
 {
-  "name": "ascii-chart",
+  "name": "simple-ascii-chart",
   "version": "1.0.0",
   "description": "Simple ascii chart generator",
   "main": "dist/index.js",
