@@ -50,9 +50,7 @@ describe('plotter', () => {
       ],
     ])('', (variant, coords, width, height, output) => {
       it(variant, () => {
-        expect(getPlotCoords(coords as any, width, height)).toStrictEqual(
-          output,
-        );
+        expect(getPlotCoords(coords as any, width, height)).toStrictEqual(output);
       });
     });
   });
@@ -62,13 +60,7 @@ describe('plotter', () => {
       ['picks right range', [0, 1], [1, 1], 0, 1],
       ['picks right range with negative values', [-1, 1], [0, 100], -1, 0],
       ['picks right domain and range', [-1, 1], [-100, 100], -1, -100],
-      [
-        'picks right domain and range with negatives',
-        [0, 10],
-        [-100, 0],
-        10,
-        0,
-      ],
+      ['picks right domain and range with negatives', [0, 10], [-100, 0], 10, 0],
       ['picks right domain and range from zero', [-1, 0], [-100, 100], 0, 100],
       ['picks right values from the range', [-1, 1], [-100, 100], 0.5, 50],
       ['picks right negative values', [0, 1], [-100, 0], 0.5, -50],
@@ -162,9 +154,7 @@ describe('plotter', () => {
       ],
     ])('', (variant, arr, type, start, position, output) => {
       it(variant, () => {
-        expect(
-          getExtrema(arr as any, type as 'min' | 'max', start, position),
-        ).toBe(output);
+        expect(getExtrema(arr as any, type as 'min' | 'max', start, position)).toBe(output);
       });
     });
   });
@@ -175,6 +165,27 @@ describe('plotter', () => {
       [2, 2],
     ];
     describe.each([
+      [
+        'generates output without specified size',
+        [
+          [1, 5],
+          [3, 0],
+        ] as PlotCoords,
+        undefined,
+        undefined,
+        `
+      
+  ▲   
+ 5┤┓  
+  │┃  
+  │┃  
+  │┃  
+  │┃  
+ 0┤┗━ 
+  └┬┬▶
+   13 
+`,
+      ],
       [
         'special case',
         [

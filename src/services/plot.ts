@@ -43,7 +43,10 @@ export const getPlotCoords = (
   return coords;
 };
 
-export const plot: Plot = (coords, plotWidth, plotHeight) => {
+export const plot: Plot = (coords, width, height) => {
+  const plotWidth = width || coords.length;
+  const plotHeight = height || getExtrema(coords, 'max', 0, 1) - getExtrema(coords, 'min', 0, 1) + 1;
+
   const graph = Array.from({ length: plotHeight + 2 }, () => Array(plotWidth + 2).fill(' '));
 
   const scaledCoords = getPlotCoords(coords, plotWidth, plotHeight).map(([x, y], index, arr) => {
