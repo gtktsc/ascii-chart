@@ -144,13 +144,14 @@ export const plot: Plot = (coords, width, height) => {
     });
   });
 
-  const xShift = Math.round(getExtrema(coords, 'max', 0, 1)).toFixed(0).split('').length;
+  const xShift = Math.round(getExtrema(coords, 'max', 0, 0)).toFixed(0).split('').length;
+  const yShift = Math.round(getExtrema(coords, 'max', 0, 1)).toFixed(0).split('').length;
 
   // shift graph
   graph.unshift(Array(plotWidth + 2).fill(' ')); // top
   graph.push(Array(plotWidth + 2).fill(' ')); // bottom
   graph.forEach((line) => {
-    for (let i = 0; i <= xShift; i += 1) {
+    for (let i = 0; i <= yShift; i += 1) {
       line.unshift(' '); // left
     }
     // line.push(' '); // right
@@ -159,11 +160,14 @@ export const plot: Plot = (coords, width, height) => {
   // shift coords
   coords.forEach(([pointX, pointY], index) => {
     const [x, y] = scaledCoords[index];
-    const pointShift = pointY.toFixed(0).split('');
-    for (let i = 0; i < pointShift.length; i += 1) {
-      graph[y + 2][xShift - i] = pointShift[pointShift.length - 1 - i];
+    const pointYShift = pointY.toFixed(0).split('');
+    for (let i = 0; i < pointYShift.length; i += 1) {
+      graph[y + 2][yShift - i] = pointYShift[pointYShift.length - 1 - i];
     }
-    graph[graph.length - 1][x + 2 + xShift] = pointX;
+    const pointXShift = pointX.toFixed(0).split('');
+    for (let i = 0; i < pointXShift.length; i += 1) {
+      graph[graph.length - 1][x + yShift - i + 2] = pointXShift[pointXShift.length - 1 - i];
+    }
   });
 
   return `\n${graph.map((line) => line.join('')).join('\n')}\n`;

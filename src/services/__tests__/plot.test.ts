@@ -166,6 +166,27 @@ describe('plotter', () => {
     ];
     describe.each([
       [
+        'generates output with y shift',
+        [
+          [10, 10],
+          [-5, -5],
+          [2, 3],
+          [20, 4],
+        ] as PlotCoords,
+        20,
+        4,
+        `
+                         
+   ▲                     
+ 10┤          ┏━━━━━━━┓  
+  4┤    ┏━━━━━┛       ┗━ 
+   │    ┃                
+ -5┤━━━━┛                
+   └┬────┬─────┬───────┬▶
+   -5    2    10      20 
+`,
+      ],
+      [
         'generates output without specified size',
         [
           [1, 5],
