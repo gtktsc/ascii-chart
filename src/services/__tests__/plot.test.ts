@@ -360,6 +360,22 @@ describe('plotter', () => {
 `,
       ],
       [
+        'draws one value in y axis',
+        [
+          [0, 2],
+          [1, 2],
+        ] as PlotCoords,
+        undefined,
+        undefined,
+        `
+      
+  ▲   
+ 2┤━━ 
+  └┬┬▶
+   01 
+`,
+      ],
+      [
         'generates more complex plot',
         [
           [1, 1],

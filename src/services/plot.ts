@@ -1,4 +1,5 @@
-import { PlotCoords, Plot } from '../types';
+import { PlotCoords, Plot, PlotColor } from '../types';
+import { stamps } from '../constants';
 
 export const getExtrema = (
   arr: PlotCoords,
@@ -15,7 +16,7 @@ export const scaler = (
   [domainMin, domainMax]: [number, number],
   [rangeMin, rangeMax]: [number, number],
 ): Get => {
-  const domainLength = Math.sqrt(Math.abs((domainMax - domainMin) ** 2));
+  const domainLength = Math.sqrt(Math.abs((domainMax - domainMin) ** 2)) || 1;
   const rangeLength = Math.sqrt((rangeMax - rangeMin) ** 2);
 
   return (domainValue) => rangeMin + (rangeLength * (domainValue - domainMin)) / domainLength;
@@ -25,28 +26,64 @@ export const getPlotCoords = (
   coordinates: PlotCoords,
   plotWidth: number,
   plotHeight: number,
+  xRange?: [number, number],
+  yRange?: [number, number],
 ): PlotCoords => {
-  const [minXValue, maxXValue] = [
-    getExtrema(coordinates, 'min', getExtrema(coordinates, 'max', 0, 0), 0),
-    getExtrema(coordinates, 'max', 0, 0),
-  ];
-  const [minYValue, maxYValue] = [
-    getExtrema(coordinates, 'min', getExtrema(coordinates)),
-    getExtrema(coordinates),
-  ];
-
-  const getXCoord = scaler([minXValue, maxXValue], [0, plotWidth - 1]);
-  const getYCoord = scaler([minYValue, maxYValue], [0, plotHeight - 1]);
+  const getXCoord = scaler(
+    xRange || [
+      getExtrema(coordinates, 'min', getExtrema(coordinates, 'max', 0, 0), 0),
+      getExtrema(coordinates, 'max', 0, 0),
+    ],
+    [0, plotWidth - 1],
+  );
+  const getYCoord = scaler(
+    yRange || [getExtrema(coordinates, 'min', getExtrema(coordinates)), getExtrema(coordinates)],
+    [0, plotHeight - 1],
+  );
 
   const coords: PlotCoords = coordinates.map(([x, y]) => [getXCoord(x), getYCoord(y)]);
 
   return coords;
 };
 
-export const plot: Plot = (coords, width, height) => {
+const getAnsiColor = (color: PlotColor): string => {
+  switch (color) {
+    case 'ansiBlack':
+      return '\u001b[30m';
+    case 'ansiRed':
+      return '\u001b[31m';
+    case 'ansiGreen':
+      return '\u001b[32m';
+    case 'ansiYellow':
+      return '\u001b[33m';
+    case 'ansiBlue':
+      return '\u001b[34m';
+    case 'ansiMagenta':
+      return '\u001b[35m';
+    case 'ansiCyan':
+      return '\u001b[36m';
+    case 'ansiWhite':
+    default:
+      return '\u001b[37m';
+  }
+};
+
+export const plot: Plot = (coords, width, height, { color } = {}) => {
+  const maxX = getExtrema(coords, 'max', 0, 0);
+  const minX = getExtrema(coords, 'min', maxX, 0);
+
+  const maxY = getExtrema(coords, 'max', 0, 1);
+  const minY = getExtrema(coords, 'min', maxY, 1);
   // set default size
   const plotWidth = width || coords.length;
-  const plotHeight = height || getExtrema(coords, 'max', 0, 1) - getExtrema(coords, 'min', 0, 1) + 1;
+  const plotHeight = Math.round(height || maxY - minY + 1);
+
+  if (color) {
+    type ChartKeys = keyof typeof stamps.chart;
+    Object.entries(stamps.chart).forEach(([key, sign]) => {
+      stamps.chart[key as ChartKeys] = `${getAnsiColor(color)}${sign}\u001b[0m`;
+    });
+  }
 
   // sort input by the first value
   coords.sort(([x1], [x2]) => {
@@ -60,60 +97,62 @@ export const plot: Plot = (coords, width, height) => {
   });
 
   // create empty graph
-  const graph = Array.from({ length: plotHeight + 2 }, () => Array(plotWidth + 2).fill(' '));
-  const scaledCoords = getPlotCoords(coords, plotWidth, plotHeight).map(([x, y], index, arr) => {
-    const scaledX = Math.round((x / plotWidth) * plotWidth);
-    const scaledY = plotHeight - 1 - Math.round((y / plotHeight) * plotHeight);
+  const fillWidth = () => Array(plotWidth + 2).fill(stamps.empty);
+  const graph = Array.from({ length: plotHeight + 2 }, fillWidth);
+  const scaledCoords = getPlotCoords(coords, plotWidth, plotHeight, [minX, maxX], [minY, maxY]).map(
+    ([x, y], index, arr) => {
+      const scaledX = Math.round((x / plotWidth) * plotWidth);
+      const scaledY = plotHeight - 1 - Math.round((y / plotHeight) * plotHeight);
+      // add axis stamps
+      graph[graph.length - 1][scaledX + 1] = stamps.axis.x;
+      graph[scaledY + 1][0] = stamps.axis.y;
 
-    // add axis stamps
-    graph[graph.length - 1][scaledX + 1] = '┬';
-    graph[scaledY + 1][0] = '┤';
+      if (index - 1 >= 0) {
+        const [prevX, prevY] = arr[index - 1];
+        const [currX, currY] = arr[index];
 
-    if (index - 1 >= 0) {
-      const [prevX, prevY] = arr[index - 1];
-      const [currX, currY] = arr[index];
+        if (prevY > currY) {
+          // increasing values
+          graph[scaledY + 1][scaledX] = stamps.chart.nse;
+          Array(Math.abs(Math.round(currY) - Math.round(prevY)))
+            .fill('')
+            .forEach((_, steps, array) => {
+              if (steps === array.length - 1) {
+                graph[scaledY - steps][scaledX] = stamps.chart.wns;
+              } else {
+                graph[scaledY - steps][scaledX] = stamps.chart.ns;
+              }
+            });
+        } else {
+          // decreasing values
+          Array(Math.abs(Math.round(currY) - Math.round(prevY)))
+            .fill('')
+            .forEach((_, steps) => {
+              graph[scaledY + steps + 2][scaledX] = stamps.chart.wsn;
+              graph[scaledY + steps + 1][scaledX] = stamps.chart.ns;
+            });
 
-      if (prevY > currY) {
-        // increasing values
-        graph[scaledY + 1][scaledX] = '┗';
-        Array(Math.abs(Math.round(currY) - Math.round(prevY)))
-          .fill('')
-          .forEach((_, steps, array) => {
-            if (steps === array.length - 1) {
-              graph[scaledY - steps][scaledX] = '┓';
-            } else {
-              graph[scaledY - steps][scaledX] = '┃';
-            }
-          });
-      } else {
-        // decreasing values
-        Array(Math.abs(Math.round(currY) - Math.round(prevY)))
+          if (prevY < currY) {
+            graph[scaledY + 1][scaledX] = stamps.chart.sne;
+          } else if (prevY === currY) {
+            graph[scaledY + 1][scaledX] = stamps.chart.we;
+          }
+        }
+        const distanceX = Math.abs(Math.round(currX) - Math.round(prevX));
+        Array(distanceX ? distanceX - 1 : 0)
           .fill('')
           .forEach((_, steps) => {
-            graph[scaledY + steps + 2][scaledX] = '┛';
-            graph[scaledY + steps + 1][scaledX] = '┃';
+            graph[plotHeight - Math.round(prevY)][Math.round(prevX) + steps + 1] = stamps.chart.we;
           });
-
-        if (prevY < currY) {
-          graph[scaledY + 1][scaledX] = '┏';
-        } else if (prevY === currY) {
-          graph[scaledY + 1][scaledX] = '━';
-        }
       }
-      const distanceX = Math.abs(Math.round(currX) - Math.round(prevX));
-      Array(distanceX ? distanceX - 1 : 0)
-        .fill('')
-        .forEach((_, steps) => {
-          graph[plotHeight - Math.round(prevY)][Math.round(prevX) + steps + 1] = '━';
-        });
-    }
 
-    // plot the last coordinate
-    if (arr.length - 1 === index) {
-      graph[scaledY + 1][scaledX + 1] = '━';
-    }
-    return [scaledX, scaledY];
-  });
+      // plot the last coordinate
+      if (arr.length - 1 === index) {
+        graph[scaledY + 1][scaledX + 1] = stamps.chart.we;
+      }
+      return [scaledX, scaledY];
+    },
+  );
 
   // axis
   graph.forEach((line, index) => {
@@ -121,21 +160,21 @@ export const plot: Plot = (coords, width, height) => {
       let lineChar = '';
       if (curr === 0) {
         if (index === 0) {
-          lineChar = '▲';
-        } else if (char === '┤') {
+          lineChar = stamps.axis.n;
+        } else if (char === stamps.axis.y) {
           return;
         } else if (index === graph.length - 1) {
-          lineChar = '└';
+          lineChar = stamps.axis.nse;
         } else {
-          lineChar = '│';
+          lineChar = stamps.axis.ns;
         }
       } else if (index === graph.length - 1) {
         if (curr === line.length - 1) {
-          lineChar = '▶';
-        } else if (char === '┬') {
+          lineChar = stamps.axis.e;
+        } else if (char === stamps.axis.x) {
           return;
         } else {
-          lineChar = '─';
+          lineChar = stamps.axis.we;
         }
       }
 
@@ -146,22 +185,30 @@ export const plot: Plot = (coords, width, height) => {
     });
   });
 
-  const xShift = getExtrema(coords, 'max', 0, 0).toString().split('').length;
-  const yShift = getExtrema(coords, 'max', 0, 1).toString().split('').length;
+  const xShift = maxX.toString().split('').length;
+  const yShift = maxY.toString().split('').length;
 
   // shift graph
-  graph.unshift(Array(plotWidth + 2).fill(' ')); // top
-  graph.push(Array(plotWidth + 2).fill(' ')); // bottom
+  graph.unshift(Array(plotWidth + 2).fill(stamps.empty)); // top
+  graph.push(Array(plotWidth + 2).fill(stamps.empty)); // bottom
+
+  // check step
+  let step = plotWidth;
+  scaledCoords.forEach(([x], index) => {
+    if (scaledCoords[index - 1]) {
+      const current = x - scaledCoords[index - 1][0];
+      step = current <= step ? current : step;
+    }
+  });
 
   // x coords overlap
-  const hasToBeMoved = scaledCoords[1][0] - scaledCoords[0][0] < xShift;
-  if (hasToBeMoved) graph.push(Array(plotWidth + 1).fill(' '));
+  const hasToBeMoved = step < xShift;
+  if (hasToBeMoved) graph.push(Array(plotWidth + 1).fill(stamps.empty));
 
   graph.forEach((line) => {
     for (let i = 0; i <= yShift; i += 1) {
-      line.unshift(' '); // left
+      line.unshift(stamps.empty); // left
     }
-    // line.push(' '); // right
   });
 
   // shift coords
