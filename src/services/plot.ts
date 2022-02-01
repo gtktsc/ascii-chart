@@ -68,7 +68,7 @@ const getAnsiColor = (color: PlotColor): string => {
   }
 };
 
-export const plot: Plot = (coords, width, height, { color } = {}) => {
+export const plot: Plot = (coords, { color, width, height } = {}) => {
   const maxX = getExtrema(coords, 'max', 0, 0);
   const minX = getExtrema(coords, 'min', maxX, 0);
 

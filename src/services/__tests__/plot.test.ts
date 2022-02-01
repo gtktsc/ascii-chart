@@ -175,8 +175,10 @@ describe('plotter', () => {
           [0.005, 0.004],
           [0.006, 0.014],
         ] as PlotCoords,
-        20,
-        10,
+        {
+          width: 20,
+          height: 10,
+        },
         `
                             
       ▲                     
@@ -203,8 +205,7 @@ describe('plotter', () => {
           [2, 3],
           [20, 4],
         ] as PlotCoords,
-        20,
-        4,
+        { width: 20, height: 4 },
         `
                          
    ▲                     
@@ -222,8 +223,7 @@ describe('plotter', () => {
           [1, 5],
           [3, 0],
         ] as PlotCoords,
-        undefined,
-        undefined,
+        { width: undefined, height: undefined },
         `
       
   ▲   
@@ -243,8 +243,7 @@ describe('plotter', () => {
           [3, 0],
           [1, 5],
         ] as PlotCoords,
-        undefined,
-        undefined,
+        { width: undefined, height: undefined },
         `
       
   ▲   
@@ -264,8 +263,7 @@ describe('plotter', () => {
           [1, 1000],
           [3, 2000],
         ] as PlotCoords,
-        2,
-        2,
+        { width: 2, height: 2 },
         `
          
      ▲   
@@ -278,8 +276,7 @@ describe('plotter', () => {
       [
         'generates basic output',
         mockedData,
-        2,
-        2,
+        { width: 2, height: 2 },
         `
       
   ▲   
@@ -296,8 +293,7 @@ describe('plotter', () => {
           [2, 2],
           [3, 2],
         ] as PlotCoords,
-        3,
-        3,
+        { width: 3, height: 3 },
         `
        
   ▲    
@@ -311,8 +307,7 @@ describe('plotter', () => {
       [
         'scale vertically',
         mockedData,
-        4,
-        2,
+        { width: 4, height: 2 },
         `
         
   ▲     
@@ -325,8 +320,7 @@ describe('plotter', () => {
       [
         'scale horizontally',
         mockedData,
-        2,
-        4,
+        { width: 2, height: 4 },
         `
       
   ▲   
@@ -346,8 +340,7 @@ describe('plotter', () => {
           [3, 3],
           [4, 4],
         ] as PlotCoords,
-        4,
-        4,
+        { width: 4, height: 4 },
         `
         
   ▲     
@@ -365,8 +358,7 @@ describe('plotter', () => {
           [0, 2],
           [1, 2],
         ] as PlotCoords,
-        undefined,
-        undefined,
+        { width: undefined, height: undefined },
         `
       
   ▲   
@@ -383,8 +375,7 @@ describe('plotter', () => {
           [3, 4],
           [4, 1],
         ] as PlotCoords,
-        20,
-        8,
+        { width: 20, height: 8 },
         `
                         
   ▲                     
@@ -400,9 +391,9 @@ describe('plotter', () => {
    1     2      3     4 
 `,
       ],
-    ])('', (variant, data, width, height, output) => {
+    ])('', (variant, data, settings, output) => {
       it(variant, () => {
-        expect(plot(data, width, height)).toBe(output);
+        expect(plot(data, settings)).toBe(output);
       });
     });
   });

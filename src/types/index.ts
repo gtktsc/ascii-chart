@@ -12,11 +12,8 @@ export type PlotColor = `ansi${
 
 export type Settings = {
   color?: PlotColor;
+  width?: number;
+  height?: number;
 };
 
-export type Plot = (
-  coords: PlotCoords,
-  plotWidth?: number,
-  plotHeight?: number,
-  settings?: Settings,
-) => string;
+export type Plot = (coords: PlotCoords, settings?: Settings) => string;
