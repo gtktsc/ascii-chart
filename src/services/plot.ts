@@ -111,7 +111,7 @@ export const plot: Plot = (coords, width, height, { color } = {}) => {
         const [prevX, prevY] = arr[index - 1];
         const [currX, currY] = arr[index];
 
-        if (prevY > currY) {
+        if (Math.round(prevY) > Math.round(currY)) {
           // increasing values
           graph[scaledY + 1][scaledX] = stamps.chart.nse;
           Array(Math.abs(Math.round(currY) - Math.round(prevY)))
@@ -132,9 +132,9 @@ export const plot: Plot = (coords, width, height, { color } = {}) => {
               graph[scaledY + steps + 1][scaledX] = stamps.chart.ns;
             });
 
-          if (prevY < currY) {
+          if (Math.round(prevY) < Math.round(currY)) {
             graph[scaledY + 1][scaledX] = stamps.chart.sne;
-          } else if (prevY === currY) {
+          } else if (Math.round(prevY) === Math.round(currY)) {
             graph[scaledY + 1][scaledX] = stamps.chart.we;
           }
         }
