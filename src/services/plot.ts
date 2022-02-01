@@ -146,12 +146,17 @@ export const plot: Plot = (coords, width, height) => {
     });
   });
 
-  const xShift = Math.round(getExtrema(coords, 'max', 0, 0)).toFixed(0).split('').length;
-  const yShift = Math.round(getExtrema(coords, 'max', 0, 1)).toFixed(0).split('').length;
+  const xShift = getExtrema(coords, 'max', 0, 0).toString().split('').length;
+  const yShift = getExtrema(coords, 'max', 0, 1).toString().split('').length;
 
   // shift graph
   graph.unshift(Array(plotWidth + 2).fill(' ')); // top
   graph.push(Array(plotWidth + 2).fill(' ')); // bottom
+
+  // x coords overlap
+  const hasToBeMoved = scaledCoords[1][0] - scaledCoords[0][0] < xShift;
+  if (hasToBeMoved) graph.push(Array(plotWidth + 1).fill(' '));
+
   graph.forEach((line) => {
     for (let i = 0; i <= yShift; i += 1) {
       line.unshift(' '); // left
@@ -162,13 +167,15 @@ export const plot: Plot = (coords, width, height) => {
   // shift coords
   coords.forEach(([pointX, pointY], index) => {
     const [x, y] = scaledCoords[index];
-    const pointYShift = pointY.toFixed(0).split('');
+    const pointYShift = pointY.toString().split('');
+
     for (let i = 0; i < pointYShift.length; i += 1) {
       graph[y + 2][yShift - i] = pointYShift[pointYShift.length - 1 - i];
     }
-    const pointXShift = pointX.toFixed(0).split('');
+    const pointXShift = pointX.toString().split('');
     for (let i = 0; i < pointXShift.length; i += 1) {
-      graph[graph.length - 1][x + yShift - i + 2] = pointXShift[pointXShift.length - 1 - i];
+      const yPos = index % 2 && hasToBeMoved ? graph.length - 2 : graph.length - 1;
+      graph[yPos][x + yShift - i + 2] = pointXShift[pointXShift.length - 1 - i];
     }
   });
 
