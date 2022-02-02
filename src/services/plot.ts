@@ -34,7 +34,13 @@ export const plot: Plot = (rawInput, { color, width, height } = {}) => {
 
   // set default size
   const plotWidth = width || rangeX.length;
-  const plotHeight = Math.round(height || maxY - minY + 1);
+
+  let plotHeight = Math.round(height || maxY - minY + 1);
+
+  // for small values without height
+  if (!height && plotHeight < 3) {
+    plotHeight = rangeY.length;
+  }
 
   input.forEach((coords: SingleLine, series) => {
     const symbols = JSON.parse(JSON.stringify(stamps));
