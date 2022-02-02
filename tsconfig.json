@@ -4,7 +4,8 @@
     "outDir": "dist",
     "allowJs": true,
     "declaration": true,
-    "strict": true
+    "strict": true,
+    "downlevelIteration": true,
   },
   "include": ["./src"],
   "target": "esnext",
