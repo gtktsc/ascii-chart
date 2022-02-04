@@ -18,6 +18,7 @@ export type Settings = {
   color?: Color | Color[];
   width?: number;
   height?: number;
+  axisCenter?: Point;
 };
 
 export type Plot = (coordinates: Coordinates, settings?: Settings) => string;

@@ -1,4 +1,7 @@
 import { SingleLine, Point, MultiLine } from '../types';
+import { EMPTY } from '../constants';
+
+export const toEmpty = (size: number) => Array(size).fill(EMPTY);
 
 export const toArray = (number: number): string[] => number.toString().split('');
 
@@ -59,6 +62,21 @@ export const scaler = (
   const rangeLength = Math.sqrt((rangeMax - rangeMin) ** 2);
 
   return (domainValue) => rangeMin + (rangeLength * (domainValue - domainMin)) / domainLength;
+};
+
+export const toCoordinates = (
+  point: Point,
+  plotWidth: number,
+  plotHeight: number,
+  rangeX: [number, number],
+  rangeY: [number, number],
+): Point => {
+  const getXCoord = scaler(rangeX, [0, plotWidth - 1]);
+  const getYCoord = scaler(rangeY, [0, plotHeight - 1]);
+
+  const toScale = ([x, y]: Point): Point => [getXCoord(x), getYCoord(y)];
+
+  return toScale(point);
 };
 
 export const getPlotCoords = (
