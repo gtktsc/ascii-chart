@@ -1,20 +1,20 @@
-export const stamps = {
-  axis: {
-    x: '┬',
-    n: '▲',
-    y: '┤',
-    e: '▶',
-    nse: '└',
-    ns: '│',
-    we: '─',
-  },
-  chart: {
-    nse: '┗',
-    wns: '┓',
-    ns: '┃',
-    wsn: '┛',
-    we: '━',
-    sne: '┏',
-  },
-  empty: ' ',
+export const AXIS = {
+  n: '▲',
+  ns: '│',
+  y: '┤',
+  nse: '└',
+  x: '┬',
+  we: '─',
+  e: '▶',
 };
+
+export const CHART = {
+  we: '━',
+  wns: '┓',
+  ns: '┃',
+  nse: '┗',
+  wsn: '┛',
+  sne: '┏',
+};
+
+export const EMPTY = ' ';

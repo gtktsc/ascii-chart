@@ -1,4 +1,38 @@
-import { SingleLine, Point } from '../types';
+import { SingleLine, Point, MultiLine } from '../types';
+
+export const toArray = (number: number): string[] => number.toString().split('');
+
+export const toUnique = (array: number[]) => [...new Set(array)];
+
+export const distance = (x: number, y: number): number => Math.abs(Math.round(x) - Math.round(y));
+
+export const toArrays = (array: MultiLine): [number[], number[]] => {
+  const rangeX: number[] = [];
+  const rangeY: number[] = [];
+
+  array.flat().forEach(([x, y]) => {
+    rangeX.push(x);
+    rangeY.push(y);
+  });
+  return [toUnique(rangeX), toUnique(rangeY)];
+};
+
+export const toSorted = (array: SingleLine): SingleLine => {
+  return array.sort(([x1], [x2]) => {
+    if (x1 < x2) {
+      return -1;
+    }
+    if (x1 > x2) {
+      return 1;
+    }
+    return 0;
+  });
+};
+
+export const toPlot = (plotWidth: number, plotHeight: number) => (x: number, y: number) => [
+  Math.round((x / plotWidth) * plotWidth),
+  plotHeight - 1 - Math.round((y / plotHeight) * plotHeight),
+];
 
 export const getExtrema = (arr: SingleLine, type: 'max' | 'min' = 'max', position = 1) => {
   return arr.reduce(
@@ -7,11 +41,12 @@ export const getExtrema = (arr: SingleLine, type: 'max' | 'min' = 'max', positio
   );
 };
 
-export const getHighest = (arr: number[], type: 'max' | 'min' = 'max') => {
-  return arr.reduce(
-    (previous, curr) => Math[type](previous, curr),
-    type === 'max' ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-  );
+export const getMax = (arr: number[]) => {
+  return arr.reduce((previous, curr) => Math.max(previous, curr), Number.NEGATIVE_INFINITY);
+};
+
+export const getMin = (arr: number[]) => {
+  return arr.reduce((previous, curr) => Math.min(previous, curr), Number.POSITIVE_INFINITY);
 };
 
 type Get = (value: number) => number;
@@ -25,11 +60,6 @@ export const scaler = (
 
   return (domainValue) => rangeMin + (rangeLength * (domainValue - domainMin)) / domainLength;
 };
-
-export const toPlot = (plotWidth: number, plotHeight: number) => ([x, y]: Point) => [
-  Math.round((x / plotWidth) * plotWidth),
-  plotHeight - 1 - Math.round((y / plotHeight) * plotHeight),
-];
 
 export const getPlotCoords = (
   coordinates: SingleLine,

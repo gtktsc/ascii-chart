@@ -1,10 +1,18 @@
-import { getPlotCoords, getHighest } from './coords';
+import {
+  getPlotCoords,
+  toArrays,
+  getMax,
+  getMin,
+  toArray,
+  toPlot,
+  toSorted,
+  distance,
+} from './coords';
 import { getAnsiColor } from './settings';
-
 import {
   SingleLine, MultiLine, Plot, Color,
 } from '../types';
-import { stamps } from '../constants';
+import { AXIS, CHART, EMPTY } from '../constants';
 
 export const plot: Plot = (rawInput, { color, width, height } = {}) => {
   let graph = [['']];
@@ -14,23 +22,13 @@ export const plot: Plot = (rawInput, { color, width, height } = {}) => {
   }
 
   let scaledCoords = [[0, 0]];
-  let rangeX: number[] = [];
-  let rangeY: number[] = [];
 
-  input.forEach((series) => {
-    series.forEach(([x, y]) => {
-      rangeX.push(x);
-      rangeY.push(y);
-    });
-  });
+  const [rangeX, rangeY] = toArrays(input);
 
-  const minX = getHighest(rangeX, 'min');
-  const maxX = getHighest(rangeX, 'max');
-  const minY = getHighest(rangeY, 'min');
-  const maxY = getHighest(rangeY, 'max');
-
-  rangeX = [...new Set(rangeX)];
-  rangeY = [...new Set(rangeY)];
+  const minX = getMin(rangeX);
+  const maxX = getMax(rangeX);
+  const minY = getMin(rangeY);
+  const maxY = getMax(rangeY);
 
   // set default size
   const plotWidth = width || rangeX.length;
@@ -42,8 +40,9 @@ export const plot: Plot = (rawInput, { color, width, height } = {}) => {
     plotHeight = rangeY.length;
   }
 
+  const chart = { ...CHART };
+
   input.forEach((coords: SingleLine, series) => {
-    const symbols = JSON.parse(JSON.stringify(stamps));
     if (color) {
       let currentColor = '';
       if (Array.isArray(color)) {
@@ -52,86 +51,74 @@ export const plot: Plot = (rawInput, { color, width, height } = {}) => {
         currentColor = color;
       }
 
-      type ChartKeys = keyof typeof stamps.chart;
-
-      Object.entries(stamps.chart).forEach(([key, sign]) => {
-        symbols.chart[key as ChartKeys] = `${getAnsiColor(currentColor as Color)}${sign}\u001b[0m`;
+      Object.entries(CHART).forEach(([key, sign]) => {
+        chart[key as keyof typeof chart] = `${getAnsiColor(currentColor as Color)}${sign}\u001b[0m`;
       });
     }
 
     // sort input by the first value
-    coords.sort(([x1], [x2]) => {
-      if (x1 < x2) {
-        return -1;
-      }
-      if (x1 > x2) {
-        return 1;
-      }
-      return 0;
-    });
+    const sortedCoords = toSorted(coords);
 
     // create empty graph
     if (series === 0) {
-      const fillWidth = () => Array(plotWidth + 2).fill(symbols.empty);
+      const fillWidth = () => Array(plotWidth + 2).fill(EMPTY);
       graph = Array.from({ length: plotHeight + 2 }, fillWidth);
     }
 
-    scaledCoords = getPlotCoords(coords, plotWidth, plotHeight, [minX, maxX], [minY, maxY]).map(
-      ([x, y], index, arr) => {
-        const scaledX = Math.round((x / plotWidth) * plotWidth);
-        const scaledY = plotHeight - 1 - Math.round((y / plotHeight) * plotHeight);
-        // add axis stamps
+    scaledCoords = getPlotCoords(
+      sortedCoords,
+      plotWidth,
+      plotHeight,
+      [minX, maxX],
+      [minY, maxY],
+    ).map(([x, y], index, arr) => {
+      const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
 
-        graph[graph.length - 1][scaledX + 1] = symbols.axis.x;
-        graph[scaledY + 1][0] = symbols.axis.y;
+      // add axis stamps
+      graph[graph.length - 1][scaledX + 1] = AXIS.x;
+      graph[scaledY + 1][0] = AXIS.y;
 
-        if (index - 1 >= 0) {
-          const [prevX, prevY] = arr[index - 1];
-          const [currX, currY] = arr[index];
+      if (index - 1 >= 0) {
+        const [prevX, prevY] = arr[index - 1];
+        const [currX, currY] = arr[index];
 
-          if (Math.round(prevY) > Math.round(currY)) {
-            // increasing values
-            graph[scaledY + 1][scaledX] = symbols.chart.nse;
-            Array(Math.abs(Math.round(currY) - Math.round(prevY)))
-              .fill('')
-              .forEach((_, steps, array) => {
-                if (steps === array.length - 1) {
-                  graph[scaledY - steps][scaledX] = symbols.chart.wns;
-                } else {
-                  graph[scaledY - steps][scaledX] = symbols.chart.ns;
-                }
-              });
-          } else {
-            // decreasing values
-            Array(Math.abs(Math.round(currY) - Math.round(prevY)))
-              .fill('')
-              .forEach((_, steps) => {
-                graph[scaledY + steps + 2][scaledX] = symbols.chart.wsn;
-                graph[scaledY + steps + 1][scaledX] = symbols.chart.ns;
-              });
-
-            if (Math.round(prevY) < Math.round(currY)) {
-              graph[scaledY + 1][scaledX] = symbols.chart.sne;
-            } else if (Math.round(prevY) === Math.round(currY)) {
-              graph[scaledY + 1][scaledX] = symbols.chart.we;
+        Array(distance(currY, prevY))
+          .fill('')
+          .forEach((_, steps, array) => {
+            if (Math.round(prevY) > Math.round(currY)) {
+              graph[scaledY + 1][scaledX] = chart.nse;
+              if (steps === array.length - 1) {
+                graph[scaledY - steps][scaledX] = chart.wns;
+              } else {
+                graph[scaledY - steps][scaledX] = chart.ns;
+              }
+            } else {
+              graph[scaledY + steps + 2][scaledX] = chart.wsn;
+              graph[scaledY + steps + 1][scaledX] = chart.ns;
             }
-          }
-          const distanceX = Math.abs(Math.round(currX) - Math.round(prevX));
-          Array(distanceX ? distanceX - 1 : 0)
-            .fill('')
-            .forEach((_, steps) => {
-              const thisY = plotHeight - Math.round(prevY);
-              graph[thisY][Math.round(prevX) + steps + 1] = symbols.chart.we;
-            });
+          });
+
+        if (Math.round(prevY) < Math.round(currY)) {
+          graph[scaledY + 1][scaledX] = chart.sne;
+        } else if (Math.round(prevY) === Math.round(currY)) {
+          graph[scaledY + 1][scaledX] = chart.we;
         }
 
-        // plot the last coordinate
-        if (arr.length - 1 === index) {
-          graph[scaledY + 1][scaledX + 1] = symbols.chart.we;
-        }
-        return [scaledX, scaledY];
-      },
-    );
+        const distanceX = distance(currX, prevX);
+        Array(distanceX ? distanceX - 1 : 0)
+          .fill('')
+          .forEach((_, steps) => {
+            const thisY = plotHeight - Math.round(prevY);
+            graph[thisY][Math.round(prevX) + steps + 1] = chart.we;
+          });
+      }
+
+      // plot the last coordinate
+      if (arr.length - 1 === index) {
+        graph[scaledY + 1][scaledX + 1] = chart.we;
+      }
+      return [scaledX, scaledY];
+    });
   });
 
   // axis
@@ -140,21 +127,21 @@ export const plot: Plot = (rawInput, { color, width, height } = {}) => {
       let lineChar = '';
       if (curr === 0) {
         if (index === 0) {
-          lineChar = stamps.axis.n;
-        } else if (char === stamps.axis.y) {
+          lineChar = AXIS.n;
+        } else if (char === AXIS.y) {
           return;
         } else if (index === graph.length - 1) {
-          lineChar = stamps.axis.nse;
+          lineChar = AXIS.nse;
         } else {
-          lineChar = stamps.axis.ns;
+          lineChar = AXIS.ns;
         }
       } else if (index === graph.length - 1) {
         if (curr === line.length - 1) {
-          lineChar = stamps.axis.e;
-        } else if (char === stamps.axis.x) {
+          lineChar = AXIS.e;
+        } else if (char === AXIS.x) {
           return;
         } else {
-          lineChar = stamps.axis.we;
+          lineChar = AXIS.we;
         }
       }
       if (lineChar) {
@@ -164,11 +151,11 @@ export const plot: Plot = (rawInput, { color, width, height } = {}) => {
     });
   });
 
-  const xShift = maxX.toString().split('').length;
-  const yShift = maxY.toString().split('').length;
+  const xShift = toArray(maxX).length;
+  const yShift = toArray(maxY).length;
   // shift graph
-  graph.unshift(Array(plotWidth + 2).fill(stamps.empty)); // top
-  graph.push(Array(plotWidth + 2).fill(stamps.empty)); // bottom
+  graph.unshift(Array(plotWidth + 2).fill(EMPTY)); // top
+  graph.push(Array(plotWidth + 2).fill(EMPTY)); // bottom
 
   // check step
   let step = plotWidth;
@@ -181,10 +168,10 @@ export const plot: Plot = (rawInput, { color, width, height } = {}) => {
 
   // x coords overlap
   const hasToBeMoved = step < xShift;
-  if (hasToBeMoved) graph.push(Array(plotWidth + 1).fill(stamps.empty));
+  if (hasToBeMoved) graph.push(Array(plotWidth + 1).fill(EMPTY));
   graph.forEach((line) => {
     for (let i = 0; i <= yShift; i += 1) {
-      line.unshift(stamps.empty); // left
+      line.unshift(EMPTY); // left
     }
   });
 
@@ -193,15 +180,15 @@ export const plot: Plot = (rawInput, { color, width, height } = {}) => {
     const coord = getPlotCoords(current, plotWidth, plotHeight, [minX, maxX], [minY, maxY]);
     current.forEach(([pointX, pointY], index) => {
       const [x, y] = coord[index];
-      const scaledY = plotHeight - 1 - Math.round((y / plotHeight) * plotHeight);
-      const scaledX = Math.round((x / plotWidth) * plotWidth);
 
-      const pointYShift = pointY.toString().split('');
+      const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
+
+      const pointYShift = toArray(pointY);
 
       for (let i = 0; i < pointYShift.length; i += 1) {
         graph[scaledY + 2][yShift - i] = pointYShift[pointYShift.length - 1 - i];
       }
-      const pointXShift = pointX.toString().split('');
+      const pointXShift = toArray(pointX);
       for (let i = 0; i < pointXShift.length; i += 1) {
         const yPos = index % 2 && hasToBeMoved ? graph.length - 2 : graph.length - 1;
 
