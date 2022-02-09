@@ -83,7 +83,7 @@ export const plot: Plot = (rawInput, {
           [minY, maxY],
         );
         const [plotCenterX, plotCenterY] = toPlot(plotWidth, plotHeight)(centerX, centerY);
-        graph[plotCenterY + 1][scaledX + 1] = AXIS.x;
+        graph[plotCenterY + 1][scaledX] = AXIS.x;
         graph[scaledY + 1][plotCenterX + 1] = AXIS.y;
       } else {
         graph[graph.length - 1][scaledX + 1] = AXIS.x;
@@ -172,8 +172,6 @@ export const plot: Plot = (rawInput, {
             lineChar = AXIS.n;
           } else if (char === AXIS.y) {
             return;
-          } else if (index === graph.length - 1) {
-            lineChar = AXIS.nse;
           } else {
             lineChar = AXIS.ns;
           }
@@ -259,7 +257,7 @@ export const plot: Plot = (rawInput, {
           const [plotCenterX, plotCenterY] = toPlot(plotWidth, plotHeight)(centerX, centerY);
           const yPos = index % 2 && hasToBeMoved ? plotCenterY + 4 : plotCenterY + 3;
 
-          graph[yPos][scaledX + yShift - i + 2] = pointXShift[pointXShift.length - 1 - i];
+          graph[yPos][scaledX + yShift - i + 1] = pointXShift[pointXShift.length - 1 - i];
         } else {
           const yPos = index % 2 && hasToBeMoved ? graph.length - 2 : graph.length - 1;
 

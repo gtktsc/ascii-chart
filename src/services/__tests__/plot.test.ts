@@ -1,6 +1,6 @@
 import { plot } from '../plot';
 
-import { Coordinates } from '../../types';
+import { Coordinates, Point } from '../../types';
 
 describe('plot', () => {
   const mockedData: Coordinates = [
@@ -302,6 +302,52 @@ describe('plot', () => {
     1  2 3  4  5  6 7  8 
 `,
     ],
+
+    [
+      'draws two complicated graphs with moved axis',
+      [
+        [
+          [-8, -8],
+          [-4, -4],
+          [-3, -3],
+          [-2, -2],
+          [-1, -1],
+          [0, 0],
+          [2, 2],
+          [3, 3],
+          [4, 4],
+          [8, 8],
+        ],
+      ] as Coordinates,
+      { width: 60, height: 20, axisCenter: [0, 0] as Point },
+      `
+                                                                
+                                 ▲                              
+                                8┤                           ┏━ 
+                                 │                           ┃  
+                                 │                           ┃  
+                                 │                           ┃  
+                                 │                           ┃  
+                                4┤            ┏━━━━━━━━━━━━━━┛  
+                                3┤         ┏━━┛                 
+                                2┤     ┏━━━┛                    
+                                 │     ┃                        
+  ┬──────────────┬──┬───┬───┬───0│─────────┬──┬──────────────┬─▶
+ -8             -4 -3  -2  -1   0│     2   3  4              8  
+                            ┏━━-1┤                              
+                        ┏━━━┛  -2┤                              
+                    ┏━━━┛      -3┤                              
+                 ┏━━┛          -4┤                              
+                 ┃               │                              
+                 ┃               │                              
+                 ┃               │                              
+                 ┃               │                              
+   ━━━━━━━━━━━━━━┛             -8┤                              
+                                 │                              
+                                                                
+`,
+    ],
+
     [
       'draws two complicated graphs',
       [
