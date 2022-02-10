@@ -1,6 +1,6 @@
 import { plot } from '../plot';
 
-import { Coordinates, Settings } from '../../types';
+import { Coordinates, LineFormatterArgs, Settings } from '../../types';
 
 describe('plot', () => {
   const mockedData = [
@@ -71,6 +71,92 @@ describe('plot', () => {
       └┬───┬───┬──┬───┬───┬▶
        0.002  0.004   0.006 
    0.001   0.003  0.005    
+`,
+    ],
+    [
+      'custom line formatter for a single field',
+      [
+        [1, 0],
+        [2, 20],
+        [3, 29],
+        [4, 10],
+        [5, 3],
+        [6, 40],
+        [7, 0],
+        [8, 20],
+      ],
+      {
+        height: 10,
+        width: 30,
+        lineFormatter: ({
+          y, plotX, plotY, input, index,
+        }: LineFormatterArgs) => {
+          const output = [{ x: plotX, y: plotY, symbol: '█' }];
+
+          if (input[index - 1]?.[1] < y) {
+            return [...output, { x: plotX, y: plotY - 1, symbol: '▲' }];
+          }
+
+          return [...output, { x: plotX, y: plotY + 1, symbol: '▼' }];
+        },
+      },
+      `
+                                   
+   ▲                     ▲         
+ 40┤                     █         
+   │        ▲                      
+ 29┤        █                      
+   │    ▲                        ▲ 
+ 20┤    █                        █ 
+   │                               
+   │                               
+ 10┤            █                  
+  3┤            ▼    █             
+  0┤█                ▼       █     
+   └┬───┬───┬───┬────┬───┬───┬───┬▶
+    1   2   3   4    5   6   7   8 
+`,
+    ],
+
+    [
+      'custom line formatter for a single field',
+      [
+        [1, 0],
+        [2, 20],
+        [3, 29],
+        [4, 10],
+        [5, 3],
+        [6, 40],
+        [7, 0],
+        [8, 20],
+      ],
+      {
+        height: 10,
+        width: 30,
+        lineFormatter: ({
+          y, plotX, plotY, input, index,
+        }: LineFormatterArgs) => {
+          if (input[index - 1]?.[1] < y) {
+            return { x: plotX, y: plotY, symbol: '+' };
+          }
+          return { x: plotX, y: plotY - 1, symbol: '-' };
+        },
+      },
+      `
+                                   
+   ▲                               
+ 40┤                     +         
+   │                               
+ 29┤        +                      
+   │                               
+ 20┤    +                        + 
+   │                               
+   │            -                  
+ 10┤                 -             
+  3┤-                        -     
+  0┤                               
+   └┬───┬───┬───┬────┬───┬───┬───┬▶
+    1   2   3   4    5   6   7   8 
 `,
     ],
     [

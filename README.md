@@ -116,6 +116,36 @@ Default formatter is:
 Number(number.toFixed(3));
 ```
 
+## lineFormatter
+
+Transforms line, allows to format graph style. Callback takes arguments:
+
+```
+LineFormatterArgs = {
+  x: number;
+  y: number;
+  plotX: number;
+  plotY: number;
+  input: SingleLine;
+  index: number;
+};
+```
+
+`plotX` and `plotY` is coordinate of a point scaled to the plot. Callback has to return:
+
+```
+CustomSymbol = { x: number; y: number; symbol: string };
+```
+
+where `x` and `y` is also plot coordinate, `symbol` is char to be displayed. If an array is returned, more points can be placed on the graph.
+
+```
+
+lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
+```
+
+Check examples section for real world usage.
+
 ## hideXAxis
 
 Hide X axis:
@@ -167,6 +197,7 @@ Settings = {
   height?: number;
   axisCenter?: [number, number];
   formatter?: (number:number) => number;
+  lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
   hideXAxis?: boolean;
   hideYAxis?: boolean;
   symbols?: {
@@ -444,4 +475,46 @@ plot(
                   ┃    ┃ ┃ ┃              ┗━
                   ┃    ┃ ┗━┛
                   ┗━━━━┛
+```
+
+```
+  plot(
+    [
+      [1, 0],
+      [2, 20],
+      [3, 29],
+      [4, 10],
+      [5, 3],
+      [6, 40],
+      [7, 0],
+      [8, 20],
+    ],
+    {
+      height: 10,
+      width: 30,
+      lineFormatter: ({ y, plotX, plotY, input, index }) => {
+        const output = [{ x: plotX, y: plotY, symbol: '█' }];
+
+        if (input[index - 1]?.[1] < y) {
+          return [...output, { x: plotX, y: plotY - 1, symbol: '▲' }];
+        }
+
+        return [...output, { x: plotX, y: plotY + 1, symbol: '▼' }];
+      },
+    },
+  )
+
+   ▲                     ▲
+ 40┤                     █
+   │        ▲
+ 29┤        █
+   │    ▲                        ▲
+ 20┤    █                        █
+   │
+   │
+ 10┤            █
+  3┤            ▼    █
+  0┤█                ▼       █
+   └┬───┬───┬───┬────┬───┬───┬───┬▶
+    1   2   3   4    5   6   7   8
 ```

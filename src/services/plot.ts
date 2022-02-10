@@ -11,13 +11,23 @@ import {
   getAxisCenter,
 } from './coords';
 import { getChartSymbols } from './settings';
-import { SingleLine, MultiLine, Plot } from '../types';
+import {
+  SingleLine, MultiLine, Plot, CustomSymbol,
+} from '../types';
 import { AXIS, EMPTY } from '../constants';
 
 export const plot: Plot = (
   rawInput,
   {
-    color, width, height, axisCenter, formatter, symbols, hideXAxis, hideYAxis,
+    color,
+    width,
+    height,
+    axisCenter,
+    formatter,
+    lineFormatter,
+    symbols,
+    hideXAxis,
+    hideYAxis,
   } = {},
 ) => {
   let input = rawInput as MultiLine;
@@ -75,45 +85,66 @@ export const plot: Plot = (
       ([x, y], index, arr) => {
         const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
 
-        if (index - 1 >= 0) {
-          const [prevX, prevY] = arr[index - 1];
-          const [currX, currY] = arr[index];
+        if (!lineFormatter) {
+          if (index - 1 >= 0) {
+            const [prevX, prevY] = arr[index - 1];
+            const [currX, currY] = arr[index];
 
-          Array(distance(currY, prevY))
-            .fill('')
-            .forEach((_, steps, array) => {
-              if (Math.round(prevY) > Math.round(currY)) {
-                graph[scaledY + 1][scaledX] = chartSymbols.nse;
-                if (steps === array.length - 1) {
-                  graph[scaledY - steps][scaledX] = chartSymbols.wns;
+            Array(distance(currY, prevY))
+              .fill('')
+              .forEach((_, steps, array) => {
+                if (Math.round(prevY) > Math.round(currY)) {
+                  graph[scaledY + 1][scaledX] = chartSymbols.nse;
+                  if (steps === array.length - 1) {
+                    graph[scaledY - steps][scaledX] = chartSymbols.wns;
+                  } else {
+                    graph[scaledY - steps][scaledX] = chartSymbols.ns;
+                  }
                 } else {
-                  graph[scaledY - steps][scaledX] = chartSymbols.ns;
+                  graph[scaledY + steps + 2][scaledX] = chartSymbols.wsn;
+                  graph[scaledY + steps + 1][scaledX] = chartSymbols.ns;
                 }
-              } else {
-                graph[scaledY + steps + 2][scaledX] = chartSymbols.wsn;
-                graph[scaledY + steps + 1][scaledX] = chartSymbols.ns;
-              }
-            });
+              });
 
-          if (Math.round(prevY) < Math.round(currY)) {
-            graph[scaledY + 1][scaledX] = chartSymbols.sne;
-          } else if (Math.round(prevY) === Math.round(currY)) {
-            graph[scaledY + 1][scaledX] = chartSymbols.we;
+            if (Math.round(prevY) < Math.round(currY)) {
+              graph[scaledY + 1][scaledX] = chartSymbols.sne;
+            } else if (Math.round(prevY) === Math.round(currY)) {
+              graph[scaledY + 1][scaledX] = chartSymbols.we;
+            }
+
+            const distanceX = distance(currX, prevX);
+            Array(distanceX ? distanceX - 1 : 0)
+              .fill('')
+              .forEach((_, steps) => {
+                const thisY = plotHeight - Math.round(prevY);
+                graph[thisY][Math.round(prevX) + steps + 1] = chartSymbols.we;
+              });
           }
 
-          const distanceX = distance(currX, prevX);
-          Array(distanceX ? distanceX - 1 : 0)
-            .fill('')
-            .forEach((_, steps) => {
-              const thisY = plotHeight - Math.round(prevY);
-              graph[thisY][Math.round(prevX) + steps + 1] = chartSymbols.we;
+          // plot the last coordinate
+          if (arr.length - 1 === index) {
+            graph[scaledY + 1][scaledX + 1] = chartSymbols.we;
+          }
+        } else {
+          // custom line formatter
+          const lineFormatterArgs = {
+            x: sortedCoords[index][0],
+            y: sortedCoords[index][1],
+            plotX: scaledX + 1,
+            plotY: scaledY + 1,
+            index,
+            input: input[0],
+          };
+          const customSymbols = lineFormatter(lineFormatterArgs);
+          if (Array.isArray(customSymbols)) {
+            customSymbols.forEach(({ x: symbolX, y: symbolY, symbol }: CustomSymbol) => {
+              graph[symbolY][symbolX] = symbol;
             });
+          } else {
+            graph[customSymbols.y][customSymbols.x] = customSymbols.symbol;
+          }
         }
 
-        // plot the last coordinate
-        if (arr.length - 1 === index) {
-          graph[scaledY + 1][scaledX + 1] = chartSymbols.we;
-        }
         return [scaledX, scaledY];
       },
     );

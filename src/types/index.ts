@@ -16,6 +16,17 @@ export type Color = `ansi${
   | 'Cyan'
   | 'White'}`;
 
+export type LineFormatterArgs = {
+  x: number;
+  y: number;
+  plotX: number;
+  plotY: number;
+  input: SingleLine;
+  index: number;
+};
+
+export type CustomSymbol = { x: number; y: number; symbol: string };
+
 export type Settings = {
   color?: Color | Color[];
   width?: number;
@@ -24,6 +35,7 @@ export type Settings = {
   hideYAxis?: boolean;
   axisCenter?: Point;
   formatter?: (number: number) => number;
+  lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
   symbols?: { axis?: typeof AXIS; chart?: typeof CHART; empty?: string };
 };
 
