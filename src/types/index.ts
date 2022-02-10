@@ -19,6 +19,7 @@ export type Settings = {
   width?: number;
   height?: number;
   axisCenter?: Point;
+  formatter?: (number: number) => number;
 };
 
 export type Plot = (coordinates: Coordinates, settings?: Settings) => string;

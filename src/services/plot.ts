@@ -15,12 +15,18 @@ import { SingleLine, MultiLine, Plot } from '../types';
 import { AXIS, EMPTY } from '../constants';
 
 export const plot: Plot = (rawInput, {
-  color, width, height, axisCenter,
+  color, width, height, axisCenter, formatter,
 } = {}) => {
   let input = rawInput as MultiLine;
   if (typeof input[0][0] === 'number') {
     input = [rawInput] as MultiLine;
   }
+  const transformValue = (number: number) => {
+    if (formatter) {
+      return formatter(number);
+    }
+    return Number(number.toFixed(3));
+  };
 
   let scaledCoords = [[0, 0]];
 
@@ -173,14 +179,12 @@ export const plot: Plot = (rawInput, {
       const [x, y] = coord[index];
 
       const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
-
-      const pointYShift = toArray(pointY);
-
+      const pointYShift = toArray(transformValue(pointY));
       for (let i = 0; i < pointYShift.length; i += 1) {
         graph[scaledY + 2][axis.x + yShift - i] = pointYShift[pointYShift.length - 1 - i];
       }
 
-      const pointXShift = toArray(pointX);
+      const pointXShift = toArray(transformValue(pointX));
       for (let i = 0; i < pointXShift.length; i += 1) {
         let yPos = index % 2 && hasToBeMoved ? graph.length - 2 : graph.length - 1;
 

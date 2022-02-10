@@ -32,6 +32,8 @@ Settings = {
   color?: Color;
   width?: number;
   height?: number;
+  axisCenter?: [number, number];
+  formatter?: (number:number) => number;
 };
 
 Plot = (input: Input, settings?: Settings) => string;
