@@ -17,7 +17,7 @@ import { AXIS, EMPTY } from '../constants';
 export const plot: Plot = (
   rawInput,
   {
-    color, width, height, axisCenter, formatter, symbols,
+    color, width, height, axisCenter, formatter, symbols, hideXAxis, hideYAxis,
   } = {},
 ) => {
   let input = rawInput as MultiLine;
@@ -124,17 +124,17 @@ export const plot: Plot = (
     line.forEach((char, curr) => {
       let lineChar = '';
 
-      if (curr === axis.x) {
+      if (curr === axis.x && !hideYAxis) {
         if (index === 0) {
           lineChar = axisSymbols.n;
         } else if (char === axisSymbols.y) {
           return;
-        } else if (index === graph.length - 1 && !axisCenter) {
+        } else if (index === graph.length - 1 && !axisCenter && !(hideYAxis || hideXAxis)) {
           lineChar = axisSymbols.nse;
         } else {
           lineChar = axisSymbols.ns;
         }
-      } else if (index === axis.y) {
+      } else if (index === axis.y && !hideXAxis) {
         if (curr === line.length - 1) {
           lineChar = axisSymbols.e;
         } else if (char === axisSymbols.x) {
@@ -183,31 +183,33 @@ export const plot: Plot = (
       const [x, y] = coord[index];
 
       const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
-      // add axis stamps
-
-      const pointYShift = toArray(transformLabel(pointY));
-      for (let i = 0; i < pointYShift.length; i += 1) {
-        graph[scaledY + 2][axis.x + yShift - i] = pointYShift[pointYShift.length - 1 - i];
+      if (!hideYAxis) {
+        const pointYShift = toArray(transformLabel(pointY));
+        for (let i = 0; i < pointYShift.length; i += 1) {
+          graph[scaledY + 2][axis.x + yShift - i] = pointYShift[pointYShift.length - 1 - i];
+        }
+        graph[scaledY + 2][axis.x + yShift + 1] = axisSymbols.y;
       }
-      graph[scaledY + 2][axis.x + yShift + 1] = axisSymbols.y;
 
-      const pointXShift = toArray(transformLabel(pointX));
-      let yPos = graph.length - 1;
-      const shift = axisCenter ? -1 : 0;
-      for (let i = 0; i < pointXShift.length; i += 1) {
-        let overflowShift = index % 2 && hasToBeMoved ? -1 : 0;
-        let signShift = -1;
-        if (hasToBeMoved) {
-          signShift = -2;
+      if (!hideXAxis) {
+        const pointXShift = toArray(transformLabel(pointX));
+        let yPos = graph.length - 1;
+        const shift = axisCenter ? -1 : 0;
+        for (let i = 0; i < pointXShift.length; i += 1) {
+          let overflowShift = index % 2 && hasToBeMoved ? -1 : 0;
+          let signShift = -1;
+          if (hasToBeMoved) {
+            signShift = -2;
+          }
+          if (axisCenter) {
+            overflowShift = index % 2 && hasToBeMoved ? 1 : 0;
+            yPos = axis.y + 2;
+          }
+          const graphY = yPos + overflowShift;
+          const graphX = scaledX + yShift - i + 2 + shift;
+          graph[graphY][graphX] = pointXShift[pointXShift.length - 1 - i];
+          graph[yPos + signShift][scaledX + yShift + 2 + shift] = axisSymbols.x;
         }
-        if (axisCenter) {
-          overflowShift = index % 2 && hasToBeMoved ? 1 : 0;
-          yPos = axis.y + 2;
-        }
-        const graphY = yPos + overflowShift;
-        const graphX = scaledX + yShift - i + 2 + shift;
-        graph[graphY][graphX] = pointXShift[pointXShift.length - 1 - i];
-        graph[yPos + signShift][scaledX + yShift + 2 + shift] = axisSymbols.x;
       }
     });
   });

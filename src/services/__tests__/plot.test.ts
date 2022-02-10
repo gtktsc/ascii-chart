@@ -247,6 +247,39 @@ describe('plot', () => {
 `,
     ],
     [
+      'hide axis',
+      [
+        [-5, 2],
+        [2, -3],
+        [13, 0.1],
+        [4, 2],
+        [5, -2],
+        [6, 12],
+      ] as Coordinates,
+      {
+        width: 40,
+        height: 10,
+        hideYAxis: true,
+        hideXAxis: true,
+      },
+      `
+                                             
+                                             
+                           ┏━━━━━━━━━━━━━━┓  
+                           ┃              ┃  
+                           ┃              ┃  
+                           ┃              ┃  
+                           ┃              ┃  
+                           ┃              ┃  
+    ━━━━━━━━━━━━━━┓    ┏━┓ ┃              ┃  
+                  ┃    ┃ ┃ ┃              ┗━ 
+                  ┃    ┃ ┗━┛                 
+                  ┗━━━━┛                     
+                                             
+                                             
+`,
+    ],
+    [
       'draws one value in y axis',
       [
         [0, 2],

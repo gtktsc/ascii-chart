@@ -20,6 +20,8 @@ export type Settings = {
   color?: Color | Color[];
   width?: number;
   height?: number;
+  hideXAxis?: boolean;
+  hideYAxis?: boolean;
   axisCenter?: Point;
   formatter?: (number: number) => number;
   symbols?: { axis?: typeof AXIS; chart?: typeof CHART; empty?: string };
