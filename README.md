@@ -13,6 +13,24 @@ import plot from 'simple-ascii-plot'
 const graph = plot(input, settings);
 ```
 
+or
+
+create a graph in [playground](https://simple-ascii-chart.vercel.app/)
+
+or
+
+hit the endpoint:
+
+```
+curl -d input='[[1,2],[2,3],[3,4]]' -G https://simple-ascii-chart.vercel.app/api
+```
+
+or
+
+```
+https://simple-ascii-chart.vercel.app/api?input=[[1,2],[2,3],[3,4]]&settings={%22width%22:50}
+```
+
 # Input
 
 Input has to be a two dimensional array or array of arrays for series:
