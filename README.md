@@ -13,12 +13,55 @@ import plot from 'simple-ascii-plot'
 const graph = plot(input, settings);
 ```
 
-Where:
+# Input
+
+Input has to be a two dimensional array or array of arrays for series:
 
 ```
-Input = [x: number, y: number][];
+Point = [x: number, y: number];
+SingleLine = Point[];
+MultiLine = SingleLine[];
 
-Color =
+Input = SingleLine | MultiLine;
+```
+
+Therefore input for a single series is:
+
+```
+const input = [
+    [1, 1],
+    [2, 4],
+    [3, 40],
+  ]
+```
+
+Or for multi-series:
+
+```
+const input = [
+    [
+      [0, 18],
+      [1, 1],
+      [2, 3],
+    ],
+    [
+      [4, 1],
+      [5, 0],
+      [6, 1],
+    ],
+  ],
+```
+
+# Settings
+
+Plot can be adjusted with a second parameter `settings`.
+
+## color
+
+Changes graph color. Possible values are:
+
+```
+color?:
   | 'ansiRed'
   | 'ansiGreen'
   | 'ansiBlack'
@@ -27,16 +70,126 @@ Color =
   | 'ansiMagenta'
   | 'ansiCyan'
   | 'ansiWhite'
+```
 
+Can be used to distinguish series like:
+
+```
+color: ['ansiGreen', 'ansiRed']
+```
+
+## width
+
+Changes default width of the graph, can be used to scale up/down values:
+
+```
+width?: number
+```
+
+## height
+
+Changes default height of the graph, can be used to scale up/down values:
+
+```
+height?: number
+```
+
+## axisCenter
+
+Changes center of the axis, by default it's placed in the bottom-left:
+
+```
+axisCenter?: [x:number, y:number]
+```
+
+## formatter
+
+Transforms axis label:
+
+```
+formatter?: (number:number) => number;
+```
+
+Default formatter is:
+
+```
+Number(number.toFixed(3));
+```
+
+## hideXAxis
+
+Hide X axis:
+
+```
+hideXAxis? boolean;
+```
+
+## hideYAxis
+
+Hide Y axis:
+
+```
+hideYAxis? boolean;
+```
+
+## symbols
+
+Overrides default symbols. Three independent sections are: `empty` - background, `axis` - symbols used to draw axis, `chart` - symbols used to draw graph.
+
+```
+symbols: {
+  empty: ' ',
+  axis: {
+    n: '▲',
+    ns: '│',
+    y: '┤',
+    nse: '└',
+    x: '┬',
+    we: '─',
+    e: '▶',
+  },
+  chart: {
+    we: '━',
+    wns: '┓',
+    ns: '┃',
+    nse: '┗',
+    wsn: '┛',
+    sne: '┏',
+    }
+```
+
+## Summary
+
+```
 Settings = {
-  color?: Color;
+  color?: Color | Color[];
   width?: number;
   height?: number;
   axisCenter?: [number, number];
   formatter?: (number:number) => number;
+  hideXAxis?: boolean;
+  hideYAxis?: boolean;
+  symbols?: {
+    empty?: ' ',
+    axis?: {
+      n: '▲',
+      ns: '│',
+      y: '┤',
+      nse: '└',
+      x: '┬',
+      we: '─',
+      e: '▶',
+    },
+    chart?: {
+      we: '━',
+      wns: '┓',
+      ns: '┃',
+      nse: '┗',
+      wsn: '┛',
+      sne: '┏',
+      }
+    }
 };
-
-Plot = (input: Input, settings?: Settings) => string;
 ```
 
 # Examples
