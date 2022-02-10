@@ -1,3 +1,4 @@
+import { SingleLine } from '../../types';
 import { scaler, getExtrema, getPlotCoords } from '../coords';
 
 describe('getPlotCoords', () => {
@@ -45,7 +46,7 @@ describe('getPlotCoords', () => {
     ],
   ])('', (variant, coords, width, height, output) => {
     it(variant, () => {
-      expect(getPlotCoords(coords as any, width, height)).toStrictEqual(output);
+      expect(getPlotCoords(coords as SingleLine, width, height)).toStrictEqual(output);
     });
   });
 });
@@ -62,7 +63,7 @@ describe('scaler', () => {
     ['picks fractional range', [0, 1], [0, 3], 0.5, 1.5],
   ])('', (variant, domain, range, input, output) => {
     it(variant, () => {
-      expect(scaler(domain as any, range as any)(input)).toBe(output);
+      expect(scaler(domain as number[], range as number[])(input)).toBe(output);
     });
   });
 });
@@ -131,7 +132,7 @@ describe('getExtrema', () => {
     ],
   ])('', (variant, arr, type, position, output) => {
     it(variant, () => {
-      expect(getExtrema(arr as any, type as 'min' | 'max', position)).toBe(output);
+      expect(getExtrema(arr as SingleLine, type as 'min' | 'max', position)).toBe(output);
     });
   });
 });

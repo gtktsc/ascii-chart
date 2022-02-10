@@ -1,9 +1,9 @@
 import { plot } from '../plot';
 
-import { Coordinates, Point } from '../../types';
+import { Coordinates, Settings } from '../../types';
 
 describe('plot', () => {
-  const mockedData: Coordinates = [
+  const mockedData = [
     [1, 1],
     [2, 2],
   ];
@@ -17,7 +17,40 @@ describe('plot', () => {
         [0.004, -0.001],
         [0.005, 0.004],
         [0.006, 0.014],
-      ] as Coordinates,
+      ],
+      {
+        width: 20,
+        height: 10,
+        formatter: (n: number) => Number(n.toFixed(0)),
+      },
+      `
+                            
+      ▲                     
+     0┤                  ┏━ 
+      │                  ┃  
+      │                  ┃  
+      │                  ┃  
+      │                  ┃  
+      │                  ┃  
+     0┤   ┏━━━┓      ┏━━━┛  
+     0┤   ┃   ┗━━┓   ┃      
+     0┤━━━┛      ┃   ┃      
+     0┤          ┗━━━┛      
+      └┬───┬───┬──┬───┬───┬▶
+           0      0       0 
+       0       0      0    
+`,
+    ],
+    [
+      'generates output y axis shift',
+      [
+        [0.001, 0.001],
+        [0.002, 0.004],
+        [0.003, 0.002],
+        [0.004, -0.001],
+        [0.005, 0.004],
+        [0.006, 0.014],
+      ],
       {
         width: 20,
         height: 10,
@@ -47,7 +80,7 @@ describe('plot', () => {
         [-5, -5],
         [2, 3],
         [20, 4],
-      ] as Coordinates,
+      ],
       { width: 20, height: 4 },
       `
                          
@@ -65,7 +98,7 @@ describe('plot', () => {
       [
         [1, 5],
         [3, 0],
-      ] as Coordinates,
+      ],
       { width: undefined, height: undefined },
       `
       
@@ -85,7 +118,7 @@ describe('plot', () => {
       [
         [3, 0],
         [1, 5],
-      ] as Coordinates,
+      ],
       { width: undefined, height: undefined },
       `
       
@@ -105,7 +138,7 @@ describe('plot', () => {
       [
         [1, 1000],
         [3, 2000],
-      ] as Coordinates,
+      ],
       { width: 2, height: 2 },
       `
          
@@ -135,7 +168,7 @@ describe('plot', () => {
         [1, 1],
         [2, 2],
         [3, 2],
-      ] as Coordinates,
+      ],
       { width: 3, height: 3 },
       `
        
@@ -182,7 +215,7 @@ describe('plot', () => {
         [2, 2],
         [3, 3],
         [4, 4],
-      ] as Coordinates,
+      ],
       { width: 4, height: 4 },
       `
         
@@ -204,7 +237,7 @@ describe('plot', () => {
         [4, 2],
         [5, -2],
         [6, 3],
-      ] as Coordinates,
+      ],
       {
         symbols: {
           empty: '-',
@@ -255,7 +288,7 @@ describe('plot', () => {
         [4, 2],
         [5, -2],
         [6, 12],
-      ] as Coordinates,
+      ],
       {
         width: 40,
         height: 10,
@@ -284,7 +317,7 @@ describe('plot', () => {
       [
         [0, 2],
         [1, 2],
-      ] as Coordinates,
+      ],
       { width: undefined, height: undefined },
       `
       
@@ -301,7 +334,7 @@ describe('plot', () => {
         [2, 4],
         [3, 4],
         [4, 1],
-      ] as Coordinates,
+      ],
       { width: 20, height: 8 },
       `
                         
@@ -333,7 +366,7 @@ describe('plot', () => {
           [3, 2],
           [4, 1],
         ],
-      ] as Coordinates,
+      ],
       { width: 4, height: 4 },
       `
         
@@ -369,7 +402,7 @@ describe('plot', () => {
           [7, -2],
           [8, -4],
         ],
-      ] as Coordinates,
+      ],
       { width: 20, height: 8 },
       `
                          
@@ -402,8 +435,8 @@ describe('plot', () => {
           [4, 4],
           [8, 8],
         ],
-      ] as Coordinates,
-      { width: 40, height: 20, axisCenter: [0, 0] as Point },
+      ],
+      { width: 40, height: 20, axisCenter: [0, 0] },
       `
                                             
                       ▲                     
@@ -452,7 +485,7 @@ describe('plot', () => {
           [4, 1],
           [5, 1],
         ],
-      ] as Coordinates,
+      ],
       { width: 20, height: 8 },
       `
                          
@@ -471,7 +504,7 @@ describe('plot', () => {
     ],
   ])('', (variant, data, settings, output) => {
     it(variant, () => {
-      expect(plot(data, settings)).toBe(output);
+      expect(plot(data as Coordinates, settings as Settings)).toBe(output);
     });
   });
 });
