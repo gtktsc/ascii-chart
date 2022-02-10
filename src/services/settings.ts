@@ -1,3 +1,4 @@
+import { CHART } from '../constants';
 import { Color } from '../types';
 
 export const getAnsiColor = (color: Color): string => {
@@ -20,4 +21,21 @@ export const getAnsiColor = (color: Color): string => {
     default:
       return '\u001b[37m';
   }
+};
+
+export const getChartSymbols = (color: Color | Color[] | undefined, series: number) => {
+  const chart = { ...CHART };
+  if (color) {
+    let currentColor = '';
+    if (Array.isArray(color)) {
+      currentColor = color[series];
+    } else {
+      currentColor = color;
+    }
+
+    Object.entries(CHART).forEach(([key, sign]) => {
+      chart[key as keyof typeof chart] = `${getAnsiColor(currentColor as Color)}${sign}\u001b[0m`;
+    });
+  }
+  return chart;
 };

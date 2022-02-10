@@ -54,10 +54,7 @@ export const getMin = (arr: number[]) => {
 
 type Get = (value: number) => number;
 
-export const scaler = (
-  [domainMin, domainMax]: [number, number],
-  [rangeMin, rangeMax]: [number, number],
-): Get => {
+export const scaler = ([domainMin, domainMax]: number[], [rangeMin, rangeMax]: number[]): Get => {
   const domainLength = Math.sqrt(Math.abs((domainMax - domainMin) ** 2)) || 1;
   const rangeLength = Math.sqrt((rangeMax - rangeMin) ** 2);
 
@@ -68,8 +65,8 @@ export const toCoordinates = (
   point: Point,
   plotWidth: number,
   plotHeight: number,
-  rangeX: [number, number],
-  rangeY: [number, number],
+  rangeX: number[],
+  rangeY: number[],
 ): Point => {
   const getXCoord = scaler(rangeX, [0, plotWidth - 1]);
   const getYCoord = scaler(rangeY, [0, plotHeight - 1]);
@@ -83,8 +80,8 @@ export const getPlotCoords = (
   coordinates: SingleLine,
   plotWidth: number,
   plotHeight: number,
-  rangeX?: [number, number],
-  rangeY?: [number, number],
+  rangeX?: number[],
+  rangeY?: number[],
 ): SingleLine => {
   const getXCoord = scaler(
     rangeX || [getExtrema(coordinates, 'min', 0), getExtrema(coordinates, 'max', 0)],
@@ -98,4 +95,24 @@ export const getPlotCoords = (
   const toScale = ([x, y]: Point): Point => [getXCoord(x), getYCoord(y)];
 
   return coordinates.map(toScale);
+};
+
+export const getAxisCenter = (
+  axisCenter: Point | void,
+  plotWidth: number,
+  plotHeight: number,
+  rangeX: number[],
+  rangeY: number[],
+  initialValue: number[],
+) => {
+  const axis = { x: initialValue[0], y: initialValue[1] };
+  // calculate axis position
+  if (axisCenter) {
+    const [centerX, centerY] = toCoordinates(axisCenter, plotWidth, plotHeight, rangeX, rangeY);
+    const [plotCenterX, plotCenterY] = toPlot(plotWidth, plotHeight)(centerX, centerY);
+    axis.x = plotCenterX;
+    axis.y = plotCenterY + 1;
+  }
+
+  return axis;
 };
