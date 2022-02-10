@@ -9,11 +9,13 @@ export const toUnique = (array: number[]) => [...new Set(array)];
 
 export const distance = (x: number, y: number): number => Math.abs(Math.round(x) - Math.round(y));
 
+export const toFlat = (array: MultiLine) => ([] as Point[]).concat(...array);
+
 export const toArrays = (array: MultiLine): [number[], number[]] => {
   const rangeX: number[] = [];
   const rangeY: number[] = [];
 
-  array.flat().forEach(([x, y]) => {
+  toFlat(array as MultiLine).forEach(([x, y]) => {
     rangeX.push(x);
     rangeY.push(y);
   });
