@@ -21,7 +21,7 @@ export const plot: Plot = (rawInput, {
   if (typeof input[0][0] === 'number') {
     input = [rawInput] as MultiLine;
   }
-  const transformValue = (number: number) => {
+  const transformLabel = (number: number) => {
     if (formatter) {
       return formatter(number);
     }
@@ -67,10 +67,6 @@ export const plot: Plot = (rawInput, {
     scaledCoords = getPlotCoords(sortedCoords, plotWidth, plotHeight, expansionX, expansionY).map(
       ([x, y], index, arr) => {
         const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
-        // add axis stamps
-        const shift = axisCenter ? 0 : 1;
-        graph[axis.y][scaledX + shift] = AXIS.x;
-        graph[scaledY + 1][axis.x] = AXIS.y;
 
         if (index - 1 >= 0) {
           const [prevX, prevY] = arr[index - 1];
@@ -179,20 +175,31 @@ export const plot: Plot = (rawInput, {
       const [x, y] = coord[index];
 
       const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
-      const pointYShift = toArray(transformValue(pointY));
+      // add axis stamps
+
+      const pointYShift = toArray(transformLabel(pointY));
       for (let i = 0; i < pointYShift.length; i += 1) {
         graph[scaledY + 2][axis.x + yShift - i] = pointYShift[pointYShift.length - 1 - i];
       }
+      graph[scaledY + 2][axis.x + yShift + 1] = AXIS.y;
 
-      const pointXShift = toArray(transformValue(pointX));
+      const pointXShift = toArray(transformLabel(pointX));
+      let yPos = graph.length - 1;
+      const shift = axisCenter ? -1 : 0;
       for (let i = 0; i < pointXShift.length; i += 1) {
-        let yPos = index % 2 && hasToBeMoved ? graph.length - 2 : graph.length - 1;
-
-        if (axisCenter) {
-          yPos = index % 2 && hasToBeMoved ? axis.y + 3 : axis.y + 2;
+        let overflowShift = index % 2 && hasToBeMoved ? -1 : 0;
+        let signShift = -1;
+        if (hasToBeMoved) {
+          signShift = -2;
         }
-        const shift = axisCenter ? -1 : 0;
-        graph[yPos][scaledX + yShift - i + 2 + shift] = pointXShift[pointXShift.length - 1 - i];
+        if (axisCenter) {
+          overflowShift = index % 2 && hasToBeMoved ? 1 : 0;
+          yPos = axis.y + 2;
+        }
+        const graphY = yPos + overflowShift;
+        const graphX = scaledX + yShift - i + 2 + shift;
+        graph[graphY][graphX] = pointXShift[pointXShift.length - 1 - i];
+        graph[yPos + signShift][scaledX + yShift + 2 + shift] = AXIS.x;
       }
     });
   });
