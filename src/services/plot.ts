@@ -121,14 +121,12 @@ export const plot: Plot = (
 
   // axis
   graph.forEach((line, index) => {
-    line.forEach((char, curr) => {
+    line.forEach((_, curr) => {
       let lineChar = '';
 
       if (curr === axis.x && !hideYAxis) {
         if (index === 0) {
           lineChar = axisSymbols.n;
-        } else if (char === axisSymbols.y) {
-          return;
         } else if (index === graph.length - 1 && !axisCenter && !(hideYAxis || hideXAxis)) {
           lineChar = axisSymbols.nse;
         } else {
@@ -137,8 +135,6 @@ export const plot: Plot = (
       } else if (index === axis.y && !hideXAxis) {
         if (curr === line.length - 1) {
           lineChar = axisSymbols.e;
-        } else if (char === axisSymbols.x) {
-          return;
         } else {
           lineChar = axisSymbols.we;
         }
