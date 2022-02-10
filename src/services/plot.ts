@@ -14,9 +14,12 @@ import { getChartSymbols } from './settings';
 import { SingleLine, MultiLine, Plot } from '../types';
 import { AXIS, EMPTY } from '../constants';
 
-export const plot: Plot = (rawInput, {
-  color, width, height, axisCenter, formatter,
-} = {}) => {
+export const plot: Plot = (
+  rawInput,
+  {
+    color, width, height, axisCenter, formatter, symbols,
+  } = {},
+) => {
   let input = rawInput as MultiLine;
   if (typeof input[0][0] === 'number') {
     input = [rawInput] as MultiLine;
@@ -51,15 +54,19 @@ export const plot: Plot = (rawInput, {
   }
 
   // create placeholder
-  const graph = Array.from({ length: plotHeight + 2 }, () => toEmpty(plotWidth + 2));
+  const callback = () => toEmpty(plotWidth + 2, symbols?.empty);
+  const graph = Array.from({ length: plotHeight + 2 }, callback);
 
   const axis = getAxisCenter(axisCenter, plotWidth, plotHeight, expansionX, expansionY, [
     0,
     graph.length - 1,
   ]);
 
+  const axisSymbols = symbols?.axis || AXIS;
+  const emptySymbols = symbols?.empty || EMPTY;
+
   input.forEach((coords: SingleLine, series) => {
-    const chart = getChartSymbols(color, series);
+    const chartSymbols = getChartSymbols(color, series, symbols?.chart);
 
     // sort input by the first value
     const sortedCoords = toSorted(coords);
@@ -76,22 +83,22 @@ export const plot: Plot = (rawInput, {
             .fill('')
             .forEach((_, steps, array) => {
               if (Math.round(prevY) > Math.round(currY)) {
-                graph[scaledY + 1][scaledX] = chart.nse;
+                graph[scaledY + 1][scaledX] = chartSymbols.nse;
                 if (steps === array.length - 1) {
-                  graph[scaledY - steps][scaledX] = chart.wns;
+                  graph[scaledY - steps][scaledX] = chartSymbols.wns;
                 } else {
-                  graph[scaledY - steps][scaledX] = chart.ns;
+                  graph[scaledY - steps][scaledX] = chartSymbols.ns;
                 }
               } else {
-                graph[scaledY + steps + 2][scaledX] = chart.wsn;
-                graph[scaledY + steps + 1][scaledX] = chart.ns;
+                graph[scaledY + steps + 2][scaledX] = chartSymbols.wsn;
+                graph[scaledY + steps + 1][scaledX] = chartSymbols.ns;
               }
             });
 
           if (Math.round(prevY) < Math.round(currY)) {
-            graph[scaledY + 1][scaledX] = chart.sne;
+            graph[scaledY + 1][scaledX] = chartSymbols.sne;
           } else if (Math.round(prevY) === Math.round(currY)) {
-            graph[scaledY + 1][scaledX] = chart.we;
+            graph[scaledY + 1][scaledX] = chartSymbols.we;
           }
 
           const distanceX = distance(currX, prevX);
@@ -99,13 +106,13 @@ export const plot: Plot = (rawInput, {
             .fill('')
             .forEach((_, steps) => {
               const thisY = plotHeight - Math.round(prevY);
-              graph[thisY][Math.round(prevX) + steps + 1] = chart.we;
+              graph[thisY][Math.round(prevX) + steps + 1] = chartSymbols.we;
             });
         }
 
         // plot the last coordinate
         if (arr.length - 1 === index) {
-          graph[scaledY + 1][scaledX + 1] = chart.we;
+          graph[scaledY + 1][scaledX + 1] = chartSymbols.we;
         }
         return [scaledX, scaledY];
       },
@@ -119,21 +126,21 @@ export const plot: Plot = (rawInput, {
 
       if (curr === axis.x) {
         if (index === 0) {
-          lineChar = AXIS.n;
-        } else if (char === AXIS.y) {
+          lineChar = axisSymbols.n;
+        } else if (char === axisSymbols.y) {
           return;
         } else if (index === graph.length - 1 && !axisCenter) {
-          lineChar = AXIS.nse;
+          lineChar = axisSymbols.nse;
         } else {
-          lineChar = AXIS.ns;
+          lineChar = axisSymbols.ns;
         }
       } else if (index === axis.y) {
         if (curr === line.length - 1) {
-          lineChar = AXIS.e;
-        } else if (char === AXIS.x) {
+          lineChar = axisSymbols.e;
+        } else if (char === axisSymbols.x) {
           return;
         } else {
-          lineChar = AXIS.we;
+          lineChar = axisSymbols.we;
         }
       }
 
@@ -144,11 +151,12 @@ export const plot: Plot = (rawInput, {
     });
   });
 
+  // labels
   const xShift = toArray(maxX).length;
   const yShift = toArray(maxY).length;
   // shift graph
-  graph.unshift(toEmpty(plotWidth + 2)); // top
-  graph.push(toEmpty(plotWidth + 2)); // bottom
+  graph.unshift(toEmpty(plotWidth + 2, symbols?.empty)); // top
+  graph.push(toEmpty(plotWidth + 2, symbols?.empty)); // bottom
 
   // check step
   let step = plotWidth;
@@ -161,10 +169,10 @@ export const plot: Plot = (rawInput, {
 
   // x coords overlap
   const hasToBeMoved = step < xShift;
-  if (hasToBeMoved) graph.push(toEmpty(plotWidth + 1));
+  if (hasToBeMoved) graph.push(toEmpty(plotWidth + 1, symbols?.empty));
   graph.forEach((line) => {
     for (let i = 0; i <= yShift; i += 1) {
-      line.unshift(EMPTY); // left
+      line.unshift(emptySymbols); // left
     }
   });
 
@@ -181,7 +189,7 @@ export const plot: Plot = (rawInput, {
       for (let i = 0; i < pointYShift.length; i += 1) {
         graph[scaledY + 2][axis.x + yShift - i] = pointYShift[pointYShift.length - 1 - i];
       }
-      graph[scaledY + 2][axis.x + yShift + 1] = AXIS.y;
+      graph[scaledY + 2][axis.x + yShift + 1] = axisSymbols.y;
 
       const pointXShift = toArray(transformLabel(pointX));
       let yPos = graph.length - 1;
@@ -199,7 +207,7 @@ export const plot: Plot = (rawInput, {
         const graphY = yPos + overflowShift;
         const graphX = scaledX + yShift - i + 2 + shift;
         graph[graphY][graphX] = pointXShift[pointXShift.length - 1 - i];
-        graph[yPos + signShift][scaledX + yShift + 2 + shift] = AXIS.x;
+        graph[yPos + signShift][scaledX + yShift + 2 + shift] = axisSymbols.x;
       }
     });
   });

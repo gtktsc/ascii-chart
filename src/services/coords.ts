@@ -1,7 +1,7 @@
 import { SingleLine, Point, MultiLine } from '../types';
 import { EMPTY } from '../constants';
 
-export const toEmpty = (size: number) => Array(size).fill(EMPTY);
+export const toEmpty = (size: number, empty?: string) => Array(size).fill(empty || EMPTY);
 
 export const toArray = (number: number): string[] => number.toString().split('');
 

@@ -23,8 +23,12 @@ export const getAnsiColor = (color: Color): string => {
   }
 };
 
-export const getChartSymbols = (color: Color | Color[] | undefined, series: number) => {
-  const chart = { ...CHART };
+export const getChartSymbols = (
+  color: Color | Color[] | undefined,
+  series: number,
+  chartSymbols: typeof CHART | void,
+) => {
+  const chart = { ...(chartSymbols || CHART) };
   if (color) {
     let currentColor = '';
     if (Array.isArray(color)) {
@@ -33,7 +37,7 @@ export const getChartSymbols = (color: Color | Color[] | undefined, series: numb
       currentColor = color;
     }
 
-    Object.entries(CHART).forEach(([key, sign]) => {
+    Object.entries(chart).forEach(([key, sign]) => {
       chart[key as keyof typeof chart] = `${getAnsiColor(currentColor as Color)}${sign}\u001b[0m`;
     });
   }

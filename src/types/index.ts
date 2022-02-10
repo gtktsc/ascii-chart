@@ -1,3 +1,5 @@
+import { AXIS, CHART, EMPTY } from '../constants';
+
 export type Point = [x: number, y: number];
 export type SingleLine = Point[];
 export type MultiLine = SingleLine[];
@@ -20,6 +22,7 @@ export type Settings = {
   height?: number;
   axisCenter?: Point;
   formatter?: (number: number) => number;
+  symbols?: { axis?: typeof AXIS; chart?: typeof CHART; empty?: string };
 };
 
 export type Plot = (coordinates: Coordinates, settings?: Settings) => string;
