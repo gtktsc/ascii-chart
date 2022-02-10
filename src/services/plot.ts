@@ -46,6 +46,21 @@ export const plot: Plot = (rawInput, {
   // create placeholder
   const graph = Array.from({ length: plotHeight + 2 }, () => toEmpty(plotWidth + 2));
 
+  const axis = { x: 0, y: graph.length - 1 };
+  // calculate axis position
+  if (axisCenter) {
+    const [centerX, centerY] = toCoordinates(
+      axisCenter,
+      plotWidth,
+      plotHeight,
+      [minX, maxX],
+      [minY, maxY],
+    );
+    const [plotCenterX, plotCenterY] = toPlot(plotWidth, plotHeight)(centerX, centerY);
+    axis.x = plotCenterX;
+    axis.y = plotCenterY + 1;
+  }
+
   const chart = { ...CHART };
   input.forEach((coords: SingleLine, series) => {
     if (color) {
@@ -72,23 +87,10 @@ export const plot: Plot = (rawInput, {
       [minY, maxY],
     ).map(([x, y], index, arr) => {
       const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
-
       // add axis stamps
-      if (axisCenter) {
-        const [centerX, centerY] = toCoordinates(
-          axisCenter,
-          plotWidth,
-          plotHeight,
-          [minX, maxX],
-          [minY, maxY],
-        );
-        const [plotCenterX, plotCenterY] = toPlot(plotWidth, plotHeight)(centerX, centerY);
-        graph[plotCenterY + 1][scaledX] = AXIS.x;
-        graph[scaledY + 1][plotCenterX + 1] = AXIS.y;
-      } else {
-        graph[graph.length - 1][scaledX + 1] = AXIS.x;
-        graph[scaledY + 1][0] = AXIS.y;
-      }
+      const shift = axisCenter ? 0 : 1;
+      graph[axis.y][scaledX + shift] = AXIS.x;
+      graph[scaledY + 1][axis.x] = AXIS.y;
 
       if (index - 1 >= 0) {
         const [prevX, prevY] = arr[index - 1];
@@ -137,52 +139,24 @@ export const plot: Plot = (rawInput, {
   graph.forEach((line, index) => {
     line.forEach((char, curr) => {
       let lineChar = '';
-      if (!axisCenter) {
-        if (curr === 0) {
-          if (index === 0) {
-            lineChar = AXIS.n;
-          } else if (char === AXIS.y) {
-            return;
-          } else if (index === graph.length - 1) {
-            lineChar = AXIS.nse;
-          } else {
-            lineChar = AXIS.ns;
-          }
-        } else if (index === graph.length - 1) {
-          if (curr === line.length - 1) {
-            lineChar = AXIS.e;
-          } else if (char === AXIS.x) {
-            return;
-          } else {
-            lineChar = AXIS.we;
-          }
-        }
-      } else {
-        const [centerX, centerY] = toCoordinates(
-          axisCenter,
-          plotWidth,
-          plotHeight,
-          [minX, maxX],
-          [minY, maxY],
-        );
-        const [plotCenterX, plotCenterY] = toPlot(plotWidth, plotHeight)(centerX, centerY);
 
-        if (curr === plotCenterX + 1) {
-          if (index === 0) {
-            lineChar = AXIS.n;
-          } else if (char === AXIS.y) {
-            return;
-          } else {
-            lineChar = AXIS.ns;
-          }
-        } else if (index === plotCenterY + 1) {
-          if (curr === line.length - 1) {
-            lineChar = AXIS.e;
-          } else if (char === AXIS.x) {
-            return;
-          } else {
-            lineChar = AXIS.we;
-          }
+      if (curr === axis.x) {
+        if (index === 0) {
+          lineChar = AXIS.n;
+        } else if (char === AXIS.y) {
+          return;
+        } else if (index === graph.length - 1 && !axisCenter) {
+          lineChar = AXIS.nse;
+        } else {
+          lineChar = AXIS.ns;
+        }
+      } else if (index === axis.y) {
+        if (curr === line.length - 1) {
+          lineChar = AXIS.e;
+        } else if (char === AXIS.x) {
+          return;
+        } else {
+          lineChar = AXIS.we;
         }
       }
 
@@ -228,41 +202,18 @@ export const plot: Plot = (rawInput, {
       const pointYShift = toArray(pointY);
 
       for (let i = 0; i < pointYShift.length; i += 1) {
-        if (axisCenter) {
-          const [centerX, centerY] = toCoordinates(
-            axisCenter,
-            plotWidth,
-            plotHeight,
-            [minX, maxX],
-            [minY, maxY],
-          );
-          const [plotCenterX] = toPlot(plotWidth, plotHeight)(centerX, centerY);
-          const char = pointYShift[pointYShift.length - 1 - i];
-          graph[scaledY + 2][plotCenterX + 1 + yShift - i] = char;
-        } else {
-          graph[scaledY + 2][yShift - i] = pointYShift[pointYShift.length - 1 - i];
-        }
+        graph[scaledY + 2][axis.x + yShift - i] = pointYShift[pointYShift.length - 1 - i];
       }
 
       const pointXShift = toArray(pointX);
       for (let i = 0; i < pointXShift.length; i += 1) {
+        let yPos = index % 2 && hasToBeMoved ? graph.length - 2 : graph.length - 1;
+
         if (axisCenter) {
-          const [centerX, centerY] = toCoordinates(
-            axisCenter,
-            plotWidth,
-            plotHeight,
-            [minX, maxX],
-            [minY, maxY],
-          );
-          const [plotCenterX, plotCenterY] = toPlot(plotWidth, plotHeight)(centerX, centerY);
-          const yPos = index % 2 && hasToBeMoved ? plotCenterY + 4 : plotCenterY + 3;
-
-          graph[yPos][scaledX + yShift - i + 1] = pointXShift[pointXShift.length - 1 - i];
-        } else {
-          const yPos = index % 2 && hasToBeMoved ? graph.length - 2 : graph.length - 1;
-
-          graph[yPos][scaledX + yShift - i + 2] = pointXShift[pointXShift.length - 1 - i];
+          yPos = index % 2 && hasToBeMoved ? axis.y + 3 : axis.y + 2;
         }
+        const shift = axisCenter ? -1 : 0;
+        graph[yPos][scaledX + yShift - i + 2 + shift] = pointXShift[pointXShift.length - 1 - i];
       }
     });
   });
