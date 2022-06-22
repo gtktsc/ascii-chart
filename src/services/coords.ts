@@ -3,7 +3,7 @@ import { EMPTY } from '../constants';
 
 export const toEmpty = (size: number, empty?: string) => Array(size).fill(empty || EMPTY);
 
-export const toArray = (number: number): string[] => number.toString().split('');
+export const toArray = (input: number | string): string[] => input.toString().split('');
 
 export const toUnique = (array: number[]) => [...new Set(array)];
 

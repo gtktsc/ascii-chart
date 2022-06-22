@@ -27,6 +27,14 @@ export type LineFormatterArgs = {
 
 export type CustomSymbol = { x: number; y: number; symbol: string };
 
+export type FormatterHelpers = {
+  axis: 'x' | 'y';
+  xRange: number[];
+  yRange: number[];
+};
+
+export type Formatter = (number: number, helpers: FormatterHelpers) => number | string;
+
 export type Settings = {
   color?: Color | Color[];
   width?: number;
@@ -34,7 +42,7 @@ export type Settings = {
   hideXAxis?: boolean;
   hideYAxis?: boolean;
   axisCenter?: Point;
-  formatter?: (number: number) => number;
+  formatter?: Formatter;
   lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
   symbols?: { axis?: typeof AXIS; chart?: typeof CHART; empty?: string };
 };

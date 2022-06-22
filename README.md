@@ -125,13 +125,34 @@ axisCenter?: [x:number, y:number]
 Transforms axis label:
 
 ```
-formatter?: (number:number) => number;
+formatter?: Formatter
+```
+
+Where
+
+```
+type FormatterHelpers = {
+  axis: 'x' | 'y';
+  xRange: number[];
+  yRange: number[];
+};
+
+type Formatter = (number: number, helpers: FormatterHelpers) => number | string;
+
 ```
 
 Default formatter is:
 
 ```
-Number(number.toFixed(3));
+defaultFormatter: Formatter = (value, { xRange, yRange }) => {
+  // Cut off small values
+  if (Math.abs(xRange[0]) < 1000 || Math.abs(yRange[0]) < 1000) {
+    return Number(value.toFixed(3));
+  }
+  // Adds XYZk to cut off large values
+  if (Math.abs(value) > 1000) return `${value / 1000}k`;
+  return value;
+};
 ```
 
 ## lineFormatter
@@ -493,6 +514,51 @@ plot(
                   ┃    ┃ ┃ ┃              ┗━
                   ┃    ┃ ┗━┛
                   ┗━━━━┛
+```
+
+```
+  plot(
+      [
+        [-9000, 2000],
+        [-8000, -3000],
+        [-2000, -2000],
+        [2000, 2000],
+        [3000, 1500],
+        [4000, 5000],
+        [10000, 1400],
+        [11000, 20000],
+        [12000, 30000],
+      ],
+      {
+        width: 60,
+        height: 20,
+      },
+    )
+
+      ▲
+   30k┤                                                          ┏━
+      │                                                          ┃
+      │                                                          ┃
+      │                                                          ┃
+      │                                                          ┃
+      │                                                          ┃
+   20k┤                                                       ┏━━┛
+      │                                                       ┃
+      │                                                       ┃
+      │                                                       ┃
+      │                                                       ┃
+      │                                                       ┃
+      │                                                       ┃
+      │                                                       ┃
+    5k┤                                    ┏━━━━━━━━━━━━━━━┓  ┃
+      │                                    ┃               ┃  ┃
+  1.4k┤━━┓                           ┏━━━━━┛               ┗━━┛
+      │  ┃                           ┃
+   -2k┤  ┃                ┏━━━━━━━━━━┛
+   -3k┤  ┗━━━━━━━━━━━━━━━━┛
+      └┬──┬────────────────┬──────────┬──┬──┬───────────────┬──┬──┬▶
+        -8k                          2k    4k                11k
+     -9k                 -2k            3k                10k   12k
 ```
 
 ```

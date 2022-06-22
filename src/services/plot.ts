@@ -10,10 +10,8 @@ import {
   toEmpty,
   getAxisCenter,
 } from './coords';
-import { getChartSymbols } from './settings';
-import {
-  SingleLine, MultiLine, Plot, CustomSymbol,
-} from '../types';
+import { getChartSymbols, defaultFormatter } from './settings';
+import { SingleLine, MultiLine, Plot, CustomSymbol, Formatter } from '../types';
 import { AXIS, EMPTY } from '../constants';
 
 export const plot: Plot = (
@@ -34,11 +32,12 @@ export const plot: Plot = (
   if (typeof input[0][0] === 'number') {
     input = [rawInput] as MultiLine;
   }
-  const transformLabel = (number: number) => {
+
+  const transformLabel: Formatter = (value, helpers) => {
     if (formatter) {
-      return formatter(number);
+      return formatter(value, helpers);
     }
-    return Number(number.toFixed(3));
+    return defaultFormatter(value, helpers);
   };
 
   let scaledCoords = [[0, 0]];
@@ -211,7 +210,9 @@ export const plot: Plot = (
 
       const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
       if (!hideYAxis) {
-        const pointYShift = toArray(transformLabel(pointY));
+        const pointYShift = toArray(
+          transformLabel(pointY, { axis: 'y', xRange: expansionX, yRange: expansionY }),
+        );
         for (let i = 0; i < pointYShift.length; i += 1) {
           graph[scaledY + 2][axis.x + yShift - i] = pointYShift[pointYShift.length - 1 - i];
         }
@@ -219,7 +220,9 @@ export const plot: Plot = (
       }
 
       if (!hideXAxis) {
-        const pointXShift = toArray(transformLabel(pointX));
+        const pointXShift = toArray(
+          transformLabel(pointX, { axis: 'x', xRange: expansionX, yRange: expansionY }),
+        );
         let yPos = graph.length - 1;
         const shift = axisCenter ? -1 : 0;
         for (let i = 0; i < pointXShift.length; i += 1) {

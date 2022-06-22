@@ -1,6 +1,6 @@
 import { plot } from '../plot';
 
-import { Coordinates, LineFormatterArgs, Settings } from '../../types';
+import { Coordinates, LineFormatterArgs, Settings, FormatterHelpers } from '../../types';
 
 describe('plot', () => {
   const mockedData = [
@@ -8,6 +8,98 @@ describe('plot', () => {
     [2, 2],
   ];
   describe.each([
+    [
+      'generates output with formatter for large numbers',
+      [
+        [-9000, 2000],
+        [-8000, -3000],
+        [-2000, -2000],
+        [2000, 2000],
+        [3000, 1500],
+        [4000, 5000],
+        [10000, 1400],
+        [11000, 20000],
+        [12000, 30000],
+      ],
+      {
+        width: 60,
+        height: 20,
+      },
+      `
+                                                                    
+      ▲                                                             
+   30k┤                                                          ┏━ 
+      │                                                          ┃  
+      │                                                          ┃  
+      │                                                          ┃  
+      │                                                          ┃  
+      │                                                          ┃  
+   20k┤                                                       ┏━━┛  
+      │                                                       ┃     
+      │                                                       ┃     
+      │                                                       ┃     
+      │                                                       ┃     
+      │                                                       ┃     
+      │                                                       ┃     
+      │                                                       ┃     
+    5k┤                                    ┏━━━━━━━━━━━━━━━┓  ┃     
+      │                                    ┃               ┃  ┃     
+  1.4k┤━━┓                           ┏━━━━━┛               ┗━━┛     
+      │  ┃                           ┃                              
+   -2k┤  ┃                ┏━━━━━━━━━━┛                              
+   -3k┤  ┗━━━━━━━━━━━━━━━━┛                                         
+      └┬──┬────────────────┬──────────┬──┬──┬───────────────┬──┬──┬▶
+        -8k                          2k    4k                11k    
+     -9k                 -2k            3k                10k   12k
+`,
+    ],
+    [
+      'generates output with formatter for categorical data',
+      [
+        [0, -10],
+        [1, 0.001],
+        [2, 10],
+        [3, 200],
+        [4, 10000],
+        [5, 2000000],
+        [6, 50000000],
+      ],
+      {
+        width: 30,
+        height: 20,
+        formatter: (n: number, { axis }: FormatterHelpers) => {
+          const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+          if (axis === 'y') return n;
+          return labels[n] || 'X';
+        },
+      },
+      `
+                                         
+         ▲                               
+ 50000000┤                            ┏━ 
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+         │                            ┃  
+  2000000┤                       ┏━━━━┛  
+    10000┤━━━━━━━━━━━━━━━━━━━━━━━┛       
+         └┬────┬────┬────┬───┬────┬────┬▶
+          A    B    C    D   E    F    G 
+`,
+    ],
     [
       'generates output y axis shift',
       [
@@ -88,9 +180,7 @@ describe('plot', () => {
       {
         height: 10,
         width: 30,
-        lineFormatter: ({
-          y, plotX, plotY, input, index,
-        }: LineFormatterArgs) => {
+        lineFormatter: ({ y, plotX, plotY, input, index }: LineFormatterArgs) => {
           const output = [{ x: plotX, y: plotY, symbol: '█' }];
 
           if (input[index - 1]?.[1] < y) {
@@ -133,9 +223,7 @@ describe('plot', () => {
       {
         height: 10,
         width: 30,
-        lineFormatter: ({
-          y, plotX, plotY, input, index,
-        }: LineFormatterArgs) => {
+        lineFormatter: ({ y, plotX, plotY, input, index }: LineFormatterArgs) => {
           if (input[index - 1]?.[1] < y) {
             return { x: plotX, y: plotY, symbol: '+' };
           }

@@ -1,5 +1,5 @@
 import { CHART } from '../constants';
-import { Color } from '../types';
+import { Color, Formatter } from '../types';
 
 export const getAnsiColor = (color: Color): string => {
   switch (color) {
@@ -42,4 +42,12 @@ export const getChartSymbols = (
     });
   }
   return chart;
+};
+
+export const defaultFormatter: Formatter = (value, { xRange, yRange }) => {
+  if (Math.abs(xRange[0]) < 1000 || Math.abs(yRange[0]) < 1000) {
+    return Number(value.toFixed(3));
+  }
+  if (Math.abs(value) > 1000) return `${value / 1000}k`;
+  return value;
 };
