@@ -210,13 +210,16 @@ export const plot: Plot = (
 
       const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
       if (!hideYAxis) {
-        const pointYShift = toArray(
-          transformLabel(pointY, { axis: 'y', xRange: expansionX, yRange: expansionY }),
-        );
-        for (let i = 0; i < pointYShift.length; i += 1) {
-          graph[scaledY + 2][axis.x + yShift - i] = pointYShift[pointYShift.length - 1 - i];
+        // make sure position is not taken already
+        if (graph[scaledY + 2][axis.x + yShift + 1] !== axisSymbols.y) {
+          const pointYShift = toArray(
+            transformLabel(pointY, { axis: 'y', xRange: expansionX, yRange: expansionY }),
+          );
+          for (let i = 0; i < pointYShift.length; i += 1) {
+            graph[scaledY + 2][axis.x + yShift - i] = pointYShift[pointYShift.length - 1 - i];
+          }
+          graph[scaledY + 2][axis.x + yShift + 1] = axisSymbols.y;
         }
-        graph[scaledY + 2][axis.x + yShift + 1] = axisSymbols.y;
       }
 
       if (!hideXAxis) {
