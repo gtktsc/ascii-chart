@@ -8,7 +8,7 @@ Simple TS package to draw ASCII charts. It operates on a two-dimensional input.
 Package can be imported and used like:
 
 ```
-import plot from 'simple-ascii-plot'
+import plot from 'simple-ascii-chart'
 
 const graph = plot(input, settings);
 ```
