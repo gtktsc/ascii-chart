@@ -117,8 +117,12 @@ export const plot: Plot = (
 
             if (Math.round(prevY) < Math.round(currY)) {
               graph[scaledY + 1][scaledX] = chartSymbols.sne;
+              // The same Y values
             } else if (Math.round(prevY) === Math.round(currY)) {
-              graph[scaledY + 1][scaledX] = chartSymbols.we;
+              // Add line only if space is not occupied already - valid case for small similar Y
+              if (graph[scaledY + 1][scaledX] === emptySymbols) {
+                graph[scaledY + 1][scaledX] = chartSymbols.we;
+              }
             }
 
             const distanceX = distance(currX, prevX);
@@ -267,8 +271,17 @@ export const plot: Plot = (
           }
           const graphY = yPos + overflowShift;
           const graphX = scaledX + yShift - i + 2 + shift;
+
+          // Make sure position is not taken already
+          if (graph[yPos + signShift][scaledX + yShift + 2 + shift] === axisSymbols.x) {
+            break;
+          }
+
           graph[graphY][graphX] = pointXShift[pointXShift.length - 1 - i];
-          graph[yPos + signShift][scaledX + yShift + 2 + shift] = axisSymbols.x;
+          // Add X tick only for the last value
+          if (pointXShift.length - 1 === i) {
+            graph[yPos + signShift][scaledX + yShift + 2 + shift] = axisSymbols.x;
+          }
         }
       }
     });
