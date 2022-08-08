@@ -7,9 +7,16 @@ describe('plot', () => {
     [1, 1],
     [2, 2],
   ];
+
+  describe('plot', () => {
+    it('Return empty string if values are not present', () => {
+      const chart = plot([]);
+      expect(chart).toStrictEqual('');
+    });
+  });
   describe.each([
     [
-      'generates output with custom faormatter',
+      'generates output with custom formatter',
       [
         [0, 6000],
         [100, 9000],
@@ -353,6 +360,53 @@ describe('plot', () => {
 `,
     ],
     [
+      'generates output with title ',
+      [
+        [1, 5],
+        [3, 0],
+      ],
+      { width: 10, height: 10, title: 'title' },
+      `
+title         
+  ▲           
+ 5┤━━━━━━━━┓  
+  │        ┃  
+  │        ┃  
+  │        ┃  
+  │        ┃  
+  │        ┃  
+  │        ┃  
+  │        ┃  
+  │        ┃  
+ 0┤        ┗━ 
+  └┬────────┬▶
+   1        3 
+`,
+    ],
+    [
+      'generates output with title ',
+      [
+        [1, 5],
+        [3, 0],
+      ],
+      {
+        title:
+          'verylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitle',
+      },
+      `
+verylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitle
+  ▲   
+ 5┤┓  
+  │┃  
+  │┃  
+  │┃  
+  │┃  
+ 0┤┗━ 
+  └┬┬▶
+   13 
+`,
+    ],
+    [
       'sorts output',
       [
         [3, 0],
@@ -386,6 +440,62 @@ describe('plot', () => {
    1k┤┛  
      └┬┬▶
       13 
+`,
+    ],
+    [
+      'fill area',
+      [
+        [1, -5],
+        [2, 2],
+        [3, 3],
+        [4, 4],
+        [5, 10],
+        [6, 0],
+        [7, -0.5],
+        [8, 3],
+      ],
+      { width: 20, height: 8, fillArea: true },
+      `
+                         
+   ▲                     
+ 10┤          ████       
+   │          ████       
+   │          ████       
+  3┤    ██████████    ██ 
+  2┤  ████████████    ██ 
+  0┤  ██████████████████ 
+   │  ██████████████████ 
+ -5┤████████████████████ 
+   └┬──┬─┬──┬──┬──┬─┬──┬▶
+    1  2 3  4  5  6 7  8 
+`,
+    ],
+    [
+      'fill area with custom symbol',
+      [
+        [1, -5],
+        [2, 2],
+        [3, 3],
+        [4, 4],
+        [5, 10],
+        [6, 0],
+        [7, -0.5],
+        [8, 3],
+      ],
+      { width: 20, height: 8, fillArea: true, symbols: { chart: { area: 'O' } } },
+      `
+                         
+   ▲                     
+ 10┤          OOOO       
+   │          OOOO       
+   │          OOOO       
+  3┤    OOOOOOOOOO    OO 
+  2┤  OOOOOOOOOOOO    OO 
+  0┤  OOOOOOOOOOOOOOOOOO 
+   │  OOOOOOOOOOOOOOOOOO 
+ -5┤OOOOOOOOOOOOOOOOOOOO 
+   └┬──┬─┬──┬──┬──┬─┬──┬▶
+    1  2 3  4  5  6 7  8 
 `,
     ],
     [
@@ -614,6 +724,36 @@ describe('plot', () => {
  3┤┗┓┛  
  2┤┏┗┓  
  1┤┛ ┗━ 
+  └┬┬┬┬▶
+   1234 
+`,
+    ],
+    [
+      'draws two series on one graphs with colors and fill',
+      [
+        [
+          [1, 1],
+          [2, 2],
+          [3, 4],
+          [4, 6],
+        ],
+        [
+          [1, 4],
+          [2, 1],
+          [3, 2],
+          [4, 3],
+        ],
+      ],
+      { fillArea: true },
+      `
+        
+  ▲     
+ 6┤  ██ 
+  │  ██ 
+ 4┤████ 
+ 3┤████ 
+ 2┤████ 
+ 1┤████ 
   └┬┬┬┬▶
    1234 
 `,

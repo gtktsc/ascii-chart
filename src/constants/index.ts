@@ -15,6 +15,7 @@ export const CHART = {
   nse: '┗',
   wsn: '┛',
   sne: '┏',
+  area: '█',
 };
 
 export const EMPTY = ' ';

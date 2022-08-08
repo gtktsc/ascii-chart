@@ -24,13 +24,23 @@ export const plot: Plot = (
     formatter,
     lineFormatter,
     symbols,
+    title,
+    fillArea,
     hideXAxis,
     hideYAxis,
   } = {},
 ) => {
+  // Multiline
   let input = rawInput as MultiLine;
-  if (typeof input[0][0] === 'number') {
+
+  // Singleline
+  if (typeof input[0]?.[0] === 'number') {
     input = [rawInput] as MultiLine;
+  }
+
+  // Empty
+  if (input.length === 0) {
+    return '';
   }
 
   const transformLabel: Formatter = (value, helpers) => {
@@ -71,11 +81,11 @@ export const plot: Plot = (
     graph.length - 1,
   ]);
 
-  const axisSymbols = symbols?.axis || AXIS;
+  const axisSymbols = { ...AXIS, ...symbols?.axis };
   const emptySymbols = symbols?.empty || EMPTY;
 
   input.forEach((coords: SingleLine, series) => {
-    const chartSymbols = getChartSymbols(color, series, symbols?.chart);
+    const chartSymbols = getChartSymbols(color, series, symbols?.chart, fillArea);
 
     // sort input by the first value
     const sortedCoords = toSorted(coords);
@@ -123,6 +133,23 @@ export const plot: Plot = (
           // plot the last coordinate
           if (arr.length - 1 === index) {
             graph[scaledY + 1][scaledX + 1] = chartSymbols.we;
+          }
+
+          // fill empty area under the line if fill area is true
+          if (fillArea) {
+            graph.forEach((xValues, yIndex) => {
+              xValues.forEach((xSymbol, xIndex) => {
+                if (
+                  (xSymbol === chartSymbols.nse ||
+                    xSymbol === chartSymbols.wsn ||
+                    xSymbol === chartSymbols.we ||
+                    xSymbol === chartSymbols.area) &&
+                  graph[yIndex + 1]?.[xIndex]
+                ) {
+                  graph[yIndex + 1][xIndex] = chartSymbols.area;
+                }
+              });
+            });
           }
         } else {
           // custom line formatter
@@ -246,6 +273,13 @@ export const plot: Plot = (
       }
     });
   });
+
+  // Adds title above the graph
+  if (title) {
+    Array.from(title).forEach((letter, index) => {
+      graph[0][index] = letter;
+    });
+  }
 
   return `\n${graph.map((line) => line.join('')).join('\n')}\n`;
 };

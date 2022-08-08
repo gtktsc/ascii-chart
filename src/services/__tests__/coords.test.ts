@@ -1,5 +1,5 @@
 import { SingleLine } from '../../types';
-import { scaler, getExtrema, getPlotCoords } from '../coords';
+import { scaler, getExtrema, getPlotCoords, toSorted } from '../coords';
 
 describe('getPlotCoords', () => {
   describe.each([
@@ -133,6 +133,52 @@ describe('getExtrema', () => {
   ])('', (variant, arr, type, position, output) => {
     it(variant, () => {
       expect(getExtrema(arr as SingleLine, type as 'min' | 'max', position)).toBe(output);
+    });
+  });
+});
+
+describe('toSorted', () => {
+  describe.each([
+    [
+      'picks keeps the same range',
+      [
+        [0, 1],
+        [1, 1],
+      ],
+      [
+        [0, 1],
+        [1, 1],
+      ],
+    ],
+    [
+      'inverts range',
+      [
+        [1, 1],
+        [0, 1],
+      ],
+      [
+        [0, 1],
+        [1, 1],
+      ],
+    ],
+    [
+      'keep same values in place',
+      [
+        [0, 1],
+        [1, 1],
+        [1, 2],
+        [2, 2],
+      ],
+      [
+        [0, 1],
+        [1, 1],
+        [1, 2],
+        [2, 2],
+      ],
+    ],
+  ])('', (variant, arr, output) => {
+    it(variant, () => {
+      expect(toSorted(arr as SingleLine)).toStrictEqual(output);
     });
   });
 });

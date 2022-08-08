@@ -42,6 +42,7 @@ describe('getChartSymbols', () => {
       expect(formatted.nse).toBe(`${output}┗\u001b[0m`);
       expect(formatted.wsn).toBe(`${output}┛\u001b[0m`);
       expect(formatted.sne).toBe(`${output}┏\u001b[0m`);
+      expect(formatted.area).toBe(`${output}█\u001b[0m`);
     });
   });
 });

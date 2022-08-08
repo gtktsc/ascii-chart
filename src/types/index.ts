@@ -41,10 +41,12 @@ export type Settings = {
   height?: number;
   hideXAxis?: boolean;
   hideYAxis?: boolean;
+  title?: string;
+  fillArea?: boolean;
   axisCenter?: Point;
   formatter?: Formatter;
   lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
-  symbols?: { axis?: typeof AXIS; chart?: typeof CHART; empty?: string };
+  symbols?: { axis?: Partial<typeof AXIS>; chart?: Partial<typeof CHART>; empty?: string };
 };
 
 export type Plot = (coordinates: Coordinates, settings?: Settings) => string;

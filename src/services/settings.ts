@@ -26,9 +26,15 @@ export const getAnsiColor = (color: Color): string => {
 export const getChartSymbols = (
   color: Color | Color[] | undefined,
   series: number,
-  chartSymbols: typeof CHART | void,
+  chartSymbols: Partial<typeof CHART> | void,
+  fillArea?: boolean,
 ) => {
-  const chart = { ...(chartSymbols || CHART) };
+  const chart = { ...CHART, ...chartSymbols };
+  if (fillArea) {
+    Object.entries(chart).forEach(([key]) => {
+      chart[key as keyof typeof chart] = chart.area;
+    });
+  }
   if (color) {
     let currentColor = '';
     if (Array.isArray(color)) {

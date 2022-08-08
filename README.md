@@ -5,7 +5,13 @@ Simple TS package to draw ASCII charts. It operates on a two-dimensional input.
 
 # Usage
 
-Package can be imported and used like:
+Package can be imported via yarn (or npm):
+
+```
+yarn add simple-ascii-chart
+```
+
+And used like:
 
 ```
 import plot from 'simple-ascii-chart'
@@ -29,6 +35,47 @@ or
 
 ```
 https://simple-ascii-chart.vercel.app/api?input=[[1,2],[2,3],[3,4]]&settings={%22width%22:50}
+```
+
+# How to use it
+
+When dependency is imported to project:
+
+```
+import plot from 'simple-ascii-chart'
+
+console.log(
+  plot(
+    [
+      [1, 1],
+      [2, 4],
+      [3, 4],
+      [4, 2],
+      [5, -1],
+      [6, 3],
+      [7, -1],
+      [8, 9],
+    ],
+    { title: 'Important data', width: 20, height: 8 },
+  ),
+);
+```
+
+And 🎉, chart appears in your terminal:
+
+```
+Important data
+  ▲
+ 9┤                  ┏━
+  │                  ┃
+  │                  ┃
+ 4┤  ┏━━━━┓          ┃
+ 3┤  ┃    ┃     ┏━┓  ┃
+ 2┤  ┃    ┗━━┓  ┃ ┃  ┃
+ 1┤━━┛       ┃  ┃ ┃  ┃
+-1┤          ┗━━┛ ┗━━┛
+  └┬──┬─┬──┬──┬──┬─┬──┬▶
+   1  2 3  4  5  6 7  8
 ```
 
 # Input
@@ -185,6 +232,22 @@ lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
 
 Check examples section for real world usage.
 
+## title
+
+Adds title above the graph:
+
+```
+title?: string;
+```
+
+## fillArea
+
+Some graphs look better presented as a area, not lines. In order to use area chart, pass fillArea prop:
+
+```
+fillArea?: boolean;
+```
+
 ## hideXAxis
 
 Hide X axis:
@@ -224,6 +287,7 @@ symbols: {
     nse: '┗',
     wsn: '┛',
     sne: '┏',
+    area: '█'
     }
 ```
 
@@ -238,6 +302,8 @@ Settings = {
   formatter?: (number:number) => number;
   lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
   hideXAxis?: boolean;
+  title?: string;
+  fillArea?: boolean;
   hideYAxis?: boolean;
   symbols?: {
     empty?: ' ',
@@ -257,6 +323,7 @@ Settings = {
       nse: '┗',
       wsn: '┛',
       sne: '┏',
+      area: '█',
       }
     }
 };
@@ -299,18 +366,54 @@ plot(
     [7, -1],
     [8, 9],
   ],
-  { width: 20, height: 8 },
+  { title: 'Important data', width: 20, height: 8 },
+);
+
+Important data
+  ▲
+ 9┤                  ┏━
+  │                  ┃
+  │                  ┃
+ 4┤  ┏━━━━┓          ┃
+ 3┤  ┃    ┃     ┏━┓  ┃
+ 2┤  ┃    ┗━━┓  ┃ ┃  ┃
+ 1┤━━┛       ┃  ┃ ┃  ┃
+-1┤          ┗━━┛ ┗━━┛
+  └┬──┬─┬──┬──┬──┬─┬──┬▶
+   1  2 3  4  5  6 7  8
+```
+
+```
+plot(
+  [
+    [
+      [1, 1],
+      [2, 2],
+      [3, 4],
+      [4, 6],
+    ],
+    [
+      [1, 4],
+      [2, 1],
+      [3, 2],
+      [4, 3],
+    ],
+  ],
+  {
+    fillArea: true,
+    color: ['ansiGreen', 'ansiBlue'],
+  },
 );
 
   ▲
- 4┤ ┏━━━┓
-  │ ┃   ┃
- 2┤ ┃   ┗━┓
- 1┤━┛     ┃
-  │       ┃
--1┤       ┗━
-  └┬─┬─┬─┬─┬▶
-   1 2 3 4 5
+ 6┤  ██
+  │  ██
+ 4┤████
+ 3┤████
+ 2┤████
+ 1┤████
+  └┬┬┬┬▶
+   1234
 ```
 
 ```
