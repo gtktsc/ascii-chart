@@ -1,7 +1,19 @@
 # Simple ascii chart
 
-Simple TS package to draw ASCII charts. It operates on a two-dimensional input.
+Simple TS package to draw ASCII charts. It operates on a two-dimensional input, supports multi-series, custom colors, formatters.
 [Interactive demo.](https://simple-ascii-chart.vercel.app/)
+
+With colored multiline:
+
+![Example chart](https://user-images.githubusercontent.com/17948218/183446543-9a88e655-d83b-40f4-b7af-ffd8540380d2.png)
+
+With colored area:
+
+![Views per iteration](https://user-images.githubusercontent.com/17948218/183447293-4feac74f-b3d1-4e26-a8c1-02d793d3e81b.png)
+
+With axis:
+
+![Example chart with center position](https://user-images.githubusercontent.com/17948218/183447523-a0604d0c-eb22-451a-91c8-fb56eff039a7.png)
 
 # Usage
 
