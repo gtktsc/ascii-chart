@@ -42,11 +42,20 @@ export type Settings = {
   hideXAxis?: boolean;
   hideYAxis?: boolean;
   title?: string;
+  xLabel?: string;
+  yLabel?: string;
   fillArea?: boolean;
+  legend?: { position?: 'left' | 'right' | 'top' | 'bottom'; series: string | string[] };
   axisCenter?: Point;
   formatter?: Formatter;
   lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
-  symbols?: { axis?: Partial<typeof AXIS>; chart?: Partial<typeof CHART>; empty?: string };
+  symbols?: {
+    axis?: Partial<typeof AXIS>;
+    chart?: Partial<typeof CHART>;
+    empty?: string;
+    background?: string;
+    border?: string;
+  };
 };
 
 export type Plot = (coordinates: Coordinates, settings?: Settings) => string;
