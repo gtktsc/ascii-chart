@@ -252,6 +252,23 @@ Adds title above the graph:
 title?: string;
 ```
 
+## xLabel
+
+Adds label to the x axis:
+
+```
+xLabe
+l?: string;
+```
+
+## yLabel
+
+Adds label to the y axis:
+
+```
+yLabel?: string;
+```
+
 ## fillArea
 
 Some graphs look better presented as a area, not lines. In order to use area chart, pass fillArea prop:
@@ -282,6 +299,8 @@ Overrides default symbols. Three independent sections are: `empty` - background,
 
 ```
 symbols: {
+  background: ' ',
+  border: undefined,
   empty: ' ',
   axis: {
     n: '▲',
@@ -314,10 +333,15 @@ Settings = {
   formatter?: (number:number) => number;
   lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
   hideXAxis?: boolean;
+  legend?: { position?: 'left' | 'right' | 'top' | 'bottom'; series: string | string[] };
   title?: string;
+  xLabel?: string;
+  yLabel?: string;
   fillArea?: boolean;
   hideYAxis?: boolean;
   symbols?: {
+    background?: ' ',
+    border?: undefined,
     empty?: ' ',
     axis?: {
       n: '▲',
@@ -393,6 +417,104 @@ Important data
 -1┤          ┗━━┛ ┗━━┛
   └┬──┬─┬──┬──┬──┬─┬──┬▶
    1  2 3  4  5  6 7  8
+```
+
+```
+plot(
+  [
+    [1, 1],
+    [2, 4],
+    [3, 4],
+    [4, 2],
+    [5, -1],
+    [6, 3],
+    [7, -1],
+    [8, 9],
+  ],
+  { xLabel: 'x', yLabel:'y', width: 20, height: 8 },
+);
+
+   ▲
+  9┤                  ┏━
+   │                  ┃
+   │                  ┃
+  4┤  ┏━━━━┓          ┃
+  3┤  ┃    ┃     ┏━┓  ┃
+y 2┤  ┃    ┗━━┓  ┃ ┃  ┃
+  1┤━━┛       ┃  ┃ ┃  ┃
+ -1┤          ┗━━┛ ┗━━┛
+   └┬──┬─┬──┬──┬──┬─┬──┬▶
+    1  2 3  4  5  6 7  8
+             x
+```
+
+```
+plot(
+ [
+      [
+        [1, 1],
+        [2, 2],
+        [3, 4],
+        [4, 6],
+      ],
+      [
+        [5, 4],
+        [6, 1],
+        [7, 2],
+        [8, 3],
+      ],
+    ],
+    {
+      width: 20,
+      fillArea: true,
+      color: ['ansiGreen', 'ansiBlue'],
+      legend: { position: 'bottom', series: ['first', 'second'] },
+    },
+);
+
+ ▲
+6┤       ██
+ │       ██
+4┤    █████  ███
+3┤    █████  ███    ██
+2┤  ███████  ███ █████
+1┤█████████  █████████
+ └┬──┬─┬──┬──┬──┬─┬──┬▶
+  1  2 3  4  5  6 7  8
+█ first
+█ second
+
+```
+
+```
+plot(
+  [
+        [1, 1],
+        [2, 4],
+        [3, 4],
+        [4, 2],
+        [5, -1],
+        [6, 3],
+        [7, -1],
+        [8, 9],
+      ],
+      { symbols: { border: '█' }, xLabel: 'x', yLabel: 'y', width: 20, height: 8 },
+);
+
+███████████████████████████
+█   ▲                     █
+█  9┤                  ┏━ █
+█   │                  ┃  █
+█   │                  ┃  █
+█  4┤  ┏━━━━┓          ┃  █
+█  3┤  ┃    ┃     ┏━┓  ┃  █
+█y 2┤  ┃    ┗━━┓  ┃ ┃  ┃  █
+█  1┤━━┛       ┃  ┃ ┃  ┃  █
+█ -1┤          ┗━━┛ ┗━━┛  █
+█   └┬──┬─┬──┬──┬──┬─┬──┬▶█
+█    1  2 3  4  5  6 7  8 █
+█             x           █
+███████████████████████████
 ```
 
 ```
@@ -610,6 +732,7 @@ plot(
     ],
     {
       symbols: {
+        empty: 'x',
         empty: '-',
         axis: {
           n: 'A',
@@ -634,20 +757,19 @@ plot(
     },
   )
 
---------------------------------------------
---A-----------------------------------------
--5t---------------61111112------------------
---i---------------3------3------------------
---i---------------3------3------------------
--3t---------------3------3---------------61-
--2t11111112-------3------411111112-------3--
---i-------3-------3--------------3-------3--
--0t-------411111115--------------3-------3--
---i------------------------------3-------3--
---i------------------------------3-------3--
+xxA-----------------------------------------
+x5t---------------61111112------------------
+xxi---------------3------3------------------
+xxi---------------3------3------------------
+x3t---------------3------3---------------61-
+x2t11111112-------3------411111112-------3--
+xxi-------3-------3--------------3-------3--
+x0t-------411111115--------------3-------3--
+xxi------------------------------3-------3--
+xxi------------------------------3-------3--
 -2t------------------------------411111115--
---ojmmmmmmmjmmmmmmmjmmmmmmjmmmmmmmjmmmmmmmjB
----1-------2-------3------4-------5-------6-
+xxojmmmmmmmjmmmmmmmjmmmmmmjmmmmmmmjmmmmmmmjB
+xxx1xxxxxxx2xxxxxxx3xxxxxx4xxxxxxx5xxxxxxx6x
 ```
 
 ```
