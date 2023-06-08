@@ -1,6 +1,6 @@
 {
   "name": "simple-ascii-chart",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "description": "Simple ascii chart generator",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
