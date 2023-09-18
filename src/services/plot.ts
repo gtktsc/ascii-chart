@@ -11,8 +11,8 @@ import {
   getAxisCenter,
 } from './coords';
 import { getChartSymbols, defaultFormatter } from './settings';
-import { SingleLine, MultiLine, Plot, CustomSymbol, Formatter } from '../types';
-import { AXIS, CHART, EMPTY } from '../constants';
+import { SingleLine, MultiLine, Plot, CustomSymbol, Formatter } from '../types/index';
+import { AXIS, EMPTY } from '../constants/index';
 
 export const plot: Plot = (
   rawInput,
@@ -226,7 +226,7 @@ export const plot: Plot = (
   let xShift = 0;
   let longestY = 0;
   input.forEach((current) => {
-    current.forEach(([pointX, pointY], index) => {
+    current.forEach(([pointX, pointY]) => {
       xShift = Math.max(
         toArray(
           transformLabel(pointX, {
@@ -320,13 +320,11 @@ export const plot: Plot = (
         const shift = axisCenter ? -1 : 0;
 
         // check if place is taken by previous point
-        const hasPlaceToRender = pointXShift.every((_, i) => {
-          // take into consideration different axis center,
-          // when axis center is set to true symbol might be '-'
-          return [emptySymbol, axisSymbols.ns].includes(
-            graph[yPos - 1][scaledX + yShift - i + 2 + shift],
-          );
-        });
+        // take into consideration different axis center,
+        // when axis center is set to true symbol might be '-'
+        const hasPlaceToRender = pointXShift.every((_, i) =>
+          [emptySymbol, axisSymbols.ns].includes(graph[yPos - 1][scaledX + yShift - i + 2 + shift]),
+        );
 
         for (let i = 0; i < pointXShift.length; i += 1) {
           let signShift = -1;
@@ -453,9 +451,6 @@ export const plot: Plot = (
             if (reversedLabel[i]) {
               // eslint-disable-next-line no-param-reassign
               line[0] = reversedLabel[i];
-            } else {
-              // eslint-disable-next-line no-param-reassign
-              line[0] = backgroundSymbol;
             }
           });
         }
@@ -528,3 +523,5 @@ export const plot: Plot = (
 
   return `\n${graph.map((line) => line.join('')).join('\n')}\n`;
 };
+
+export default plot;

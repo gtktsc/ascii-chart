@@ -1,6 +1,6 @@
 import { plot } from '../plot';
 
-import { Coordinates, LineFormatterArgs, Settings, FormatterHelpers } from '../../types';
+import { Coordinates, LineFormatterArgs, Settings, FormatterHelpers } from '../../types/index';
 
 describe('plot', () => {
   const mockedData = [
@@ -335,6 +335,149 @@ s-30┤━━━━━━━━━━━━━━━━━━┛
 █    1  2 3  4  5  6 7  8 █
 █             x           █
 ███████████████████████████
+`,
+    ],
+
+    [
+      'adds single legend at top and overrides symbols',
+      [
+        [1, 5],
+        [3, 0],
+      ],
+      {
+        width: 10,
+        height: 10,
+        legend: { position: 'top', series: 'first' },
+        symbols: { axis: { n: 'A' } },
+      },
+      `
+█ first      
+ A           
+5┤━━━━━━━━┓  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+0┤        ┗━ 
+ └┬────────┬▶
+  1        3 
+`,
+    ],
+    [
+      'adds single legend at bottom and overrides symbols',
+      [
+        [1, 5],
+        [3, 0],
+      ],
+      {
+        width: 10,
+        height: 10,
+        legend: { position: 'bottom', series: 'first' },
+        symbols: { axis: { n: 'A' } },
+      },
+      `
+ A           
+5┤━━━━━━━━┓  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+0┤        ┗━ 
+ └┬────────┬▶
+  1        3 
+█ first      
+`,
+    ],
+
+    [
+      'adds single legend at left and overrides symbols',
+      [
+        [1, 5],
+        [3, 0],
+      ],
+      {
+        width: 10,
+        height: 10,
+        legend: { position: 'left', series: 'first' },
+        symbols: { axis: { n: 'A' } },
+      },
+      `
+█ first A           
+       5┤━━━━━━━━┓  
+        │        ┃  
+        │        ┃  
+        │        ┃  
+        │        ┃  
+        │        ┃  
+        │        ┃  
+        │        ┃  
+        │        ┃  
+       0┤        ┗━ 
+        └┬────────┬▶
+         1        3 
+`,
+    ],
+
+    [
+      'adds single legend at right and overrides symbols',
+      [
+        [1, 5],
+        [3, 0],
+      ],
+      {
+        width: 10,
+        height: 10,
+        legend: { position: 'right', series: 'first' },
+        symbols: { axis: { n: 'A' } },
+      },
+      `
+ A           █ first
+5┤━━━━━━━━┓         
+ │        ┃         
+ │        ┃         
+ │        ┃         
+ │        ┃         
+ │        ┃         
+ │        ┃         
+ │        ┃         
+ │        ┃         
+0┤        ┗━        
+ └┬────────┬▶       
+  1        3        
+`,
+    ],
+
+    [
+      'adds single legend',
+
+      [
+        [1, 5],
+        [3, 0],
+      ],
+      { width: 10, height: 10, legend: { position: 'bottom', series: 'first' } },
+      `
+ ▲           
+5┤━━━━━━━━┓  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+ │        ┃  
+0┤        ┗━ 
+ └┬────────┬▶
+  1        3 
+█ first      
 `,
     ],
     [

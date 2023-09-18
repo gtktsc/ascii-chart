@@ -1,5 +1,5 @@
-import { SingleLine } from '../../types';
-import { scaler, getExtrema, getPlotCoords, toSorted } from '../coords';
+import { SingleLine } from '../../types/index';
+import { scaler, getExtrema, getPlotCoords, toSorted, toEmpty } from '../coords';
 
 describe('getPlotCoords', () => {
   describe.each([
@@ -180,5 +180,33 @@ describe('toSorted', () => {
     it(variant, () => {
       expect(toSorted(arr as SingleLine)).toStrictEqual(output);
     });
+  });
+});
+describe('toEmpty', () => {
+  it('should return an empty array of the specified size', () => {
+    const size = 5;
+    const result = toEmpty(size, '');
+    expect(result).toHaveLength(size);
+    expect(result.every((item) => item === '')).toBe(true);
+  });
+
+  it('should return an array filled with the specified empty string', () => {
+    const size = 3;
+    const emptyString = 'X';
+    const result = toEmpty(size, emptyString);
+    expect(result).toHaveLength(size);
+    expect(result.every((item) => item === emptyString)).toBe(true);
+  });
+
+  it('should return an empty array when size is 0', () => {
+    const size = 0;
+    const result = toEmpty(size);
+    expect(result).toHaveLength(size);
+  });
+
+  it('should return an empty array when size is negative', () => {
+    const size = -5;
+    const result = toEmpty(size);
+    expect(result).toHaveLength(0);
   });
 });

@@ -1,6 +1,7 @@
 # Simple ascii chart
 
-Simple TS package to draw ASCII charts. It operates on a two-dimensional input, supports multi-series, custom colors, formatters.
+**Simple ASCII Chart** is a TypeScript package that allows you to create ASCII charts in your terminal. It operates on two-dimensional input data, supports multiple series, custom colors, and formatters to make your data visualization clear and customizable.
+
 [Interactive demo.](https://simple-ascii-chart.vercel.app/)
 
 With colored multiline:
@@ -15,46 +16,46 @@ With axis:
 
 ![Example chart with center position](https://user-images.githubusercontent.com/17948218/183447523-a0604d0c-eb22-451a-91c8-fb56eff039a7.png)
 
-# Usage
+## Usage
 
 Package can be imported via yarn (or npm):
 
-```
+```bash
 yarn add simple-ascii-chart
 ```
 
 And used like:
 
-```
-import plot from 'simple-ascii-chart'
+```typescript
+import plot from 'simple-ascii-chart';
 
 const graph = plot(input, settings);
 ```
 
-or
+## Playground
 
-create a graph in [playground](https://simple-ascii-chart.vercel.app/)
+Alternatively, you can create a graph interactively in the [playground](https://simple-ascii-chart.vercel.app/).
 
-or
+## API Endpoint
 
-hit the endpoint:
+You can also use the API endpoint to generate charts by sending a POST request with your input data:
 
-```
+```bash
 curl -d input='[[1,2],[2,3],[3,4]]' -G https://simple-ascii-chart.vercel.app/api
 ```
 
-or
+or as a URL parameter:
 
-```
+```bash
 https://simple-ascii-chart.vercel.app/api?input=[[1,2],[2,3],[3,4]]&settings={%22width%22:50}
 ```
 
-# How to use it
+## How to use it
 
 When dependency is imported to project:
 
-```
-import plot from 'simple-ascii-chart'
+```typescript
+import plot from 'simple-ascii-chart';
 
 console.log(
   plot(
@@ -75,7 +76,7 @@ console.log(
 
 And 🎉, chart appears in your terminal:
 
-```
+```bash
 Important data
   ▲
  9┤                  ┏━
@@ -90,11 +91,11 @@ Important data
    1  2 3  4  5  6 7  8
 ```
 
-# Input
+## Input
 
 Input has to be a two dimensional array or array of arrays for series:
 
-```
+```typescript
 Point = [x: number, y: number];
 SingleLine = Point[];
 MultiLine = SingleLine[];
@@ -104,40 +105,40 @@ Input = SingleLine | MultiLine;
 
 Therefore input for a single series is:
 
-```
+```typescript
 const input = [
-    [1, 1],
-    [2, 4],
-    [3, 40],
-  ]
+  [1, 1],
+  [2, 4],
+  [3, 40],
+];
 ```
 
 Or for multi-series:
 
-```
+```typescript
 const input = [
-    [
-      [0, 18],
-      [1, 1],
-      [2, 3],
-    ],
-    [
-      [4, 1],
-      [5, 0],
-      [6, 1],
-    ],
+  [
+    [0, 18],
+    [1, 1],
+    [2, 3],
   ],
+  [
+    [4, 1],
+    [5, 0],
+    [6, 1],
+  ],
+];
 ```
 
-# Settings
+## Settings
 
 Plot can be adjusted with a second parameter `settings`.
 
-## color
+### color
 
 Changes graph color. Possible values are:
 
-```
+```typescript
 color?:
   | 'ansiRed'
   | 'ansiGreen'
@@ -151,45 +152,45 @@ color?:
 
 Can be used to distinguish series like:
 
-```
-color: ['ansiGreen', 'ansiRed']
+```typescript
+color: ['ansiGreen', 'ansiRed'];
 ```
 
-## width
+### width
 
 Changes default width of the graph, can be used to scale up/down values:
 
-```
+```typescript
 width?: number
 ```
 
-## height
+### height
 
 Changes default height of the graph, can be used to scale up/down values:
 
-```
+```typescript
 height?: number
 ```
 
-## axisCenter
+### axisCenter
 
 Changes center of the axis, by default it's placed in the bottom-left:
 
-```
+```typescript
 axisCenter?: [x:number, y:number]
 ```
 
-## formatter
+### formatter
 
 Transforms axis label:
 
-```
+```typescript
 formatter?: Formatter
 ```
 
 Where
 
-```
+```typescript
 type FormatterHelpers = {
   axis: 'x' | 'y';
   xRange: number[];
@@ -197,12 +198,11 @@ type FormatterHelpers = {
 };
 
 type Formatter = (number: number, helpers: FormatterHelpers) => number | string;
-
 ```
 
 Default formatter is:
 
-```
+```typescript
 defaultFormatter: Formatter = (value, { xRange, yRange }) => {
   // Cut off small values
   if (Math.abs(xRange[0]) < 1000 || Math.abs(yRange[0]) < 1000) {
@@ -214,11 +214,11 @@ defaultFormatter: Formatter = (value, { xRange, yRange }) => {
 };
 ```
 
-## lineFormatter
+### lineFormatter
 
 Transforms line, allows to format graph style. Callback takes arguments:
 
-```
+```typescript
 LineFormatterArgs = {
   x: number;
   y: number;
@@ -231,73 +231,72 @@ LineFormatterArgs = {
 
 `plotX` and `plotY` is coordinate of a point scaled to the plot. Callback has to return:
 
-```
+```typescript
 CustomSymbol = { x: number; y: number; symbol: string };
 ```
 
 where `x` and `y` is also plot coordinate, `symbol` is char to be displayed. If an array is returned, more points can be placed on the graph.
 
-```
-
+```typescript
 lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
 ```
 
 Check examples section for real world usage.
 
-## title
+### title
 
 Adds title above the graph:
 
-```
+```typescript
 title?: string;
 ```
 
-## xLabel
+### xLabel
 
 Adds label to the x axis:
 
-```
+```typescript
 xLabe
 l?: string;
 ```
 
-## yLabel
+### yLabel
 
 Adds label to the y axis:
 
-```
+```typescript
 yLabel?: string;
 ```
 
-## fillArea
+### fillArea
 
 Some graphs look better presented as a area, not lines. In order to use area chart, pass fillArea prop:
 
-```
+```typescript
 fillArea?: boolean;
 ```
 
-## hideXAxis
+### hideXAxis
 
 Hide X axis:
 
-```
+```typescript
 hideXAxis? boolean;
 ```
 
-## hideYAxis
+### hideYAxis
 
 Hide Y axis:
 
-```
+```typescript
 hideYAxis? boolean;
 ```
 
-## symbols
+### symbols
 
 Overrides default symbols. Three independent sections are: `empty` - background, `axis` - symbols used to draw axis, `chart` - symbols used to draw graph.
 
-```
+```typescript
 symbols: {
   background: ' ',
   border: undefined,
@@ -324,7 +323,7 @@ symbols: {
 
 ## Summary
 
-```
+```typescript
 Settings = {
   color?: Color | Color[];
   width?: number;
@@ -365,9 +364,13 @@ Settings = {
 };
 ```
 
-# Examples
+## Examples
 
-```
+### Simple plot
+
+Input:
+
+```typescript
 plot(
   [
     [1, 1],
@@ -378,6 +381,11 @@ plot(
   ],
   { width: 9, height: 6 },
 );
+```
+
+Output:
+
+```bash
 
   ▲
  4┤ ┏━━━┓
@@ -390,7 +398,11 @@ plot(
    1 2 3 4 5
 ```
 
-```
+### Plot with title and defined size
+
+Input:
+
+```typescript
 plot(
   [
     [1, 1],
@@ -404,7 +416,11 @@ plot(
   ],
   { title: 'Important data', width: 20, height: 8 },
 );
+```
 
+Output:
+
+```bash
 Important data
   ▲
  9┤                  ┏━
@@ -419,7 +435,11 @@ Important data
    1  2 3  4  5  6 7  8
 ```
 
-```
+### Plot with axis labels
+
+Input:
+
+```typescript
 plot(
   [
     [1, 1],
@@ -431,9 +451,13 @@ plot(
     [7, -1],
     [8, 9],
   ],
-  { xLabel: 'x', yLabel:'y', width: 20, height: 8 },
+  { xLabel: 'x', yLabel: 'y', width: 20, height: 8 },
 );
+```
 
+Output:
+
+```bash
    ▲
   9┤                  ┏━
    │                  ┃
@@ -448,30 +472,38 @@ y 2┤  ┃    ┗━━┓  ┃ ┃  ┃
              x
 ```
 
-```
-plot(
- [
-      [
-        [1, 1],
-        [2, 2],
-        [3, 4],
-        [4, 6],
-      ],
-      [
-        [5, 4],
-        [6, 1],
-        [7, 2],
-        [8, 3],
-      ],
-    ],
-    {
-      width: 20,
-      fillArea: true,
-      color: ['ansiGreen', 'ansiBlue'],
-      legend: { position: 'bottom', series: ['first', 'second'] },
-    },
-);
+### Plot with colors
 
+Input:
+
+```typescript
+plot(
+  [
+    [
+      [1, 1],
+      [2, 2],
+      [3, 4],
+      [4, 6],
+    ],
+    [
+      [5, 4],
+      [6, 1],
+      [7, 2],
+      [8, 3],
+    ],
+  ],
+  {
+    width: 20,
+    fillArea: true,
+    color: ['ansiGreen', 'ansiBlue'],
+    legend: { position: 'bottom', series: ['first', 'second'] },
+  },
+);
+```
+
+Output:
+
+```bash
  ▲
 6┤       ██
  │       ██
@@ -486,21 +518,29 @@ plot(
 
 ```
 
-```
+### Plot with borders
+
+Input:
+
+```typescript
 plot(
   [
-        [1, 1],
-        [2, 4],
-        [3, 4],
-        [4, 2],
-        [5, -1],
-        [6, 3],
-        [7, -1],
-        [8, 9],
-      ],
-      { symbols: { border: '█' }, xLabel: 'x', yLabel: 'y', width: 20, height: 8 },
+    [1, 1],
+    [2, 4],
+    [3, 4],
+    [4, 2],
+    [5, -1],
+    [6, 3],
+    [7, -1],
+    [8, 9],
+  ],
+  { symbols: { border: '█' }, xLabel: 'x', yLabel: 'y', width: 20, height: 8 },
 );
+```
 
+Output:
+
+```bash
 ███████████████████████████
 █   ▲                     █
 █  9┤                  ┏━ █
@@ -517,7 +557,11 @@ plot(
 ███████████████████████████
 ```
 
-```
+### Plot with filled area
+
+Input:
+
+```typescript
 plot(
   [
     [
@@ -538,7 +582,11 @@ plot(
     color: ['ansiGreen', 'ansiBlue'],
   },
 );
+```
 
+Output:
+
+```bash
   ▲
  6┤  ██
   │  ██
@@ -550,7 +598,11 @@ plot(
    1234
 ```
 
-```
+### Scaled up plot
+
+Input:
+
+```typescript
 plot(
   [
     [1, 1],
@@ -566,7 +618,11 @@ plot(
   ],
   { width: 40, height: 10 },
 );
+```
 
+Output:
+
+```bash
    ▲
  40┤        ┏━━━┓
    │        ┃   ┃
@@ -582,7 +638,11 @@ plot(
     1   2    3   4   5    6   7   8    9   10
 ```
 
-```
+### Multi-series plot
+
+Input:
+
+```typescript
 plot(
   [
     [
@@ -612,7 +672,11 @@ plot(
   ],
   { width: 40, height: 10, color: ['ansiBlue', 'ansiGreen'] },
 );
+```
 
+Output:
+
+```bash
    ▲
  17┤━━━━┓                           ┏━━━━┓
  16┤    ┃                     ┏━━━━━┛    ┃
@@ -628,30 +692,38 @@ plot(
     0    1     2    3     4    5     6    7     8    9
 ```
 
-```
-  plot(
-    [
-      [
-        [0, -10],
-        [1, 0.001],
-        [2, 10],
-        [3, 200],
-        [4, 10000],
-        [5, 2000000],
-        [6, 50000000],
-      ],
-    ],
-    {
-      width: 30,
-      height: 20,
-      formatter: (n: number, { axis }: FormatterHelpers) => {
-        const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-        if (axis === 'y') return n;
-        return labels[n] || 'X';
-      },
-    },
-  )
+### Plot with formatting applied
 
+Input:
+
+```typescript
+plot(
+  [
+    [
+      [0, -10],
+      [1, 0.001],
+      [2, 10],
+      [3, 200],
+      [4, 10000],
+      [5, 2000000],
+      [6, 50000000],
+    ],
+  ],
+  {
+    width: 30,
+    height: 20,
+    formatter: (n: number, { axis }: FormatterHelpers) => {
+      const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+      if (axis === 'y') return n;
+      return labels[n] || 'X';
+    },
+  },
+);
+```
+
+Output:
+
+```bash
          ▲
  50000000┤                            ┏━
          │                            ┃
@@ -677,25 +749,33 @@ plot(
           A    B    C    D   E    F    G
 ```
 
-```
-  plot(
-    [
-      [
-        [-8, -8],
-        [-4, -4],
-        [-3, -3],
-        [-2, -2],
-        [-1, -1],
-        [0, 0],
-        [2, 2],
-        [3, 3],
-        [4, 4],
-        [8, 8],
-      ],
-    ],
-    { width: 60, height: 20, axisCenter: [0, 0] },
-  )
+### Plot with axis center
 
+Input:
+
+```typescript
+plot(
+  [
+    [
+      [-8, -8],
+      [-4, -4],
+      [-3, -3],
+      [-2, -2],
+      [-1, -1],
+      [0, 0],
+      [2, 2],
+      [3, 3],
+      [4, 4],
+      [8, 8],
+    ],
+  ],
+  { width: 60, height: 20, axisCenter: [0, 0] },
+);
+```
+
+Output:
+
+```bash
                                  ▲
                                 8┤                           ┏━
                                  │                           ┃
@@ -720,43 +800,51 @@ plot(
                                  │
 ```
 
-```
-  plot(
-    [
-      [1, 2],
-      [2, 0],
-      [3, 5],
-      [4, 2],
-      [5, -2],
-      [6, 3],
-    ],
-    {
-      symbols: {
-        empty: 'x',
-        empty: '-',
-        axis: {
-          n: 'A',
-          ns: 'i',
-          y: 't',
-          nse: 'o',
-          x: 'j',
-          we: 'm',
-          e: 'B',
-        },
-        chart: {
-          we: '1',
-          wns: '2',
-          ns: '3',
-          nse: '4',
-          wsn: '5',
-          sne: '6',
-        },
-      },
-      width: 40,
-      height: 10,
-    },
-  )
+## Plot with custom symbols
 
+Input:
+
+```typescript
+plot(
+  [
+    [1, 2],
+    [2, 0],
+    [3, 5],
+    [4, 2],
+    [5, -2],
+    [6, 3],
+  ],
+  {
+    symbols: {
+      empty: 'x',
+      empty: '-',
+      axis: {
+        n: 'A',
+        ns: 'i',
+        y: 't',
+        nse: 'o',
+        x: 'j',
+        we: 'm',
+        e: 'B',
+      },
+      chart: {
+        we: '1',
+        wns: '2',
+        ns: '3',
+        nse: '4',
+        wsn: '5',
+        sne: '6',
+      },
+    },
+    width: 40,
+    height: 10,
+  },
+);
+```
+
+Output:
+
+```bash
 xxA-----------------------------------------
 x5t---------------61111112------------------
 xxi---------------3------3------------------
@@ -772,24 +860,32 @@ xxojmmmmmmmjmmmmmmmjmmmmmmjmmmmmmmjmmmmmmmjB
 xxx1xxxxxxx2xxxxxxx3xxxxxx4xxxxxxx5xxxxxxx6x
 ```
 
-```
-  plot(
-    [
-      [-5, 2],
-      [2, -3],
-      [13, 0.1],
-      [4, 2],
-      [5, -2],
-      [6, 12],
-    ],
-    {
-      width: 40,
-      height: 10,
-      hideYAxis: true,
-      hideXAxis: true,
-    },
-  )
+### Plot without axis
 
+Input:
+
+```typescript
+plot(
+  [
+    [-5, 2],
+    [2, -3],
+    [13, 0.1],
+    [4, 2],
+    [5, -2],
+    [6, 12],
+  ],
+  {
+    width: 40,
+    height: 10,
+    hideYAxis: true,
+    hideXAxis: true,
+  },
+);
+```
+
+Output:
+
+```bash
                            ┏━━━━━━━━━━━━━━┓
                            ┃              ┃
                            ┃              ┃
@@ -802,25 +898,33 @@ xxx1xxxxxxx2xxxxxxx3xxxxxx4xxxxxxx5xxxxxxx6x
                   ┗━━━━┛
 ```
 
-```
-  plot(
-      [
-        [-9000, 2000],
-        [-8000, -3000],
-        [-2000, -2000],
-        [2000, 2000],
-        [3000, 1500],
-        [4000, 5000],
-        [10000, 1400],
-        [11000, 20000],
-        [12000, 30000],
-      ],
-      {
-        width: 60,
-        height: 20,
-      },
-    )
+### Plot with with large numbers
 
+Input:
+
+```typescript
+plot(
+  [
+    [-9000, 2000],
+    [-8000, -3000],
+    [-2000, -2000],
+    [2000, 2000],
+    [3000, 1500],
+    [4000, 5000],
+    [10000, 1400],
+    [11000, 20000],
+    [12000, 30000],
+  ],
+  {
+    width: 60,
+    height: 20,
+  },
+);
+```
+
+Output:
+
+```bash
       ▲
    30k┤                                                          ┏━
       │                                                          ┃
@@ -847,33 +951,41 @@ xxx1xxxxxxx2xxxxxxx3xxxxxx4xxxxxxx5xxxxxxx6x
      -9k                 -2k            3k                10k   12k
 ```
 
-```
-  plot(
-    [
-      [1, 0],
-      [2, 20],
-      [3, 29],
-      [4, 10],
-      [5, 3],
-      [6, 40],
-      [7, 0],
-      [8, 20],
-    ],
-    {
-      height: 10,
-      width: 30,
-      lineFormatter: ({ y, plotX, plotY, input, index }) => {
-        const output = [{ x: plotX, y: plotY, symbol: '█' }];
+### Plot with custom line format
 
-        if (input[index - 1]?.[1] < y) {
-          return [...output, { x: plotX, y: plotY - 1, symbol: '▲' }];
-        }
+Input:
 
-        return [...output, { x: plotX, y: plotY + 1, symbol: '▼' }];
-      },
+```typescript
+plot(
+  [
+    [1, 0],
+    [2, 20],
+    [3, 29],
+    [4, 10],
+    [5, 3],
+    [6, 40],
+    [7, 0],
+    [8, 20],
+  ],
+  {
+    height: 10,
+    width: 30,
+    lineFormatter: ({ y, plotX, plotY, input, index }) => {
+      const output = [{ x: plotX, y: plotY, symbol: '█' }];
+
+      if (input[index - 1]?.[1] < y) {
+        return [...output, { x: plotX, y: plotY - 1, symbol: '▲' }];
+      }
+
+      return [...output, { x: plotX, y: plotY + 1, symbol: '▼' }];
     },
-  )
+  },
+);
+```
 
+Output:
+
+```bash
    ▲                     ▲
  40┤                     █
    │        ▲

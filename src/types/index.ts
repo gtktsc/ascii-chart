@@ -1,4 +1,4 @@
-import { AXIS, CHART, EMPTY } from '../constants';
+import { AXIS, CHART } from '../constants';
 
 export type Point = [x: number, y: number];
 export type SingleLine = Point[];

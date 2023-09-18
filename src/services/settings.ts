@@ -1,27 +1,18 @@
-import { CHART } from '../constants';
-import { Color, Formatter } from '../types';
+import { CHART } from '../constants/index';
+import { Color, Formatter } from '../types/index';
 
-export const getAnsiColor = (color: Color): string => {
-  switch (color) {
-    case 'ansiBlack':
-      return '\u001b[30m';
-    case 'ansiRed':
-      return '\u001b[31m';
-    case 'ansiGreen':
-      return '\u001b[32m';
-    case 'ansiYellow':
-      return '\u001b[33m';
-    case 'ansiBlue':
-      return '\u001b[34m';
-    case 'ansiMagenta':
-      return '\u001b[35m';
-    case 'ansiCyan':
-      return '\u001b[36m';
-    case 'ansiWhite':
-    default:
-      return '\u001b[37m';
-  }
+const colorMap: Record<Color, string> = {
+  ansiBlack: '\u001b[30m',
+  ansiRed: '\u001b[31m',
+  ansiGreen: '\u001b[32m',
+  ansiYellow: '\u001b[33m',
+  ansiBlue: '\u001b[34m',
+  ansiMagenta: '\u001b[35m',
+  ansiCyan: '\u001b[36m',
+  ansiWhite: '\u001b[37m',
 };
+
+export const getAnsiColor = (color: Color): string => colorMap[color] || colorMap.ansiWhite;
 
 export const getChartSymbols = (
   color: Color | Color[] | undefined,
@@ -36,12 +27,7 @@ export const getChartSymbols = (
     });
   }
   if (color) {
-    let currentColor = '';
-    if (Array.isArray(color)) {
-      currentColor = color[series];
-    } else {
-      currentColor = color;
-    }
+    const currentColor = Array.isArray(color) ? color[series] : color;
 
     Object.entries(chart).forEach(([key, sign]) => {
       chart[key as keyof typeof chart] = `${getAnsiColor(currentColor as Color)}${sign}\u001b[0m`;
