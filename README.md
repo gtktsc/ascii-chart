@@ -1,7 +1,7 @@
 # Simple ascii chart
 
 ![NPM License](https://img.shields.io/npm/l/simple-ascii-chart)
-![NPM License](https://img.shields.io/npm/v/simple-ascii-chart)
+![NPM Version](https://img.shields.io/npm/v/simple-ascii-chart)
 ![npm package minimized gzipped size (select exports)](https://img.shields.io/bundlejs/size/simple-ascii-chart)
 ![Codecov](https://img.shields.io/codecov/c/github/gtktsc/ascii-chart)
 
