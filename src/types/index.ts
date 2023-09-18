@@ -44,6 +44,11 @@ export type Settings = {
   title?: string;
   xLabel?: string;
   yLabel?: string;
+  thresholds?: {
+    x?: number;
+    y?: number;
+    color?: Color;
+  }[];
   fillArea?: boolean;
   legend?: { position?: 'left' | 'right' | 'top' | 'bottom'; series: string | string[] };
   axisCenter?: Point;

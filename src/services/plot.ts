@@ -10,9 +10,9 @@ import {
   toEmpty,
   getAxisCenter,
 } from './coords';
-import { getChartSymbols, defaultFormatter } from './settings';
-import { SingleLine, MultiLine, Plot, CustomSymbol, Formatter } from '../types/index';
-import { AXIS, EMPTY } from '../constants/index';
+import { getChartSymbols, defaultFormatter, getAnsiColor } from './settings';
+import { SingleLine, MultiLine, Plot, CustomSymbol, Formatter, Point } from '../types/index';
+import { AXIS, CHART, EMPTY } from '../constants/index';
 
 export const plot: Plot = (
   rawInput,
@@ -31,6 +31,7 @@ export const plot: Plot = (
     xLabel,
     yLabel,
     legend,
+    thresholds,
   } = {},
 ) => {
   // Multiline
@@ -99,7 +100,6 @@ export const plot: Plot = (
     scaledCoords = getPlotCoords(sortedCoords, plotWidth, plotHeight, expansionX, expansionY).map(
       ([x, y], index, arr) => {
         const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
-
         if (!lineFormatter) {
           if (index - 1 >= 0) {
             const [prevX, prevY] = arr[index - 1];
@@ -185,6 +185,52 @@ export const plot: Plot = (
       },
     );
   });
+
+  if (thresholds) {
+    const mappedThreshold = thresholds.map(({ x: thresholdX, y: thresholdY }) => {
+      let { x, y } = axis;
+
+      if (thresholdX) {
+        x = thresholdX;
+      }
+      if (thresholdY) {
+        y = thresholdY;
+      }
+      return [x, y] as Point;
+    });
+
+    // add threshold line
+    getPlotCoords(mappedThreshold, plotWidth, plotHeight, expansionX, expansionY).forEach(
+      ([x, y], thresholdNumber) => {
+        const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
+
+        // display x threshold only if it's in the graph
+        if (thresholds[thresholdNumber]?.x && graph[0][scaledX]) {
+          graph.forEach((_, index) => {
+            if (graph[index][scaledX]) {
+              graph[index][scaledX] = thresholds[thresholdNumber]?.color
+                ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${
+                    CHART.ns
+                  }\u001b[0m`
+                : CHART.ns;
+            }
+          });
+        }
+        // display y threshold only if it's in the graph
+        if (thresholds[thresholdNumber]?.y && graph[scaledY]) {
+          graph[scaledY].forEach((_, index) => {
+            if (graph[scaledY][index]) {
+              graph[scaledY][index] = thresholds[thresholdNumber]?.color
+                ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${
+                    CHART.we
+                  }\u001b[0m`
+                : CHART.we;
+            }
+          });
+        }
+      },
+    );
+  }
 
   // axis
   graph.forEach((line, index) => {

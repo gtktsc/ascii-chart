@@ -273,6 +273,18 @@ Adds label to the y axis:
 yLabel?: string;
 ```
 
+### thresholds
+
+Adds thresholds to plot:
+
+```typescript
+thresholds?: {
+    x?: number;
+    y?: number;
+    color?: Color;
+  }[];
+```
+
 ### fillArea
 
 Some graphs look better presented as a area, not lines. In order to use area chart, pass fillArea prop:
@@ -641,6 +653,56 @@ Output:
  -1┤━━━┛            ┗━━━━┛   ┗━━━━━━━━┛
    └┬───┬────┬───┬───┬────┬───┬───┬────┬───┬▶
     1   2    3   4   5    6   7   8    9   10
+```
+
+### Add thresholds
+
+Input:
+
+```typescript
+plot(
+  [
+    [1, 1],
+    [2, 4],
+    [3, 4],
+    [4, 2],
+    [5, -1],
+    [6, 3],
+    [7, -1],
+    [8, 9],
+  ],
+  {
+    width: 40,
+    thresholds: [
+      {
+        y: 5,
+        x: 5,
+      },
+      {
+        x: 2,
+      },
+    ],
+  },
+);
+```
+
+Output:
+
+```bash
+  ▲     ┃               ┃
+ 9┤     ┃               ┃                ┏━
+  │     ┃               ┃                ┃
+  │     ┃               ┃                ┃
+  │━━━━━┃━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  │     ┃               ┃                ┃
+ 4┤     ┃━━━━━━━━━━┓    ┃                ┃
+ 3┤     ┃          ┃    ┃     ┏━━━━┓     ┃
+ 2┤     ┃          ┗━━━━┃     ┃    ┃     ┃
+ 1┤━━━━━┃               ┃     ┃    ┃     ┃
+  │     ┃               ┃     ┃    ┃     ┃
+-1┤     ┃               ┃━━━━━┛    ┗━━━━━┛
+  └┬─────┬────┬─────┬────┬─────┬────┬─────┬▶
+   1     2    3     4    5     6    7     8
 ```
 
 ### Multi-series plot
