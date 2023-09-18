@@ -3,6 +3,7 @@
 ![NPM License](https://img.shields.io/npm/l/simple-ascii-chart)
 ![NPM License](https://img.shields.io/npm/v/simple-ascii-chart)
 ![npm package minimized gzipped size (select exports)](https://img.shields.io/bundlejs/size/simple-ascii-chart)
+![Codecov](https://img.shields.io/codecov/c/github/gtktsc/ascii-chart)
 
 **Simple ASCII Chart** is a TypeScript package that allows you to create ASCII charts in your terminal. It operates on two-dimensional input data, supports multiple series, custom colors, and formatters to make your data visualization clear and customizable.
 
