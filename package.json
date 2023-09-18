@@ -1,24 +1,16 @@
 {
   "name": "simple-ascii-chart",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Simple ascii chart generator",
-  "main": "dist/cjs/index.js",
-  "module": "dist/mjs/index.js",
-  "exports": {
-    ".": {
-      "import": "./dist/mjs/index.js",
-      "require": "./dist/cjs/index.js"
-    }
-  },
-  "types": "dist/types/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "start": "tsc-watch -p tsconfig.json --preserveWatchOutput -w --onSuccess 'node ./dist/index.js'",
     "lint": "eslint . --ext .ts,.js",
     "lint:fix": "eslint . --ext .ts,.js --fix",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist/types",
-    "build": "rm -fr dist/* && tsc -p tsconfig-mjs.json && tsc -p tsconfig-cjs.json && ./fixup.sh && npm run build:types",
+    "build": "tsc -p tsconfig.build.json",
     "prepare": "husky install",
     "prepublishOnly": "npm test && npm run lint",
     "preversion": "npm run lint",
