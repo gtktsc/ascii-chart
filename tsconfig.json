@@ -1,14 +1,15 @@
 {
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"],
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
-    "allowJs": true,
-    "esModuleInterop": true, 
-    "declaration": true,
+    "alwaysStrict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
     "strict": true,
-    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "typeRoots": ["./src/types", "node_modules/@types"],
+    "target": "es2020",
+    "rootDirs": ["src"],
   },
-  "include": ["./src"],
-  "target": "esnext",
 }
-
