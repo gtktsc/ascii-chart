@@ -355,6 +355,11 @@ Settings = {
   yLabel?: string;
   fillArea?: boolean;
   hideYAxis?: boolean;
+  thresholds?: {
+    x?: number;
+    y?: number;
+    color?: Color;
+  }[];
   symbols?: {
     background?: ' ',
     border?: undefined,
