@@ -33,10 +33,25 @@ export type FormatterHelpers = {
   yRange: number[];
 };
 
-export type Formatter = (number: number, helpers: FormatterHelpers) => number | string;
+export type Symbols = {
+  axis?: Partial<typeof AXIS>;
+  chart?: Partial<typeof CHART>;
+  empty?: string;
+  background?: string;
+  border?: string;
+};
 
+export type Formatter = (number: number, helpers: FormatterHelpers) => number | string;
+export type Legend = { position?: 'left' | 'right' | 'top' | 'bottom'; series: string | string[] };
+export type Threshold = {
+  x?: number;
+  y?: number;
+  color?: Color;
+};
+export type Colors = Color | Color[];
+export type Graph = string[][];
 export type Settings = {
-  color?: Color | Color[];
+  color?: Colors;
   width?: number;
   height?: number;
   hideXAxis?: boolean;
@@ -44,23 +59,13 @@ export type Settings = {
   title?: string;
   xLabel?: string;
   yLabel?: string;
-  thresholds?: {
-    x?: number;
-    y?: number;
-    color?: Color;
-  }[];
+  thresholds?: Threshold[];
   fillArea?: boolean;
-  legend?: { position?: 'left' | 'right' | 'top' | 'bottom'; series: string | string[] };
+  legend?: Legend;
   axisCenter?: Point;
   formatter?: Formatter;
   lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
-  symbols?: {
-    axis?: Partial<typeof AXIS>;
-    chart?: Partial<typeof CHART>;
-    empty?: string;
-    background?: string;
-    border?: string;
-  };
+  symbols?: Symbols;
 };
 
 export type Plot = (coordinates: Coordinates, settings?: Settings) => string;

@@ -18,5 +18,6 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   rules: {
     'import/extensions': 'off',
+    'no-param-reassign': 'off',
   },
 };
