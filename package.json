@@ -1,12 +1,9 @@
 {
   "name": "simple-ascii-chart",
-  "version": "4.0.5",
+  "version": "4.0.6",
   "description": "Simple ascii chart generator",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "bin": {
-    "simple-ascii-chart": "dist/cli.js"
-  },
   "scripts": {
     "start": "tsc-watch -p tsconfig.json --preserveWatchOutput -w --onSuccess 'node ./dist/index.js'",
     "lint": "eslint . --ext .ts,.js",
@@ -61,8 +58,5 @@
   "homepage": "https://github.com/gtktsc/ascii-chart#readme",
   "files": [
     "dist/**/*"
-  ],
-  "dependencies": {
-    "yargs": "^17.7.2"
-  }
+  ]
 }
