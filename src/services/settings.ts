@@ -1,5 +1,5 @@
 import { CHART } from '../constants/index';
-import { Color, Formatter } from '../types/index';
+import { Color, ColorGetter, Formatter, MultiLine } from '../types/index';
 
 const colorMap: Record<Color, string> = {
   ansiBlack: '\u001b[30m',
@@ -15,9 +15,10 @@ const colorMap: Record<Color, string> = {
 export const getAnsiColor = (color: Color): string => colorMap[color] || colorMap.ansiWhite;
 
 export const getChartSymbols = (
-  color: Color | Color[] | undefined,
+  color: Color | Color[] | undefined | ColorGetter,
   series: number,
   chartSymbols: Partial<typeof CHART> | void,
+  input: MultiLine,
   fillArea?: boolean,
 ) => {
   const chart = { ...CHART, ...chartSymbols };
@@ -27,10 +28,18 @@ export const getChartSymbols = (
     });
   }
   if (color) {
-    const currentColor = Array.isArray(color) ? color[series] : color;
+    let currentColor: Color = 'ansiWhite';
+
+    if (Array.isArray(color)) {
+      currentColor = color[series];
+    } else if (typeof color === 'function') {
+      currentColor = color(series, input);
+    } else if (color) {
+      currentColor = color;
+    }
 
     Object.entries(chart).forEach(([key, sign]) => {
-      chart[key as keyof typeof chart] = `${getAnsiColor(currentColor as Color)}${sign}\u001b[0m`;
+      chart[key as keyof typeof chart] = `${getAnsiColor(currentColor)}${sign}\u001b[0m`;
     });
   }
   return chart;

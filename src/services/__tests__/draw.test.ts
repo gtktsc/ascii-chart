@@ -25,6 +25,7 @@ describe('Drawing functions', () => {
         graph,
         yShift: 1,
         i: 0,
+        plotHeight: 3,
         scaledX: 1,
         shift: 0,
         signShift: 0,
@@ -47,10 +48,13 @@ describe('Drawing functions', () => {
         yShift: 0,
         axis: { x: 0, y: 0 },
         pointY: 1,
+        plotHeight: 3,
         transformLabel: (value: number) => value.toString(),
         axisSymbols: { y: 'Y' },
         expansionX: [0],
         expansionY: [0, 1, 2],
+        coordsGetter: () => [0, 0] as Point,
+        plotGetter: () => [0, 0] as Point,
       };
 
       drawYAxisEnd(params);
@@ -71,10 +75,13 @@ describe('Drawing functions', () => {
         yShift: 1,
         axis: { x: 1, y: 1 },
         pointY: 2,
+        plotHeight: 2,
         transformLabel: (value: number) => value.toString(),
         axisSymbols: AXIS,
         expansionX: [],
         expansionY: [],
+        coordsGetter: () => [0, 0] as Point,
+        plotGetter: () => [0, 0] as Point,
       };
       drawYAxisEnd(args);
       expect(graph[2][3]).toEqual(AXIS.y);

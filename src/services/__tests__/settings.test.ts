@@ -35,7 +35,7 @@ describe('getChartSymbols', () => {
     [['ansiBlack', 'ansiRed'], '\u001b[31m', 1],
   ])('', (input, output, series) => {
     it(input.toString(), () => {
-      const formatted = getChartSymbols(input as Color, series);
+      const formatted = getChartSymbols(input as Color, series, undefined, [[]], false);
       expect(formatted.we).toBe(`${output}━\u001b[0m`);
       expect(formatted.wns).toBe(`${output}┓\u001b[0m`);
       expect(formatted.ns).toBe(`${output}┃\u001b[0m`);

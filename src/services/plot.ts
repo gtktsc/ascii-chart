@@ -32,6 +32,8 @@ export const plot: Plot = (
     color,
     width,
     height,
+    yRange,
+    showTickLabel,
     axisCenter,
     formatter,
     lineFormatter,
@@ -62,6 +64,7 @@ export const plot: Plot = (
     width,
     height,
     input,
+    yRange,
   });
   const { axisSymbols, emptySymbol, backgroundSymbol, borderSymbol } = getSymbols({ symbols });
 
@@ -76,7 +79,7 @@ export const plot: Plot = (
   // get default chart symbols
   input.forEach((coords: SingleLine, series) => {
     // override default chart symbols with colored ones
-    const chartSymbols = getChartSymbols(color, series, symbols?.chart, fillArea);
+    const chartSymbols = getChartSymbols(color, series, symbols?.chart, input, fillArea);
 
     // sort input by the first value
     const sortedCoords = toSorted(coords);
@@ -152,8 +155,11 @@ export const plot: Plot = (
       const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
       if (!hideYAxis) {
         drawYAxisEnd({
+          showTickLabel,
+          plotHeight,
           graph,
           scaledY,
+          axisCenter,
           yShift,
           axis,
           pointY,
@@ -184,18 +190,36 @@ export const plot: Plot = (
             signShift = -2;
           }
 
-          const isSymbolOnXAxisOccupied =
-            graph[yPos + signShift][scaledX + yShift + 2 + shift] === axisSymbols.x;
+          const rowIndex = yPos + signShift;
+          const colIndex = scaledX + yShift + 2 + shift;
+
+          // Check if rowIndex is within bounds
+          const rowExists = rowIndex >= 0 && rowIndex < graph.length;
+
+          // Initialize isSymbolOnXAxisOccupied
+          let isSymbolOnXAxisOccupied = false;
+
+          if (rowExists) {
+            const row = graph[rowIndex];
+
+            // Check if colIndex is within bounds
+            const colExists = colIndex >= 0 && colIndex < row.length;
+
+            if (colExists) {
+              isSymbolOnXAxisOccupied = row[colIndex] === axisSymbols.x;
+            }
+          }
 
           // Make sure position is not taken already
           if (isSymbolOnXAxisOccupied) {
             break;
           }
 
-          // make sure that shift is applied only when place is taken
+          // Apply shift only when place is taken
           if (axisCenter) {
             yPos = axis.y + 1;
           }
+
           drawXAxisEnd({
             hasPlaceToRender,
             axisCenter,
@@ -250,6 +274,7 @@ export const plot: Plot = (
 
   if (legend) {
     addLegend({
+      input,
       graph,
       legend,
       backgroundSymbol,

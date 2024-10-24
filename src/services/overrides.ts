@@ -1,5 +1,5 @@
 import { CHART } from '../constants';
-import { Colors, Formatter, Graph, Legend, Point, Symbols, Threshold } from '../types';
+import { Colors, Formatter, Graph, Legend, MultiLine, Point, Symbols, Threshold } from '../types';
 import { getPlotCoords, toArray, toEmpty, toPlot } from './coords';
 import { defaultFormatter, getAnsiColor, getChartSymbols } from './settings';
 
@@ -77,10 +77,12 @@ export const addLegend = ({
   color,
   symbols,
   fillArea,
+  input,
 }: {
   graph: Graph;
   legend: Legend;
   backgroundSymbol: string;
+  input: MultiLine;
   color?: Colors;
   symbols?: Symbols;
   fillArea?: boolean;
@@ -101,7 +103,7 @@ export const addLegend = ({
         series.forEach((label, index) => {
           if (lineIndex !== index) return;
           // get chart symbols for series
-          const chartSymbols = getChartSymbols(color, index, symbols?.chart, fillArea);
+          const chartSymbols = getChartSymbols(color, index, symbols?.chart, input, fillArea);
 
           const reversedLabel = [
             chartSymbols.area,
@@ -122,7 +124,7 @@ export const addLegend = ({
         series.forEach((label, index) => {
           // get chart symbols for series
 
-          const chartSymbols = getChartSymbols(color, index, symbols?.chart, fillArea);
+          const chartSymbols = getChartSymbols(color, index, symbols?.chart, input, fillArea);
           const newSymbol = [
             chartSymbols.area,
             backgroundSymbol,
@@ -144,7 +146,7 @@ export const addLegend = ({
       graph.unshift(toEmpty(graph[0].length, backgroundSymbol)); // top
 
       // get chart symbols for series
-      const chartSymbols = getChartSymbols(color, index, symbols?.chart, fillArea);
+      const chartSymbols = getChartSymbols(color, index, symbols?.chart, input, fillArea);
       const newSymbol = [chartSymbols.area, backgroundSymbol, ...Array.from(label)];
 
       graph[index].forEach((_, symbolIndex) => {
@@ -161,7 +163,7 @@ export const addLegend = ({
       graph.push(toEmpty(graph[0].length, backgroundSymbol)); // bottom
 
       // get chart symbols for series
-      const chartSymbols = getChartSymbols(color, index, symbols?.chart, fillArea);
+      const chartSymbols = getChartSymbols(color, index, symbols?.chart, input, fillArea);
       const newSymbol = [chartSymbols.area, backgroundSymbol, ...Array.from(label)];
 
       graph[index].forEach((_, symbolIndex) => {

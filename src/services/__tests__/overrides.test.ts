@@ -57,7 +57,7 @@ describe('Graph Utility Functions', () => {
     it('should add the legend correctly', () => {
       const legend = { position: 'top', series: ['A', 'B'] } as Legend;
 
-      addLegend({ legend, graph, backgroundSymbol });
+      addLegend({ legend, graph, backgroundSymbol, input: [[]] });
 
       expect(graph[0].join('')).toContain('A');
       expect(graph[1].join('')).toContain('B');

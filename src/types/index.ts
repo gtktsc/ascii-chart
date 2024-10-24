@@ -1,6 +1,7 @@
 import { AXIS, CHART } from '../constants';
 
 export type Point = [x: number, y: number];
+export type MaybePoint = Point | undefined | [number | undefined, number | undefined];
 export type SingleLine = Point[];
 export type MultiLine = SingleLine[];
 
@@ -48,12 +49,15 @@ export type Threshold = {
   y?: number;
   color?: Color;
 };
-export type Colors = Color | Color[];
+export type ColorGetter = (series: number, coordinates: MultiLine) => Color;
+export type Colors = Color | Color[] | ColorGetter;
 export type Graph = string[][];
 export type Settings = {
   color?: Colors;
   width?: number;
   height?: number;
+  yRange?: [number, number];
+  showTickLabel?: boolean;
   hideXAxis?: boolean;
   hideYAxis?: boolean;
   title?: string;
@@ -62,7 +66,7 @@ export type Settings = {
   thresholds?: Threshold[];
   fillArea?: boolean;
   legend?: Legend;
-  axisCenter?: Point;
+  axisCenter?: MaybePoint;
   formatter?: Formatter;
   lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
   symbols?: Symbols;

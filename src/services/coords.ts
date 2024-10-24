@@ -78,10 +78,26 @@ export const toSorted = (array: SingleLine): SingleLine =>
  * @param {number} plotHeight - The height of the plot.
  * @returns {function} - A function that takes (x, y) and returns plot coordinates [scaledX, scaledY].
  */
-export const toPlot = (plotWidth: number, plotHeight: number) => (x: number, y: number) => [
-  Math.round((x / plotWidth) * plotWidth),
-  plotHeight - 1 - Math.round((y / plotHeight) * plotHeight),
-];
+export const toPlot =
+  (plotWidth: number, plotHeight: number) =>
+  (x: number, y: number): Point => [
+    Math.round((x / plotWidth) * plotWidth),
+    plotHeight - 1 - Math.round((y / plotHeight) * plotHeight),
+  ];
+
+/**
+ * Converts plot coordinates (scaledX, scaledY) back to the original coordinates in the specified plot dimensions.
+ * @param {number} plotWidth - The width of the plot.
+ * @param {number} plotHeight - The height of the plot.
+ * @returns {function} - A function that takes (scaledX, scaledY) and returns original coordinates [x, y].
+ */
+export const fromPlot =
+  (plotWidth: number, plotHeight: number) =>
+  (scaledX: number, scaledY: number): [number, number] => {
+    const x = (scaledX / plotWidth) * plotWidth;
+    const y = (plotHeight - 1 - scaledY) * (plotHeight / plotHeight);
+    return [Math.round(x), Math.round(y)];
+  };
 
 /**
  * Finds the maximum or minimum value in a single-line array of points.
@@ -179,10 +195,9 @@ export const getPlotCoords = (
 
   return coordinates.map(toScale);
 };
-
 /**
  * Gets the center point for an axis.
- * @param {Point | void} axisCenter - The center point of the axis (optional).
+ * @param {Point | [number | undefined, number | undefined] | undefined} axisCenter - The center point of the axis.
  * @param {number} plotWidth - The width of the plot.
  * @param {number} plotHeight - The height of the plot.
  * @param {number[]} rangeX - The range of x values.
@@ -191,20 +206,29 @@ export const getPlotCoords = (
  * @returns {Point} - The center point of the axis.
  */
 export const getAxisCenter = (
-  axisCenter: Point | void,
+  axisCenter: Point | [number | undefined, number | undefined] | undefined,
   plotWidth: number,
   plotHeight: number,
   rangeX: number[],
   rangeY: number[],
-  initialValue: number[],
-) => {
+  initialValue: [number, number],
+): { x: number; y: number } => {
   const axis = { x: initialValue[0], y: initialValue[1] };
-  // calculate axis position
+
   if (axisCenter) {
-    const [centerX, centerY] = toCoordinates(axisCenter, plotWidth, plotHeight, rangeX, rangeY);
-    const [plotCenterX, plotCenterY] = toPlot(plotWidth, plotHeight)(centerX, centerY);
-    axis.x = plotCenterX;
-    axis.y = plotCenterY + 1;
+    const [x, y] = axisCenter;
+
+    if (typeof x === 'number') {
+      const xScaler = scaler(rangeX, [0, plotWidth - 1]);
+      const xCoord = xScaler(x);
+      axis.x = Math.round(xCoord);
+    }
+
+    if (typeof y === 'number') {
+      const yScaler = scaler(rangeY, [0, plotHeight - 1]);
+      const yCoord = yScaler(y);
+      axis.y = plotHeight - Math.round(yCoord);
+    }
   }
 
   return axis;

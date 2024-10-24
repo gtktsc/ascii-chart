@@ -19,10 +19,12 @@ export const getChartSize = ({
   input,
   width,
   height,
+  yRange,
 }: {
   input: MultiLine;
   width?: number;
   height?: number;
+  yRange?: [number, number];
 }) => {
   const [rangeX, rangeY] = toArrays(input);
 
@@ -32,7 +34,7 @@ export const getChartSize = ({
   const maxY = getMax(rangeY);
 
   const expansionX = [minX, maxX];
-  const expansionY = [minY, maxY];
+  const expansionY = yRange || [minY, maxY];
 
   // set default size
   const plotWidth = width || rangeX.length;

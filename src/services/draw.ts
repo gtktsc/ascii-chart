@@ -1,5 +1,5 @@
 import { AXIS, CHART } from '../constants';
-import { CustomSymbol, Formatter, Graph, MultiLine, Point, Symbols } from '../types';
+import { CustomSymbol, Formatter, Graph, MaybePoint, MultiLine, Point, Symbols } from '../types';
 import { distance, toArray, toEmpty } from './coords';
 
 export const drawXAxisEnd = ({
@@ -16,7 +16,7 @@ export const drawXAxisEnd = ({
   pointXShift,
 }: {
   hasPlaceToRender: boolean;
-  axisCenter?: Point;
+  axisCenter?: Point | [number | undefined, number | undefined];
   yPos: number;
   graph: Graph;
   yShift: number;
@@ -28,15 +28,37 @@ export const drawXAxisEnd = ({
   pointXShift: string[];
 }) => {
   const yShiftWhenOccupied = hasPlaceToRender ? -1 : 0;
-  const yShiftWhenHasAxisCenter = axisCenter ? 1 : 0;
+  const yShiftWhenHasAxisCenter = axisCenter && axisCenter[1] !== undefined ? 1 : 0;
 
-  const graphY = yPos + yShiftWhenOccupied + yShiftWhenHasAxisCenter;
-  const graphX = scaledX + yShift - i + 2 + shift;
+  let graphY = yPos + yShiftWhenOccupied + yShiftWhenHasAxisCenter;
+
+  // Boundary check
+  if (graphY < 0) {
+    graphY = 0;
+  } else if (graphY >= graph.length) {
+    graphY = graph.length - 1;
+  }
+
+  let graphX = scaledX + yShift - i + 2 + shift;
+
+  // Ensure graphX is within bounds
+  if (graphX < 0) {
+    graphX = 0;
+  } else if (graphX >= graph[graphY].length) {
+    graphX = graph[graphY].length - 1;
+  }
 
   graph[graphY][graphX] = pointXShift[pointXShift.length - 1 - i];
+
   // Add X tick only for the last value
   if (pointXShift.length - 1 === i) {
-    graph[yPos + signShift][scaledX + yShift + 2 + shift] = axisSymbols?.x || AXIS.x;
+    const xTickY = yPos + signShift;
+    const xTickX = scaledX + yShift + 2 + shift;
+
+    // Ensure xTickY and xTickX are within bounds
+    if (xTickY >= 0 && xTickY < graph.length && xTickX >= 0 && xTickX < graph[xTickY].length) {
+      graph[xTickY][xTickX] = axisSymbols?.x || AXIS.x;
+    }
   }
 };
 
@@ -45,23 +67,82 @@ export const drawYAxisEnd = ({
   scaledY,
   yShift,
   axis,
+  axisCenter,
   pointY,
   transformLabel,
   axisSymbols,
   expansionX,
   expansionY,
+  plotHeight,
+  showTickLabel,
 }: {
   graph: Graph;
   scaledY: number;
   yShift: number;
+  plotHeight: number;
   axis: { x: number; y: number };
+  axisCenter?: MaybePoint;
   pointY: number;
   transformLabel: Formatter;
   axisSymbols: Symbols['axis'];
   expansionX: number[];
   expansionY: number[];
+  showTickLabel?: boolean;
 }) => {
-  // make sure position is not taken already
+  // Show all labels when showTickLabel is true
+  if (showTickLabel) {
+    const yMax = Math.max(...expansionY);
+    const yMin = Math.min(...expansionY);
+
+    // Decide the number of ticks you want on the Y-axis
+    const numTicks = plotHeight; // You can adjust this number as needed
+
+    // Calculate the step size for each tick
+    const yStep = (yMax - yMin) / numTicks;
+
+    for (let i = 0; i <= numTicks; i += 1) {
+      // Calculate the Y value for this tick
+      const yValue = yMax - i * yStep;
+
+      // Map the Y value to a graph Y position
+      const scaledYPos = ((yMax - yValue) / (yMax - yMin)) * (plotHeight - 1);
+
+      const labelShift = axisCenter?.[1] !== undefined && axisCenter?.[1] > 0 ? 1 : 0;
+
+      // Round to get the exact row index in the graph array
+      const graphYPos = Math.floor(scaledYPos) + 1 + labelShift;
+
+      // Ensure the graphYPos is within the bounds of the graph array
+      if (graphYPos >= 0 && graphYPos < graph.length) {
+        // Check if the position is not already occupied
+        if (graph[graphYPos][axis.x + yShift + 1] !== axisSymbols?.y) {
+          const pointYShift = toArray(
+            transformLabel(yValue, { axis: 'y', xRange: expansionX, yRange: expansionY }),
+          );
+
+          // Place the tick label on the graph
+          for (let j = 0; j < pointYShift.length; j += 1) {
+            const colIndex = axis.x + yShift - j;
+
+            // Ensure colIndex is within bounds
+            if (colIndex >= 0 && colIndex < graph[graphYPos].length) {
+              graph[graphYPos][colIndex] = pointYShift[pointYShift.length - 1 - j];
+            }
+          }
+
+          const tickMarkIndex = axis.x + yShift + 1;
+
+          // Ensure tickMarkIndex is within bounds
+          if (tickMarkIndex >= 0 && tickMarkIndex < graph[graphYPos].length) {
+            graph[graphYPos][tickMarkIndex] = axisSymbols?.y || AXIS.y;
+          }
+        }
+      }
+    }
+    return;
+  }
+
+  // Existing code for showing only values that are present
   if (graph[scaledY + 1][axis.x + yShift + 1] !== axisSymbols?.y) {
     const pointYShift = toArray(
       transformLabel(pointY, { axis: 'y', xRange: expansionX, yRange: expansionY }),
@@ -84,7 +165,7 @@ export const drawAxis = ({
   graph: Graph;
   axis: { x: number; y: number };
   hideXAxis?: boolean;
-  axisCenter?: Point;
+  axisCenter?: MaybePoint;
   hideYAxis?: boolean;
   axisSymbols: Symbols['axis'];
 }) => {
