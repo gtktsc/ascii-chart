@@ -2,10 +2,10 @@ import { SingleLine, Point, MultiLine } from '../types/index';
 import { EMPTY } from '../constants/index';
 
 /**
- * Creates an array filled with empty strings.
+ * Creates an array filled with a specified string.
  * @param {number} size - The size of the array.
  * @param {string} empty - The value to fill the array with (default: EMPTY).
- * @returns {string[]} - An array of empty strings.
+ * @returns {string[]} - An array filled with the specified string.
  */
 export const toEmpty = (size: number, empty: string = EMPTY): string[] =>
   Array(size >= 0 ? size : 0).fill(empty);
@@ -19,21 +19,21 @@ export const toArray = (input: number | string): string[] => input.toString().sp
 
 /**
  * Removes duplicate values from an array.
- * @param {number[]} array - The input array.
- * @returns {number[]} - An array with unique values.
+ * @param {number[]} array - The array of numbers.
+ * @returns {number[]} - An array containing only unique values.
  */
 export const toUnique = (array: number[]): number[] => [...new Set(array)];
 
 /**
- * Calculates the distance between two points.
+ * Calculates the distance between two integer coordinates by rounding to the nearest integers.
  * @param {number} x - The x-coordinate of the first point.
  * @param {number} y - The y-coordinate of the second point.
- * @returns {number} - The distance between the points.
+ * @returns {number} - The absolute distance between the rounded points.
  */
 export const distance = (x: number, y: number): number => Math.abs(Math.round(x) - Math.round(y));
 
 /**
- * Flattens a multi-line array into a single array of points.
+ * Flattens a multi-line array of points into a single array of points.
  * @param {MultiLine} array - The multi-line array.
  * @returns {Point[]} - A flat array of points.
  */
@@ -57,26 +57,22 @@ export const toArrays = (array: MultiLine): [number[], number[]] => {
 };
 
 /**
- * Sorts a single-line array of points in ascending order by the first value of each point.
+ * Sorts a single-line array of points in ascending order based on the x-coordinate.
  * @param {SingleLine} array - The single-line array to sort.
  * @returns {SingleLine} - The sorted array.
  */
 export const toSorted = (array: SingleLine): SingleLine =>
   array.sort(([x1], [x2]) => {
-    if (x1 < x2) {
-      return -1;
-    }
-    if (x1 > x2) {
-      return 1;
-    }
+    if (x1 < x2) return -1;
+    if (x1 > x2) return 1;
     return 0;
   });
 
 /**
- * Converts a coordinate (x, y) to plot coordinates in the specified plot dimensions.
+ * Returns a function that converts a coordinate (x, y) to scaled plot coordinates.
  * @param {number} plotWidth - The width of the plot.
  * @param {number} plotHeight - The height of the plot.
- * @returns {function} - A function that takes (x, y) and returns plot coordinates [scaledX, scaledY].
+ * @returns {function} - A function that takes (x, y) and returns scaled plot coordinates [scaledX, scaledY].
  */
 export const toPlot =
   (plotWidth: number, plotHeight: number) =>
@@ -86,7 +82,7 @@ export const toPlot =
   ];
 
 /**
- * Converts plot coordinates (scaledX, scaledY) back to the original coordinates in the specified plot dimensions.
+ * Returns a function that converts scaled plot coordinates (scaledX, scaledY) back to the original coordinates.
  * @param {number} plotWidth - The width of the plot.
  * @param {number} plotHeight - The height of the plot.
  * @returns {function} - A function that takes (scaledX, scaledY) and returns original coordinates [x, y].
@@ -95,14 +91,14 @@ export const fromPlot =
   (plotWidth: number, plotHeight: number) =>
   (scaledX: number, scaledY: number): [number, number] => {
     const x = (scaledX / plotWidth) * plotWidth;
-    const y = (plotHeight - 1 - scaledY) * (plotHeight / plotHeight);
+    const y = plotHeight - 1 - (scaledY / plotHeight) * (plotHeight - 1);
     return [Math.round(x), Math.round(y)];
   };
 
 /**
  * Finds the maximum or minimum value in a single-line array of points.
- * @param {SingleLine} arr - The single-line array to find extrema in.
- * @param {string} type - 'max' for maximum, 'min' for minimum (default is 'max').
+ * @param {SingleLine} arr - The single-line array to search for extrema.
+ * @param {'max' | 'min'} type - 'max' to find the maximum value, 'min' for minimum (default is 'max').
  * @param {number} position - The position of the value within each point (default is 1).
  * @returns {number} - The maximum or minimum value found in the array.
  */
@@ -114,7 +110,7 @@ export const getExtrema = (arr: SingleLine, type: 'max' | 'min' = 'max', positio
 
 /**
  * Finds the maximum value in an array of numbers.
- * @param {number[]} arr - The array of numbers to find the maximum in.
+ * @param {number[]} arr - The array of numbers.
  * @returns {number} - The maximum value in the array.
  */
 export const getMax = (arr: number[]) =>
@@ -122,16 +118,16 @@ export const getMax = (arr: number[]) =>
 
 /**
  * Finds the minimum value in an array of numbers.
- * @param {number[]} arr - The array of numbers to find the minimum in.
+ * @param {number[]} arr - The array of numbers.
  * @returns {number} - The minimum value in the array.
  */
 export const getMin = (arr: number[]) =>
   arr.reduce((previous, curr) => Math.min(previous, curr), Number.POSITIVE_INFINITY);
 
 /**
- * Returns a function that scales coordinates to fit within a plot.
- * @param {[number, number]} domain - The domain range (min and max values).
- * @param {[number, number]} range - The range within which to scale.
+ * Returns a function that scales coordinates to fit within a specified range.
+ * @param {[number, number]} domain - The original value range (min and max).
+ * @param {[number, number]} range - The range to scale the values into.
  * @returns {(value: number) => number} - A function for scaling coordinates.
  */
 export const scaler = ([domainMin, domainMax]: number[], [rangeMin, rangeMax]: number[]) => {
@@ -143,7 +139,7 @@ export const scaler = ([domainMin, domainMax]: number[], [rangeMin, rangeMax]: n
 };
 
 /**
- * Scales a point's coordinates to fit within a plot.
+ * Scales a point's coordinates to fit within the specified plot dimensions.
  * @param {Point} point - The point to scale.
  * @param {number} plotWidth - The width of the plot.
  * @param {number} plotHeight - The height of the plot.
@@ -161,13 +157,11 @@ export const toCoordinates = (
   const getXCoord = scaler(rangeX, [0, plotWidth - 1]);
   const getYCoord = scaler(rangeY, [0, plotHeight - 1]);
 
-  const toScale = ([x, y]: Point): Point => [getXCoord(x), getYCoord(y)];
-
-  return toScale(point);
+  return [Math.round(getXCoord(point[0])), Math.round(getYCoord(point[1]))];
 };
 
 /**
- * Scales a list of coordinates to fit within a plot.
+ * Scales a list of coordinates to fit within the specified plot dimensions.
  * @param {SingleLine} coordinates - The list of coordinates to scale.
  * @param {number} plotWidth - The width of the plot.
  * @param {number} plotHeight - The height of the plot.
@@ -191,18 +185,17 @@ export const getPlotCoords = (
     plotHeight - 1,
   ]);
 
-  const toScale = ([x, y]: Point): Point => [getXCoord(x), getYCoord(y)];
-
-  return coordinates.map(toScale);
+  return coordinates.map(([x, y]) => [getXCoord(x), getYCoord(y)]);
 };
+
 /**
- * Gets the center point for an axis.
- * @param {Point | [number | undefined, number | undefined] | undefined} axisCenter - The center point of the axis.
+ * Computes the axis center point based on specified plot dimensions and ranges.
+ * @param {MaybePoint} axisCenter - The center point for the axis.
  * @param {number} plotWidth - The width of the plot.
  * @param {number} plotHeight - The height of the plot.
  * @param {number[]} rangeX - The range of x values.
  * @param {number[]} rangeY - The range of y values.
- * @param {number[]} initialValue - The initial value for the axis.
+ * @param {number[]} initialValue - The initial axis values.
  * @returns {Point} - The center point of the axis.
  */
 export const getAxisCenter = (
@@ -220,14 +213,12 @@ export const getAxisCenter = (
 
     if (typeof x === 'number') {
       const xScaler = scaler(rangeX, [0, plotWidth - 1]);
-      const xCoord = xScaler(x);
-      axis.x = Math.round(xCoord);
+      axis.x = Math.round(xScaler(x));
     }
 
     if (typeof y === 'number') {
       const yScaler = scaler(rangeY, [0, plotHeight - 1]);
-      const yCoord = yScaler(y);
-      axis.y = plotHeight - Math.round(yCoord);
+      axis.y = plotHeight - Math.round(yScaler(y));
     }
   }
 

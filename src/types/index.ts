@@ -1,12 +1,33 @@
 import { AXIS, CHART } from '../constants';
 
+/**
+ * Represents a point with x and y coordinates.
+ */
 export type Point = [x: number, y: number];
+
+/**
+ * A point that may contain undefined values or be completely undefined.
+ */
 export type MaybePoint = Point | undefined | [number | undefined, number | undefined];
+
+/**
+ * A series of connected points representing a single line on a graph.
+ */
 export type SingleLine = Point[];
+
+/**
+ * A collection of single lines, used for plotting multiple lines on a graph.
+ */
 export type MultiLine = SingleLine[];
 
+/**
+ * Coordinates, which can be either a single line or multiple lines.
+ */
 export type Coordinates = SingleLine | MultiLine;
 
+/**
+ * Represents ANSI colors for styling output.
+ */
 export type Color = `ansi${
   | 'Red'
   | 'Green'
@@ -17,59 +38,104 @@ export type Color = `ansi${
   | 'Cyan'
   | 'White'}`;
 
+/**
+ * Arguments required for custom line formatting.
+ */
 export type LineFormatterArgs = {
-  x: number;
-  y: number;
-  plotX: number;
-  plotY: number;
-  input: SingleLine;
-  index: number;
+  x: number; // x-coordinate of the point
+  y: number; // y-coordinate of the point
+  plotX: number; // x-coordinate on the plot
+  plotY: number; // y-coordinate on the plot
+  input: SingleLine; // line input containing points
+  index: number; // index of the current point
 };
 
+/**
+ * Custom symbol with specified coordinates and symbol character.
+ */
 export type CustomSymbol = { x: number; y: number; symbol: string };
 
+/**
+ * Helpers for formatting, providing axis and range information.
+ */
 export type FormatterHelpers = {
-  axis: 'x' | 'y';
-  xRange: number[];
-  yRange: number[];
+  axis: 'x' | 'y'; // axis type ('x' or 'y')
+  xRange: number[]; // range of x-values for scaling
+  yRange: number[]; // range of y-values for scaling
 };
 
+/**
+ * Symbols for customizing chart appearance, including axis, chart, and background symbols.
+ */
 export type Symbols = {
-  axis?: Partial<typeof AXIS>;
-  chart?: Partial<typeof CHART>;
-  empty?: string;
-  background?: string;
-  border?: string;
+  axis?: Partial<typeof AXIS>; // Custom axis symbols
+  chart?: Partial<typeof CHART>; // Custom chart symbols
+  empty?: string; // Symbol representing empty space
+  background?: string; // Symbol for background
+  border?: string; // Symbol for border
 };
 
-export type Formatter = (number: number, helpers: FormatterHelpers) => number | string;
-export type Legend = { position?: 'left' | 'right' | 'top' | 'bottom'; series: string | string[] };
+/**
+ * Function type for formatting numbers on the chart.
+ */
+export type Formatter = (value: number, helpers: FormatterHelpers) => number | string;
+
+/**
+ * Configuration for the legend display on the chart.
+ */
+export type Legend = {
+  position?: 'left' | 'right' | 'top' | 'bottom'; // Legend position
+  series: string | string[]; // Series labels in the legend
+};
+
+/**
+ * Threshold definition with optional x, y coordinates and a color.
+ */
 export type Threshold = {
-  x?: number;
-  y?: number;
-  color?: Color;
-};
-export type ColorGetter = (series: number, coordinates: MultiLine) => Color;
-export type Colors = Color | Color[] | ColorGetter;
-export type Graph = string[][];
-export type Settings = {
-  color?: Colors;
-  width?: number;
-  height?: number;
-  yRange?: [number, number];
-  showTickLabel?: boolean;
-  hideXAxis?: boolean;
-  hideYAxis?: boolean;
-  title?: string;
-  xLabel?: string;
-  yLabel?: string;
-  thresholds?: Threshold[];
-  fillArea?: boolean;
-  legend?: Legend;
-  axisCenter?: MaybePoint;
-  formatter?: Formatter;
-  lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
-  symbols?: Symbols;
+  x?: number; // x-coordinate threshold
+  y?: number; // y-coordinate threshold
+  color?: Color; // Color for threshold line or point
 };
 
+/**
+ * Function type for dynamically determining color based on series and coordinates.
+ */
+export type ColorGetter = (series: number, coordinates: MultiLine) => Color;
+
+/**
+ * Color options, which can be a single color, an array of colors, or a color getter function.
+ */
+export type Colors = Color | Color[] | ColorGetter;
+
+/**
+ * A 2D array representing the grid of symbols for the graph display.
+ */
+export type Graph = string[][];
+
+/**
+ * Configuration settings for rendering a plot.
+ */
+export type Settings = {
+  color?: Colors; // Colors for the plot lines or areas
+  width?: number; // Width of the plot
+  height?: number; // Height of the plot
+  yRange?: [number, number]; // Range of y-axis values
+  showTickLabel?: boolean; // Option to show tick labels on the axis
+  hideXAxis?: boolean; // Option to hide the x-axis
+  hideYAxis?: boolean; // Option to hide the y-axis
+  title?: string; // Title of the plot
+  xLabel?: string; // Label for the x-axis
+  yLabel?: string; // Label for the y-axis
+  thresholds?: Threshold[]; // Array of threshold lines or points
+  fillArea?: boolean; // Option to fill the area under lines
+  legend?: Legend; // Legend settings
+  axisCenter?: MaybePoint; // Center point for axes alignment
+  formatter?: Formatter; // Custom formatter for axis values
+  lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[]; // Custom line formatter
+  symbols?: Symbols; // Custom symbols for chart elements
+};
+
+/**
+ * Plot function type that takes coordinates and settings to generate a graph output.
+ */
 export type Plot = (coordinates: Coordinates, settings?: Settings) => string;

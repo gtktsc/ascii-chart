@@ -2,6 +2,21 @@ import { AXIS, CHART } from '../constants';
 import { CustomSymbol, Formatter, Graph, MaybePoint, MultiLine, Point, Symbols } from '../types';
 import { distance, toArray, toEmpty } from './coords';
 
+/**
+ * Draws an X-axis tick mark at the end of each label.
+ * @param {object} options - Configuration options.
+ * @param {boolean} options.hasPlaceToRender - Indicates if there is space available for rendering.
+ * @param {Point | [number | undefined, number | undefined]} [options.axisCenter] - Optional axis center coordinates.
+ * @param {number} options.yPos - Y position for the axis tick.
+ * @param {Graph} options.graph - The graph array where ticks will be rendered.
+ * @param {number} options.yShift - Y-axis shift offset.
+ * @param {number} options.i - Current index for iteration.
+ * @param {number} options.scaledX - Scaled X position for the tick.
+ * @param {number} options.shift - X-axis shift offset.
+ * @param {number} options.signShift - Sign shift adjustment.
+ * @param {Symbols['axis']} options.axisSymbols - Symbols used for the axis.
+ * @param {string[]} options.pointXShift - Shifted X-axis points for tick display.
+ */
 export const drawXAxisEnd = ({
   hasPlaceToRender,
   axisCenter,
@@ -50,18 +65,33 @@ export const drawXAxisEnd = ({
 
   graph[graphY][graphX] = pointXShift[pointXShift.length - 1 - i];
 
-  // Add X tick only for the last value
+  // Add tick mark only for the last value in the X-axis
   if (pointXShift.length - 1 === i) {
     const xTickY = yPos + signShift;
     const xTickX = scaledX + yShift + 2 + shift;
 
-    // Ensure xTickY and xTickX are within bounds
     if (xTickY >= 0 && xTickY < graph.length && xTickX >= 0 && xTickX < graph[xTickY].length) {
       graph[xTickY][xTickX] = axisSymbols?.x || AXIS.x;
     }
   }
 };
 
+/**
+ * Draws Y-axis tick marks based on scale and axis configurations.
+ * @param {object} options - Configuration options.
+ * @param {Graph} options.graph - The graph array to modify.
+ * @param {number} options.scaledY - Scaled Y position for the tick.
+ * @param {number} options.yShift - Y-axis shift offset.
+ * @param {object} options.axis - The axis position.
+ * @param {MaybePoint} [options.axisCenter] - Optional axis center coordinates.
+ * @param {number} options.pointY - Y-coordinate for the current point.
+ * @param {Formatter} options.transformLabel - Label transformation function.
+ * @param {Symbols['axis']} options.axisSymbols - Symbols used for the axis.
+ * @param {number[]} options.expansionX - X-axis expansion range.
+ * @param {number[]} options.expansionY - Y-axis expansion range.
+ * @param {number} options.plotHeight - Height of the plot area.
+ * @param {boolean} [options.showTickLabel] - Whether to display all tick labels.
+ */
 export const drawYAxisEnd = ({
   graph,
   scaledY,
@@ -89,50 +119,33 @@ export const drawYAxisEnd = ({
   expansionY: number[];
   showTickLabel?: boolean;
 }) => {
-  // Show all labels when showTickLabel is true
+  // Render all tick labels if showTickLabel is true
   if (showTickLabel) {
     const yMax = Math.max(...expansionY);
     const yMin = Math.min(...expansionY);
-
-    // Decide the number of ticks you want on the Y-axis
-    const numTicks = plotHeight; // You can adjust this number as needed
-
-    // Calculate the step size for each tick
+    const numTicks = plotHeight;
     const yStep = (yMax - yMin) / numTicks;
 
     for (let i = 0; i <= numTicks; i += 1) {
-      // Calculate the Y value for this tick
       const yValue = yMax - i * yStep;
-
-      // Map the Y value to a graph Y position
       const scaledYPos = ((yMax - yValue) / (yMax - yMin)) * (plotHeight - 1);
-
       const labelShift = axisCenter?.[1] !== undefined && axisCenter?.[1] > 0 ? 1 : 0;
-
-      // Round to get the exact row index in the graph array
       const graphYPos = Math.floor(scaledYPos) + 1 + labelShift;
 
-      // Ensure the graphYPos is within the bounds of the graph array
       if (graphYPos >= 0 && graphYPos < graph.length) {
-        // Check if the position is not already occupied
         if (graph[graphYPos][axis.x + yShift + 1] !== axisSymbols?.y) {
           const pointYShift = toArray(
             transformLabel(yValue, { axis: 'y', xRange: expansionX, yRange: expansionY }),
           );
 
-          // Place the tick label on the graph
           for (let j = 0; j < pointYShift.length; j += 1) {
             const colIndex = axis.x + yShift - j;
-
-            // Ensure colIndex is within bounds
             if (colIndex >= 0 && colIndex < graph[graphYPos].length) {
               graph[graphYPos][colIndex] = pointYShift[pointYShift.length - 1 - j];
             }
           }
 
           const tickMarkIndex = axis.x + yShift + 1;
-
-          // Ensure tickMarkIndex is within bounds
           if (tickMarkIndex >= 0 && tickMarkIndex < graph[graphYPos].length) {
             graph[graphYPos][tickMarkIndex] = axisSymbols?.y || AXIS.y;
           }
@@ -142,7 +155,7 @@ export const drawYAxisEnd = ({
     return;
   }
 
-  // Existing code for showing only values that are present
+  // Render specific values present in the data
   if (graph[scaledY + 1][axis.x + yShift + 1] !== axisSymbols?.y) {
     const pointYShift = toArray(
       transformLabel(pointY, { axis: 'y', xRange: expansionX, yRange: expansionY }),
@@ -154,6 +167,16 @@ export const drawYAxisEnd = ({
   }
 };
 
+/**
+ * Draws both X and Y axes on the graph according to visibility and center configurations.
+ * @param {object} options - Configuration options.
+ * @param {Graph} options.graph - The graph array where axes will be drawn.
+ * @param {boolean} [options.hideXAxis] - If true, hides the X-axis.
+ * @param {boolean} [options.hideYAxis] - If true, hides the Y-axis.
+ * @param {MaybePoint} [options.axisCenter] - Optional axis center coordinates.
+ * @param {Symbols['axis']} options.axisSymbols - Symbols used for the axis.
+ * @param {object} options.axis - The axis position.
+ */
 export const drawAxis = ({
   graph,
   hideXAxis,
@@ -190,13 +213,20 @@ export const drawAxis = ({
       }
 
       if (lineChar) {
-        // eslint-disable-next-line
         line[curr] = lineChar;
       }
     });
   });
 };
 
+/**
+ * Initializes an empty graph based on plot dimensions and a given symbol.
+ * @param {object} options - Configuration options.
+ * @param {number} options.plotWidth - Width of the plot area.
+ * @param {number} options.plotHeight - Height of the plot area.
+ * @param {string} options.emptySymbol - Symbol used to fill empty cells.
+ * @returns {Graph} - An initialized empty graph array.
+ */
 export const drawGraph = ({
   plotWidth,
   plotHeight,
@@ -210,9 +240,26 @@ export const drawGraph = ({
   return Array.from({ length: plotHeight + 2 }, callback);
 };
 
+/**
+ * Renders the graph array into a single string.
+ * @param {object} options - Configuration options.
+ * @param {Graph} options.graph - The graph array to render.
+ * @returns {string} - The rendered graph.
+ */
 export const drawChart = ({ graph }: { graph: Graph }) =>
   `\n${graph.map((line) => line.join('')).join('\n')}\n`;
 
+/**
+ * Renders a custom line on the graph based on formatter specifications.
+ * @param {object} options - Configuration options.
+ * @param {Point[]} options.sortedCoords - Sorted list of coordinates.
+ * @param {number} options.scaledX - X-axis scaling.
+ * @param {number} options.scaledY - Y-axis scaling.
+ * @param {MultiLine} options.input - Input data points.
+ * @param {number} options.index - Current index in the coordinate array.
+ * @param {function} options.lineFormatter - Custom function for line formatting.
+ * @param {Graph} options.graph - The graph array to modify.
+ */
 export const drawCustomLine = ({
   sortedCoords,
   scaledX,
@@ -237,7 +284,6 @@ export const drawCustomLine = ({
   }) => CustomSymbol | CustomSymbol[];
   graph: Graph;
 }) => {
-  // custom line formatter
   const lineFormatterArgs = {
     x: sortedCoords[index][0],
     y: sortedCoords[index][1],
@@ -256,6 +302,18 @@ export const drawCustomLine = ({
   }
 };
 
+/**
+ * Renders a line between two points on the graph using defined chart symbols.
+ * @param {object} options - Configuration options.
+ * @param {number} options.index - Current index in the coordinate array.
+ * @param {Point[]} options.arr - List of points for the line.
+ * @param {Graph} options.graph - The graph array to modify.
+ * @param {number} options.scaledX - X-axis scaling.
+ * @param {number} options.scaledY - Y-axis scaling.
+ * @param {number} options.plotHeight - Height of the plot.
+ * @param {string} options.emptySymbol - Symbol used to fill empty cells.
+ * @param {Symbols['chart']} options.chartSymbols - Symbols used for the chart.
+ */
 export const drawLine = ({
   index,
   arr,
@@ -297,9 +355,7 @@ export const drawLine = ({
 
     if (Math.round(prevY) < Math.round(currY)) {
       graph[scaledY + 1][scaledX] = chartSymbols?.sne || CHART.sne;
-      // The same Y values
     } else if (Math.round(prevY) === Math.round(currY)) {
-      // Add line only if space is not occupied already - valid case for small similar Y
       if (graph[scaledY + 1][scaledX] === emptySymbol) {
         graph[scaledY + 1][scaledX] = chartSymbols?.we || CHART.we;
       }
@@ -314,12 +370,22 @@ export const drawLine = ({
       });
   }
 
-  // plot the last coordinate
   if (arr.length - 1 === index) {
     graph[scaledY + 1][scaledX + 1] = chartSymbols?.we || CHART.we;
   }
 };
 
+/**
+ * Applies shifts to the graph and adjusts empty symbols and scaling factors.
+ * @param {object} options - Configuration options.
+ * @param {Graph} options.graph - The graph array to modify.
+ * @param {number} options.plotWidth - Width of the plot area.
+ * @param {string} options.emptySymbol - Symbol used to fill empty cells.
+ * @param {number[][]} options.scaledCoords - Scaled coordinates for shifting.
+ * @param {number} options.xShift - X-axis shift offset.
+ * @param {number} options.yShift - Y-axis shift offset.
+ * @returns {object} - Indicates whether graph movement is required.
+ */
 export const drawShift = ({
   graph,
   plotWidth,
@@ -335,10 +401,8 @@ export const drawShift = ({
   xShift: number;
   yShift: number;
 }) => {
-  // shift graph
-  graph.push(toEmpty(plotWidth + 2, emptySymbol)); // bottom
+  graph.push(toEmpty(plotWidth + 2, emptySymbol)); // bottom shift
 
-  // check step
   let step = plotWidth;
   scaledCoords.forEach(([x], index) => {
     if (scaledCoords[index - 1]) {

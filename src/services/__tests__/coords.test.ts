@@ -1,5 +1,98 @@
-import { SingleLine } from '../../types/index';
-import { scaler, getExtrema, getPlotCoords, toSorted, toEmpty } from '../coords';
+import { Point, SingleLine } from '../../types/index';
+import {
+  toCoordinates,
+  fromPlot,
+  scaler,
+  getExtrema,
+  getPlotCoords,
+  toSorted,
+  toEmpty,
+} from '../coords';
+
+describe('toCoordinates', () => {
+  const plotWidth = 10;
+  const plotHeight = 10;
+
+  it('should scale point to coordinates within the plot dimensions', () => {
+    const rangeX = [0, 100];
+    const rangeY = [0, 100];
+    const point: Point = [50, 50];
+
+    const [x, y] = toCoordinates(point, plotWidth, plotHeight, rangeX, rangeY);
+    expect(x).toBeCloseTo(5); // midpoint of rangeX scaled to plot width
+    expect(y).toBeCloseTo(5); // midpoint of rangeY scaled to plot height
+  });
+
+  it('should handle a point at the origin', () => {
+    const rangeX = [0, 100];
+    const rangeY = [0, 100];
+    const point: Point = [0, 0];
+
+    const [x, y] = toCoordinates(point, plotWidth, plotHeight, rangeX, rangeY);
+    expect(x).toBeCloseTo(0);
+    expect(y).toBeCloseTo(0);
+  });
+
+  it('should handle a point at the maximum range', () => {
+    const rangeX = [0, 100];
+    const rangeY = [0, 100];
+    const point: Point = [100, 100];
+
+    const [x, y] = toCoordinates(point, plotWidth, plotHeight, rangeX, rangeY);
+    expect(x).toBeCloseTo(plotWidth - 1);
+    expect(y).toBeCloseTo(plotHeight - 1);
+  });
+
+  it('should correctly map a point with negative coordinates', () => {
+    const rangeX = [-50, 50];
+    const rangeY = [-50, 50];
+    const point: Point = [0, 0];
+
+    const [x, y] = toCoordinates(point, plotWidth, plotHeight, rangeX, rangeY);
+    expect(x).toBeCloseTo(5); // midpoint of plot width
+    expect(y).toBeCloseTo(5); // midpoint of plot height
+  });
+
+  it('should map fractional points accurately', () => {
+    const rangeX = [0, 1];
+    const rangeY = [0, 1];
+    const point: Point = [0.5, 0.5];
+
+    const [x, y] = toCoordinates(point, plotWidth, plotHeight, rangeX, rangeY);
+    expect(x).toBeCloseTo(5);
+    expect(y).toBeCloseTo(5);
+  });
+});
+
+describe('fromPlot', () => {
+  const plotWidth = 10;
+  const plotHeight = 10;
+  const reverseCoords = fromPlot(plotWidth, plotHeight);
+
+  it('should correctly convert scaled coordinates at (0, 0)', () => {
+    const [x, y] = reverseCoords(0, 0);
+    expect(x).toBe(0);
+    expect(y).toBe(9);
+  });
+
+  it('should correctly convert scaled coordinates at maximum width and height', () => {
+    const [x, y] = reverseCoords(10, 10);
+    expect(x).toBe(10);
+    expect(y).toBe(0);
+  });
+
+  it('should correctly convert scaled coordinates at midpoint', () => {
+    const [x, y] = reverseCoords(5, 5);
+    expect(x).toBe(5);
+    expect(y).toBe(5);
+  });
+
+  it('should handle non-integer scaled coordinates', () => {
+    const [x, y] = reverseCoords(7.5, 2.5);
+    expect(x).toBe(8);
+    expect(y).toBe(7);
+  });
+});
 
 describe('getPlotCoords', () => {
   describe.each([

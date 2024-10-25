@@ -1,50 +1,40 @@
 {
   "name": "simple-ascii-chart",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "Simple ascii chart generator",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "start": "tsc-watch -p tsconfig.json --preserveWatchOutput -w --onSuccess 'node ./dist/index.js'",
-    "lint": "eslint . --ext .ts,.js",
-    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "build": "tsc -p tsconfig.build.json",
     "build:watch": "tsc -p tsconfig.build.json -w",
-    "prepare": "husky install",
-    "prepublishOnly": "npm test && npm run lint",
-    "preversion": "npm run lint",
-    "version": "npm run lint && git add -A src",
-    "postversion": "git push && git push --tags"
+    "prepare": "npm test && npm run lint && npm run build"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.14.9",
-    "@typescript-eslint/eslint-plugin": "^6.7.0",
-    "@typescript-eslint/parser": "^6.7.0",
-    "codecov": "^3.8.3",
-    "eslint": "^8.49.0",
-    "eslint-config-airbnb-base": "^15.0.0",
+    "@types/node": "^22.7.9",
+    "@typescript-eslint/eslint-plugin": "^8.11.0",
+    "eslint": "^9.13.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-import": "^2.28.1",
-    "husky": "^9.0.11",
     "jest": "^29.7.0",
-    "lint-staged": "^15.2.7",
     "prettier": "^3.3.2",
     "ts-jest": "^29.1.5",
     "tsc-watch": "^6.2.0",
     "typescript": "^5.5.3"
   },
-  "lint-staged": {
-    "*.ts": "eslint . --ext .ts,.js --fix",
-    "*.{ts,md}": "prettier --write --ignore-unknown"
-  },
   "keywords": [
     "ascii",
     "js",
     "ts",
-    "chart"
+    "chart",
+    "line chart",
+    "bar chart",
+    "plot"
   ],
   "author": "gtktsc",
   "license": "MIT",

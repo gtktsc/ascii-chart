@@ -49,13 +49,20 @@ export const plot: Plot = (
   } = {},
 ) => {
   // Multiline
-  const input = getInput({ rawInput });
+  let input = getInput({ rawInput });
+
+  // Filter out points that are outside of the yRange (if defined)
+  if (yRange) {
+    const [yMin, yMax] = yRange;
+    input = input.map((line) => line.filter(([, y]) => y >= yMin && y <= yMax));
+  }
 
   // Empty input, return early
   if (input.length === 0) {
     return '';
   }
 
+  // Proceed with the rest of your function as usual
   const transformLabel = getTransformLabel({ formatter });
 
   let scaledCoords = [[0, 0]];

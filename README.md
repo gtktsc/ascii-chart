@@ -1,35 +1,23 @@
-# Simple ascii chart
+# Simple ASCII Chart
 
 ![NPM License](https://img.shields.io/npm/l/simple-ascii-chart)
 ![NPM Version](https://img.shields.io/npm/v/simple-ascii-chart)
 ![npm package minimized gzipped size (select exports)](https://img.shields.io/bundlejs/size/simple-ascii-chart)
 ![Codecov](https://img.shields.io/codecov/c/github/gtktsc/ascii-chart)
 
-**Simple ASCII Chart** is a TypeScript package that allows you to create ASCII charts in your terminal. It operates on two-dimensional input data, supports multiple series, custom colors, and formatters to make your data visualization clear and customizable.
+**Simple ASCII Chart** is a TypeScript package for creating customizable ASCII charts in the terminal. It supports two-dimensional data, multiple series, custom colors, and formatters, making it a versatile solution for terminal-based data visualization.
 
 [Interactive demo.](https://simple-ascii-chart.vercel.app/)
 
-With colored multiline:
+## Installation
 
-![Example chart](https://user-images.githubusercontent.com/17948218/183446543-9a88e655-d83b-40f4-b7af-ffd8540380d2.png)
-
-With colored area:
-
-![Views per iteration](https://user-images.githubusercontent.com/17948218/183447293-4feac74f-b3d1-4e26-a8c1-02d793d3e81b.png)
-
-With axis:
-
-![Example chart with center position](https://user-images.githubusercontent.com/17948218/183447523-a0604d0c-eb22-451a-91c8-fb56eff039a7.png)
-
-## Usage
-
-Package can be imported via yarn (or npm):
+Install the package using `yarn` (or `npm`):
 
 ```bash
 yarn add simple-ascii-chart
 ```
 
-And used like:
+## Usage
 
 ```typescript
 import plot from 'simple-ascii-chart';
@@ -39,76 +27,35 @@ const graph = plot(input, settings);
 
 ## Playground
 
-Alternatively, you can create a graph interactively in the [playground](https://simple-ascii-chart.vercel.app/).
+Create charts interactively in the [playground](https://simple-ascii-chart.vercel.app/).
 
 ## API Endpoint
 
-You can also use the API endpoint to generate charts by sending a POST request with your input data:
+Generate charts via the API by sending a POST request with your input data:
 
 ```bash
 curl -d input='[[1,2],[2,3],[3,4]]' -G https://simple-ascii-chart.vercel.app/api
 ```
 
-or as a URL parameter:
+Or pass it as a URL parameter:
 
 ```bash
 https://simple-ascii-chart.vercel.app/api?input=[[1,2],[2,3],[3,4]]&settings={%22width%22:50}
 ```
 
-## How to use it
+## Input Format
 
-When dependency is imported to project:
-
-```typescript
-import plot from 'simple-ascii-chart';
-
-console.log(
-  plot(
-    [
-      [1, 1],
-      [2, 4],
-      [3, 4],
-      [4, 2],
-      [5, -1],
-      [6, 3],
-      [7, -1],
-      [8, 9],
-    ],
-    { title: 'Important data', width: 20, height: 8 },
-  ),
-);
-```
-
-And 🎉, chart appears in your terminal:
-
-```bash
-Important data
-  ▲
- 9┤                  ┏━
-  │                  ┃
-  │                  ┃
- 4┤  ┏━━━━┓          ┃
- 3┤  ┃    ┃     ┏━┓  ┃
- 2┤  ┃    ┗━━┓  ┃ ┃  ┃
- 1┤━━┛       ┃  ┃ ┃  ┃
--1┤          ┗━━┛ ┗━━┛
-  └┬──┬─┬──┬──┬──┬─┬──┬▶
-   1  2 3  4  5  6 7  8
-```
-
-## Input
-
-Input has to be a two dimensional array or array of arrays for series:
+Input data should be a two-dimensional array of points or an array of arrays for multiple series:
 
 ```typescript
-Point = [x: number, y: number];
-SingleLine = Point[];
-MultiLine = SingleLine[];
-
-Input = SingleLine | MultiLine;
+type Point = [x: number, y: number];
+type MaybePoint = Point | undefined | [number | undefined, number | undefined];
+type SingleLine = Point[];
+type MultiLine = SingleLine[];
+type Input = SingleLine | MultiLine;
 ```
 
-Therefore input for a single series is:
+For a single series, use:
 
 ```typescript
 const input = [
@@ -118,7 +65,7 @@ const input = [
 ];
 ```
 
-Or for multi-series:
+For multiple series, use:
 
 ```typescript
 const input = [
@@ -135,181 +82,50 @@ const input = [
 ];
 ```
 
-## Settings
+### Detailed Input Parameters
 
-Plot can be adjusted with a second parameter `settings`.
+- **`Point`**: A single point with x and y coordinates, represented as `[x, y]`.
+- **`MaybePoint`**: Allows partial or undefined values within a point, accommodating incomplete data.
+- **`SingleLine`**: A series of connected points representing a single line.
+- **`MultiLine`**: A collection of `SingleLine` arrays for multiple data series.
 
-### color
+## Configuration (Settings)
 
-Changes graph color. Possible values are:
+Customize the `plot` function with a variety of settings:
 
-```typescript
-color?:
-  | 'ansiRed'
-  | 'ansiGreen'
-  | 'ansiBlack'
-  | 'ansiYellow'
-  | 'ansiBlue'
-  | 'ansiMagenta'
-  | 'ansiCyan'
-  | 'ansiWhite'
-```
+### Available Settings
 
-Can be used to distinguish series like:
+| Option           | Description                                                                                                   |
+|------------------|---------------------------------------------------------------------------------------------------------------|
+| `color`          | Colors for the graph. Options include `'ansiRed'`, `'ansiGreen'`, etc. Multiple colors are accepted for series. |
+| `width`          | Sets the graph width.                                                                                         |
+| `height`         | Sets the graph height.                                                                                        |
+| `axisCenter`     | Specifies the center of the axis as `[x, y]`, with default as bottom-left.                                    |
+| `formatter`      | A function to format axis labels, offering custom display styles.                                             |
+| `lineFormatter`  | Function to define custom styles for each line.                                                               |
+| `title`          | Title of the chart, displayed above the graph.                                                                |
+| `xLabel`         | Label for the x-axis.                                                                                         |
+| `yLabel`         | Label for the y-axis.                                                                                         |
+| `thresholds`     | Defines threshold lines or points with optional colors at specific x or y coordinates.                        |
+| `fillArea`       | Fills the area under each line, suitable for area charts.                                                     |
+| `hideXAxis`      | Hides the x-axis.                                                                                             |
+| `hideYAxis`      | Hides the y-axis.                                                                                             |
+| `symbols`        | Symbols for customizing the chart’s appearance, including axis, background, and chart symbols.                |
+| `legend`         | Configuration for a legend, showing series names and position options (`left`, `right`, `top`, `bottom`).     |
 
-```typescript
-color: ['ansiGreen', 'ansiRed'];
-```
+### Advanced Settings
 
-### width
+| Setting              | Description                                                                                               |
+|----------------------|-----------------------------------------------------------------------------------------------------------|
+| `yRange`             | Specifies the y-axis range as `[min, max]`.                                                               |
+| `showTickLabel`      | Enables tick labels on the axis, improving readability for larger plots.                                  |
+| `legend`             | Configures legend display with position and series names, such as `{ position: 'top', series: ['Series 1', 'Series 2'] }`. |
+| `ColorGetter`        | A function for dynamic color assignment based on series or coordinates.                                   |
+| `axisCenter`         | Sets a custom origin point for the chart, shifting the chart layout to focus around a particular point.    |
+| `lineFormatter`      | Customize each line using the format `lineFormatter: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[]`. |
+| `formatterHelpers`   | Provides helpers such as axis type and range for detailed formatting of axis labels.                      |
 
-Changes default width of the graph, can be used to scale up/down values:
-
-```typescript
-width?: number
-```
-
-### height
-
-Changes default height of the graph, can be used to scale up/down values:
-
-```typescript
-height?: number
-```
-
-### axisCenter
-
-Changes center of the axis, by default it's placed in the bottom-left:
-
-```typescript
-axisCenter?: [x:number, y:number]
-```
-
-### formatter
-
-Transforms axis label:
-
-```typescript
-formatter?: Formatter
-```
-
-Where
-
-```typescript
-type FormatterHelpers = {
-  axis: 'x' | 'y';
-  xRange: number[];
-  yRange: number[];
-};
-
-type Formatter = (number: number, helpers: FormatterHelpers) => number | string;
-```
-
-Default formatter is:
-
-```typescript
-defaultFormatter: Formatter = (value, { xRange, yRange }) => {
-  // Cut off small values
-  if (Math.abs(xRange[0]) < 1000 || Math.abs(yRange[0]) < 1000) {
-    return Number(value.toFixed(3));
-  }
-  // Adds XYZk to cut off large values
-  if (Math.abs(value) > 1000) return `${value / 1000}k`;
-  return value;
-};
-```
-
-### lineFormatter
-
-Transforms line, allows to format graph style. Callback takes arguments:
-
-```typescript
-LineFormatterArgs = {
-  x: number;
-  y: number;
-  plotX: number;
-  plotY: number;
-  input: SingleLine;
-  index: number;
-};
-```
-
-`plotX` and `plotY` is coordinate of a point scaled to the plot. Callback has to return:
-
-```typescript
-CustomSymbol = { x: number; y: number; symbol: string };
-```
-
-where `x` and `y` is also plot coordinate, `symbol` is char to be displayed. If an array is returned, more points can be placed on the graph.
-
-```typescript
-lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
-```
-
-Check examples section for real world usage.
-
-### title
-
-Adds title above the graph:
-
-```typescript
-title?: string;
-```
-
-### xLabel
-
-Adds label to the x axis:
-
-```typescript
-xLabe
-l?: string;
-```
-
-### yLabel
-
-Adds label to the y axis:
-
-```typescript
-yLabel?: string;
-```
-
-### thresholds
-
-Adds thresholds to plot:
-
-```typescript
-thresholds?: {
-    x?: number;
-    y?: number;
-    color?: Color;
-  }[];
-```
-
-### fillArea
-
-Some graphs look better presented as a area, not lines. In order to use area chart, pass fillArea prop:
-
-```typescript
-fillArea?: boolean;
-```
-
-### hideXAxis
-
-Hide X axis:
-
-```typescript
-hideXAxis? boolean;
-```
-
-### hideYAxis
-
-Hide Y axis:
-
-```typescript
-hideYAxis? boolean;
-```
-
-### symbols
+### Symbols
 
 Overrides default symbols. Three independent sections are: `empty` - background, `axis` - symbols used to draw axis, `chart` - symbols used to draw graph.
 
@@ -336,59 +152,36 @@ symbols: {
     sne: '┏',
     area: '█'
     }
+}
 ```
 
-## Summary
+### Summary
 
 ```typescript
 Settings = {
-  color?: Color | Color[];
-  width?: number;
-  height?: number;
-  axisCenter?: [number, number];
-  formatter?: (number:number) => number;
-  lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[];
-  hideXAxis?: boolean;
-  legend?: { position?: 'left' | 'right' | 'top' | 'bottom'; series: string | string[] };
-  title?: string;
-  xLabel?: string;
-  yLabel?: string;
-  fillArea?: boolean;
-  hideYAxis?: boolean;
-  thresholds?: {
-    x?: number;
-    y?: number;
-    color?: Color;
-  }[];
-  symbols?: {
-    background?: ' ',
-    border?: undefined,
-    empty?: ' ',
-    axis?: {
-      n: '▲',
-      ns: '│',
-      y: '┤',
-      nse: '└',
-      x: '┬',
-      we: '─',
-      e: '▶',
-    },
-    chart?: {
-      we: '━',
-      wns: '┓',
-      ns: '┃',
-      nse: '┗',
-      wsn: '┛',
-      sne: '┏',
-      area: '█',
-      }
-    }
+  color?: Colors; // Colors for the plot lines or areas
+  width?: number; // Width of the plot
+  height?: number; // Height of the plot
+  yRange?: [number, number]; // Range of y-axis values
+  showTickLabel?: boolean; // Option to show tick labels on the axis
+  hideXAxis?: boolean; // Option to hide the x-axis
+  hideYAxis?: boolean; // Option to hide the y-axis
+  title?: string; // Title of the plot
+  xLabel?: string; // Label for the x-axis
+  yLabel?: string; // Label for the y-axis
+  thresholds?: Threshold[]; // Array of threshold lines or points
+  fillArea?: boolean; // Option to fill the area under lines
+  legend?: Legend; // Legend settings
+  axisCenter?: MaybePoint; // Center point for axes alignment
+  formatter?: Formatter; // Custom formatter for axis values
+  lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[]; // Custom line formatter
+  symbols?: Symbols; // Custom symbols for chart elements
 };
 ```
 
 ## Examples
 
-### Simple plot
+### Simple Plot
 
 Input:
 
@@ -405,10 +198,9 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
-
   ▲
  4┤ ┏━━━┓
   │ ┃   ┃
@@ -420,7 +212,7 @@ Output:
    1 2 3 4 5
 ```
 
-### Plot with title and defined size
+### Plot with Title and Custom Size
 
 Input:
 
@@ -440,7 +232,7 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
 Important data
@@ -457,7 +249,7 @@ Important data
    1  2 3  4  5  6 7  8
 ```
 
-### Plot with axis labels
+### Plot with Axis Labels
 
 Input:
 
@@ -477,7 +269,7 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
    ▲
@@ -523,7 +315,7 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
  ▲
@@ -560,7 +352,7 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
 ███████████████████████████
@@ -606,7 +398,7 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
   ▲
@@ -642,7 +434,7 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
    ▲
@@ -691,7 +483,7 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
   ▲     ┃               ┃
@@ -746,7 +538,7 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
    ▲
@@ -793,7 +585,7 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
          ▲
@@ -845,7 +637,7 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
                                  ▲
@@ -914,7 +706,7 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
 xxA-----------------------------------------
@@ -955,7 +747,7 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
                            ┏━━━━━━━━━━━━━━┓
@@ -994,7 +786,7 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
       ▲
@@ -1055,7 +847,7 @@ plot(
 );
 ```
 
-Output:
+Expected Output:
 
 ```bash
    ▲                     ▲

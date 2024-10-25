@@ -9,6 +9,78 @@ describe('plot', () => {
   ];
 
   describe('plot', () => {
+    describe('plot with yRange', () => {
+      const data: Coordinates = [
+        [1, 10],
+        [2, 20],
+        [3, 30],
+        [4, 40],
+        [5, 50],
+      ];
+
+      it('filters out values outside of the yRange', () => {
+        const chart = plot(data, { width: 10, height: 5, yRange: [15, 45] });
+        expect(chart).toBe(`
+  ▲           
+  │           
+40┤        ┏━ 
+30┤    ┏━━━┛  
+20┤━━━━┛      
+  │           
+  └┬────┬───┬▶
+   2    3   4 
+`);
+      });
+
+      it('shows all values if yRange fully encompasses data', () => {
+        const chart = plot(data, { width: 10, height: 5, yRange: [5, 55] });
+        expect(chart).toBe(`
+  ▲           
+50┤        ┏━ 
+40┤      ┏━┛  
+30┤    ┏━┛    
+20┤ ┏━━┛      
+10┤━┛         
+  └┬─┬──┬─┬─┬▶
+   1 2  3 4 5 
+`);
+      });
+
+      it('filters all points if they fall outside the yRange', () => {
+        const chart = plot(data, { width: 10, height: 5, yRange: [60, 70] });
+        expect(chart).toBe(`
+▲           
+│           
+│           
+│           
+│           
+│           
+└──────────▶
+`);
+      });
+
+      it('displays partial data if only some points are in yRange', () => {
+        const partialData: Coordinates = [
+          [1, 10],
+          [2, 20],
+          [3, 5],
+          [4, 30],
+          [5, 15],
+        ];
+        const chart = plot(partialData, { width: 10, height: 5, yRange: [10, 30] });
+        expect(chart).toBe(`
+  ▲           
+30┤      ┏━┓  
+  │      ┃ ┃  
+20┤ ┏━━━━┛ ┃  
+15┤ ┃      ┗━ 
+10┤━┛         
+  └┬─┬────┬─┬▶
+   1 2    4 5 
+`);
+      });
+    });
+
     it('Return empty string if values are not present', () => {
       const chart = plot([]);
       expect(chart).toStrictEqual('');

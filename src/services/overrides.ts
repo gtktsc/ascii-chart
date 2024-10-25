@@ -1,8 +1,27 @@
 import { CHART } from '../constants';
-import { Colors, Formatter, Graph, Legend, MultiLine, Point, Symbols, Threshold } from '../types';
+import {
+  Colors,
+  Formatter,
+  Graph,
+  Legend,
+  MultiLine,
+  Point,
+  Symbols,
+  Threshold,
+  FormatterHelpers,
+} from '../types';
 import { getPlotCoords, toArray, toEmpty, toPlot } from './coords';
 import { defaultFormatter, getAnsiColor, getChartSymbols } from './settings';
 
+/**
+ * Adds a title to the graph at the top.
+ * @param {object} options - Object containing title options.
+ * @param {string} options.title - The title text.
+ * @param {Graph} options.graph - The graph array to modify.
+ * @param {string} options.backgroundSymbol - Background symbol for the graph.
+ * @param {number} options.plotWidth - Width of the plot.
+ * @param {number} options.yShift - Vertical shift for positioning.
+ */
 export const setTitle = ({
   title,
   graph,
@@ -16,13 +35,21 @@ export const setTitle = ({
   plotWidth: number;
   yShift: number;
 }) => {
-  // add one line for the title
-  graph.unshift(toEmpty(plotWidth + yShift + 2, backgroundSymbol)); // top
+  graph.unshift(toEmpty(plotWidth + yShift + 2, backgroundSymbol));
   Array.from(title).forEach((letter, index) => {
     graph[0][index] = letter;
   });
 };
 
+/**
+ * Adds an x-axis label centered at the bottom of the graph.
+ * @param {object} options - Object containing x-label options.
+ * @param {string} options.xLabel - The x-axis label text.
+ * @param {Graph} options.graph - The graph array to modify.
+ * @param {string} options.backgroundSymbol - Background symbol for the graph.
+ * @param {number} options.plotWidth - Width of the plot.
+ * @param {number} options.yShift - Vertical shift for positioning.
+ */
 export const addXLable = ({
   graph,
   plotWidth,
@@ -40,13 +67,19 @@ export const addXLable = ({
   const labelLength = toArray(xLabel).length;
   const startingPosition = Math.round((totalWidth - labelLength) / 2);
 
-  // add one line for the xLabel
-  graph.push(toEmpty(plotWidth + yShift + 2, backgroundSymbol)); // bottom
+  graph.push(toEmpty(plotWidth + yShift + 2, backgroundSymbol));
   Array.from(xLabel).forEach((letter, index) => {
     graph[graph.length - 1][startingPosition + index] = letter;
   });
 };
 
+/**
+ * Adds a y-axis label centered on the left side of the graph.
+ * @param {object} options - Object containing y-label options.
+ * @param {Graph} options.graph - The graph array to modify.
+ * @param {string} options.backgroundSymbol - Background symbol for the graph.
+ * @param {string} options.yLabel - The y-axis label text.
+ */
 export const addYLabel = ({
   graph,
   backgroundSymbol,
@@ -61,15 +94,25 @@ export const addYLabel = ({
   const startingPosition = Math.round((totalHeight - labelLength) / 2) - 1;
 
   const label = Array.from(yLabel);
-  // add one line for the xLabel
   graph.forEach((line, position) => {
-    line.unshift(backgroundSymbol); // left
+    line.unshift(backgroundSymbol);
     if (position > startingPosition && label[position - startingPosition - 1]) {
       graph[position][0] = label[position - startingPosition - 1];
     }
   });
 };
 
+/**
+ * Adds a legend to the specified position on the graph (top, bottom, left, or right).
+ * @param {object} options - Object containing legend options.
+ * @param {Graph} options.graph - The graph array to modify.
+ * @param {Legend} options.legend - Configuration for the legend's position and series.
+ * @param {string} options.backgroundSymbol - Background symbol for the graph.
+ * @param {MultiLine} options.input - Input data series for the chart.
+ * @param {Colors} [options.color] - Color(s) for each series.
+ * @param {Symbols} [options.symbols] - Custom symbols for the chart.
+ * @param {boolean} [options.fillArea] - Whether to fill the area below the lines.
+ */
 export const addLegend = ({
   graph,
   legend,
@@ -87,14 +130,9 @@ export const addLegend = ({
   symbols?: Symbols;
   fillArea?: boolean;
 }) => {
-  // calculate legend width as the longest label
-  // adds 2 for one space and color indicator
-
   const series = Array.isArray(legend.series) ? legend.series : [legend.series];
   const legendWidth = 2 + series.reduce((acc, label) => Math.max(acc, toArray(label).length), 0);
 
-  // prepare space for legend
-  // and then place the legend
   for (let i = 0; i < legendWidth; i += 1) {
     graph.forEach((line, lineIndex) => {
       if (legend.position === 'left') {
@@ -129,7 +167,6 @@ export const addLegend = ({
             chartSymbols.area,
             backgroundSymbol,
             ...Array.from(label),
-            // adds to fill space
             ...Array(legendWidth - label.length - 2).fill(backgroundSymbol),
           ];
           if (lineIndex === index) {
@@ -176,15 +213,28 @@ export const addLegend = ({
   }
 };
 
+/**
+ * Adds a border around the graph.
+ * @param {object} options - Object containing border options.
+ * @param {Graph} options.graph - The graph array to modify.
+ * @param {string} options.borderSymbol - The symbol to use for the border.
+ */
 export const addBorder = ({ graph, borderSymbol }: { graph: Graph; borderSymbol: string }) => {
   graph.forEach((line) => {
-    line.unshift(borderSymbol); // left
-    line.push(borderSymbol); // right
+    line.unshift(borderSymbol);
+    line.push(borderSymbol);
   });
-  graph.unshift(toEmpty(graph[0].length, borderSymbol)); // top
-  graph.push(toEmpty(graph[0].length, borderSymbol)); // bottom
+  graph.unshift(toEmpty(graph[0].length, borderSymbol));
+  graph.push(toEmpty(graph[0].length, borderSymbol));
 };
 
+/**
+ * Fills the background of empty cells in the graph with a specified symbol.
+ * @param {object} options - Object containing background fill options.
+ * @param {Graph} options.graph - The graph array to modify.
+ * @param {string} options.backgroundSymbol - Symbol to fill empty cells with.
+ * @param {string} options.emptySymbol - Symbol representing empty cells.
+ */
 export const addBackgroundSymbol = ({
   graph,
   backgroundSymbol,
@@ -196,16 +246,23 @@ export const addBackgroundSymbol = ({
 }) => {
   graph.forEach((line) => {
     for (let index = 0; index < line.length; index += 1) {
-      if (line[index] === emptySymbol) {
-        // eslint-disable-next-line
-        line[index] = backgroundSymbol;
-      } else {
-        break;
-      }
+      if (line[index] === emptySymbol) line[index] = backgroundSymbol;
+      else break;
     }
   });
 };
 
+/**
+ * Adds threshold lines to the graph based on specified x or y values.
+ * @param {object} options - Object containing threshold options.
+ * @param {Graph} options.graph - The graph array to modify.
+ * @param {Threshold[]} options.thresholds - Array of threshold objects with x, y, and color.
+ * @param {object} options.axis - The axis configuration.
+ * @param {number} options.plotWidth - Width of the plot.
+ * @param {number} options.plotHeight - Height of the plot.
+ * @param {number[]} options.expansionX - x-axis range for scaling.
+ * @param {number[]} options.expansionY - y-axis range for scaling.
+ */
 export const addThresholds = ({
   graph,
   thresholds,
@@ -235,12 +292,10 @@ export const addThresholds = ({
     return [x, y] as Point;
   });
 
-  // add threshold line
   getPlotCoords(mappedThreshold, plotWidth, plotHeight, expansionX, expansionY).forEach(
     ([x, y], thresholdNumber) => {
       const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
 
-      // display x threshold only if it's in the graph
       if (thresholds[thresholdNumber]?.x && graph[0][scaledX]) {
         graph.forEach((_, index) => {
           if (graph[index][scaledX]) {
@@ -252,7 +307,6 @@ export const addThresholds = ({
           }
         });
       }
-      // display y threshold only if it's in the graph
       if (thresholds[thresholdNumber]?.y && graph[scaledY]) {
         graph[scaledY].forEach((_, index) => {
           if (graph[scaledY][index]) {
@@ -268,6 +322,12 @@ export const addThresholds = ({
   );
 };
 
+/**
+ * Fills the area below chart symbols with the specified area symbol.
+ * @param {object} options - Object containing fill options.
+ * @param {Graph} options.graph - The graph array to modify.
+ * @param {Symbols['chart']} options.chartSymbols - Chart symbols to use for filling.
+ */
 export const setFillArea = ({
   graph,
   chartSymbols,
@@ -291,6 +351,12 @@ export const setFillArea = ({
   });
 };
 
+/**
+ * Removes any completely empty lines from the graph.
+ * @param {object} options - Object containing empty line removal options.
+ * @param {Graph} options.graph - The graph array to modify.
+ * @param {string} options.backgroundSymbol - Background symbol for identifying empty lines.
+ */
 export const removeEmptyLines = ({
   graph,
   backgroundSymbol,
@@ -298,34 +364,29 @@ export const removeEmptyLines = ({
   graph: Graph;
   backgroundSymbol: string;
 }) => {
-  // clean up empty lines after shift
-  // when there are occupied positions and shift is not needed
-  // there might be empty lines at the bottom
   const elementsToRemove: number[] = [];
   graph.forEach((line, position) => {
     if (line.every((symbol) => symbol === backgroundSymbol)) {
-      // collect empty line positions and remove them later
       elementsToRemove.push(position);
     }
 
-    // remove empty lines from the beginning
     if (graph.every((currentLine) => currentLine[0] === backgroundSymbol)) {
       graph.forEach((currentLine) => currentLine.shift());
     }
   });
 
-  // reverse to remove from the end, otherwise positions will be shifted
   elementsToRemove.reverse().forEach((position) => {
     graph.splice(position, 1);
   });
 };
 
-export const getTransformLabel = ({ formatter }: { formatter?: Formatter }) => {
-  const transformLabel: Formatter = (value, helpers) => {
-    if (formatter) {
-      return formatter(value, helpers);
-    }
-    return defaultFormatter(value, helpers);
-  };
-  return transformLabel as Formatter;
-};
+/**
+ * Returns a label transformation function using the specified formatter.
+ * @param {object} options - Object containing formatter options.
+ * @param {Formatter} [options.formatter] - Formatter function to apply to labels.
+ * @returns {Formatter} - A formatter function for transforming labels.
+ */
+export const getTransformLabel =
+  ({ formatter }: { formatter?: Formatter }) =>
+  (value: number, helpers: FormatterHelpers) =>
+    formatter ? formatter(value, helpers) : defaultFormatter(value, helpers);
