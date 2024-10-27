@@ -90,15 +90,24 @@ describe('Graph Utility Functions', () => {
 
   describe('addThresholds', () => {
     it('should add thresholds correctly', () => {
-      const thresholds = [{ x: 1, y: 2, color: 'ansiRed' }] as Threshold[];
+      const thresholds = [{ x: 2, color: 'ansiRed' }] as Threshold[];
       const axis = { x: 0, y: 0 };
       const plotHeight = 10;
       const expansionX = [0, plotWidth];
       const expansionY = [0, plotHeight];
 
       addThresholds({ graph, thresholds, axis, plotWidth, plotHeight, expansionX, expansionY });
+      expect(graph[2][3]).toContain(CHART.ns);
+    });
+    it('should add thresholds correctly - y', () => {
+      const thresholds = [{ y: 5, color: 'ansiRed' }] as Threshold[];
+      const axis = { x: 0, y: 0 };
+      const plotHeight = 10;
+      const expansionX = [0, plotWidth];
+      const expansionY = [0, plotHeight];
 
-      expect(graph[2][1]).toContain(CHART.we);
+      addThresholds({ graph, thresholds, axis, plotWidth, plotHeight, expansionX, expansionY });
+      expect(graph[2][3]).toContain(CHART.we);
     });
     it('should add color', () => {
       const thresholds = [{ x: 1, y: 2, color: 'ansiBlue' }] as Threshold[];
@@ -123,9 +132,8 @@ describe('Graph Utility Functions', () => {
       const expansionY = [0, plotHeight];
 
       addThresholds({ graph, thresholds, axis, plotWidth, plotHeight, expansionX, expansionY });
-
-      expect(graph[0][2]).toContain('\u001b[34m');
-      expect(graph[0][3]).toContain('\u001b[31m');
+      expect(graph[0][3]).toContain('\u001b[34m');
+      expect(graph[0][4]).toContain('\u001b[31m');
     });
 
     it('should not add color if not set', () => {

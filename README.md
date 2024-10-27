@@ -7,7 +7,8 @@
 
 **Simple ASCII Chart** is a TypeScript package for creating customizable ASCII charts in the terminal. It supports two-dimensional data, multiple series, custom colors, and formatters, making it a versatile solution for terminal-based data visualization.
 
-[Interactive demo.](https://simple-ascii-chart.vercel.app/)
+[Playground and documentation](https://simple-ascii-chart.vercel.app/)
+[NPM](https://www.npmjs.com/package/simple-ascii-chart)
 
 ## Installation
 
@@ -25,9 +26,14 @@ import plot from 'simple-ascii-chart';
 const graph = plot(input, settings);
 ```
 
+## CLI
+
+[CLI tool is available too](https://github.com/gtktsc/simple-ascii-chart-cli)
+[NPM](https://www.npmjs.com/package/simple-ascii-chart-cli)
+
 ## Playground
 
-Create charts interactively in the [playground](https://simple-ascii-chart.vercel.app/).
+Create charts interactively in the [playground](https://simple-ascii-chart.vercel.app/playground).
 
 ## API Endpoint
 
@@ -108,10 +114,13 @@ Customize the `plot` function with a variety of settings:
 | `yLabel`         | Label for the y-axis.                                                                                         |
 | `thresholds`     | Defines threshold lines or points with optional colors at specific x or y coordinates.                        |
 | `fillArea`       | Fills the area under each line, suitable for area charts.                                                     |
+| `barChart`       | Draws bar chart.                                                                                              |
+| `horizontalBarChart`| Draws horizontal bar chart.                                                                                |
 | `hideXAxis`      | Hides the x-axis.                                                                                             |
 | `hideYAxis`      | Hides the y-axis.                                                                                             |
 | `symbols`        | Symbols for customizing the chart’s appearance, including axis, background, and chart symbols.                |
 | `legend`         | Configuration for a legend, showing series names and position options (`left`, `right`, `top`, `bottom`).     |
+| `debugMode`      | Enables debug mode (`default = false`).                                                                       |
 
 ### Advanced Settings
 
@@ -863,4 +872,101 @@ Expected Output:
   0┤█                ▼       █
    └┬───┬───┬───┬────┬───┬───┬───┬▶
     1   2   3   4    5   6   7   8
+```
+
+### Bar chart
+
+Input:
+
+```typescript
+plot(
+  [
+  [0, 3],
+  [1, 2],
+  [2, 3],
+  [3, 4],
+  [4, -2],
+  [5, -5],
+  [6, 2],
+  [7, 0],
+],
+{
+  title: 'bar chart with axis',
+  barChart: true,
+  showTickLabel: true,
+  width: 40,
+  axisCenter: [0, 0],
+},
+);
+```
+
+Expected Output:
+
+```bash
+bar chart with axis                         
+  ▲                █                        
+ 4┤          █     █                        
+ 3┤     █    █     █               █        
+ 2┤     █    █     █               █        
+ 1┤     █    █     █               █     █  
+ 0┤─────┬────┬─────┬────┬─────┬────┬─────┬─▶
+-1┤     1    2     3    4     5    6     7  
+-2┤                           █             
+-3┤                           █             
+-4┤                           █             
+-5┤                                         
+  │                                         
+```
+
+### Bar chart
+
+Input:
+
+```typescript
+plot(
+  [
+    [0, 3],
+    [1, 2],
+    [2, 3],
+    [3, 4],
+    [4, -2],
+    [5, -5],
+    [6, 2],
+    [7, 0],
+  ],
+  {
+    horizontalBarChart: true,
+    showTickLabel: true,
+    width: 40,
+    height: 20,
+    axisCenter: [3, 1],
+  },
+);
+```
+
+Expected Output:
+
+```bash
+                 ▲                        
+                4┤                        
+                 │                        
+████████████████3┤                        
+                 │                        
+      ██████████2┤████████████████        
+                 │                        
+┬─────┬────┬────1┤────┬─────┬────┬─────┬─▶
+0     1    2     3    4     5    6     7  
+                0┤██████████████████████  
+                 │                        
+               -1┤                        
+                 │                        
+               -2┤                        
+                 │█████                   
+               -3┤                        
+                 │                        
+               -4┤                        
+                 │                        
+                 │                        
+               -5┤███████████             
+                 │                        
 ```

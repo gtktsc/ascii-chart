@@ -11,6 +11,7 @@ import {
   FormatterHelpers,
 } from '../types';
 import { getPlotCoords, toArray, toEmpty, toPlot } from './coords';
+import { drawPosition } from './draw';
 import { defaultFormatter, getAnsiColor, getChartSymbols } from './settings';
 
 /**
@@ -28,16 +29,24 @@ export const setTitle = ({
   backgroundSymbol,
   plotWidth,
   yShift,
+  debugMode,
 }: {
   title: string;
   graph: Graph;
   backgroundSymbol: string;
   plotWidth: number;
   yShift: number;
+  debugMode?: boolean;
 }) => {
   graph.unshift(toEmpty(plotWidth + yShift + 2, backgroundSymbol));
   Array.from(title).forEach((letter, index) => {
-    graph[0][index] = letter;
+    drawPosition({
+      debugMode,
+      graph,
+      scaledX: index,
+      scaledY: 0,
+      symbol: letter,
+    });
   });
 };
 
@@ -56,12 +65,14 @@ export const addXLable = ({
   yShift,
   backgroundSymbol,
   xLabel,
+  debugMode,
 }: {
   xLabel: string;
   graph: Graph;
   backgroundSymbol: string;
   plotWidth: number;
   yShift: number;
+  debugMode?: boolean;
 }) => {
   const totalWidth = graph[0].length;
   const labelLength = toArray(xLabel).length;
@@ -69,7 +80,13 @@ export const addXLable = ({
 
   graph.push(toEmpty(plotWidth + yShift + 2, backgroundSymbol));
   Array.from(xLabel).forEach((letter, index) => {
-    graph[graph.length - 1][startingPosition + index] = letter;
+    drawPosition({
+      debugMode,
+      graph,
+      scaledX: startingPosition + index,
+      scaledY: graph.length - 1,
+      symbol: letter,
+    });
   });
 };
 
@@ -84,10 +101,12 @@ export const addYLabel = ({
   graph,
   backgroundSymbol,
   yLabel,
+  debugMode,
 }: {
   graph: Graph;
   backgroundSymbol: string;
   yLabel: string;
+  debugMode?: boolean;
 }) => {
   const totalHeight = graph.length;
   const labelLength = toArray(yLabel).length;
@@ -97,7 +116,13 @@ export const addYLabel = ({
   graph.forEach((line, position) => {
     line.unshift(backgroundSymbol);
     if (position > startingPosition && label[position - startingPosition - 1]) {
-      graph[position][0] = label[position - startingPosition - 1];
+      drawPosition({
+        debugMode,
+        graph,
+        scaledX: 0,
+        scaledY: position,
+        symbol: label[position - startingPosition - 1],
+      });
     }
   });
 };
@@ -121,6 +146,7 @@ export const addLegend = ({
   symbols,
   fillArea,
   input,
+  debugMode,
 }: {
   graph: Graph;
   legend: Legend;
@@ -129,6 +155,7 @@ export const addLegend = ({
   color?: Colors;
   symbols?: Symbols;
   fillArea?: boolean;
+  debugMode?: boolean;
 }) => {
   const series = Array.isArray(legend.series) ? legend.series : [legend.series];
   const legendWidth = 2 + series.reduce((acc, label) => Math.max(acc, toArray(label).length), 0);
@@ -188,8 +215,13 @@ export const addLegend = ({
 
       graph[index].forEach((_, symbolIndex) => {
         if (newSymbol[symbolIndex]) {
-          // eslint-disable-next-line no-param-reassign
-          graph[0][symbolIndex] = newSymbol[symbolIndex];
+          drawPosition({
+            debugMode,
+            graph,
+            scaledX: symbolIndex,
+            scaledY: 0,
+            symbol: newSymbol[symbolIndex],
+          });
         }
       });
     });
@@ -205,8 +237,13 @@ export const addLegend = ({
 
       graph[index].forEach((_, symbolIndex) => {
         if (newSymbol[symbolIndex]) {
-          // eslint-disable-next-line no-param-reassign
-          graph[graph.length - 1][symbolIndex] = newSymbol[symbolIndex];
+          drawPosition({
+            debugMode,
+            graph,
+            scaledX: symbolIndex,
+            scaledY: graph.length - 1,
+            symbol: newSymbol[symbolIndex],
+          });
         }
       });
     });
@@ -239,15 +276,24 @@ export const addBackgroundSymbol = ({
   graph,
   backgroundSymbol,
   emptySymbol,
+  debugMode,
 }: {
   graph: Graph;
   backgroundSymbol: string;
   emptySymbol: string;
+  debugMode?: boolean;
 }) => {
-  graph.forEach((line) => {
+  graph.forEach((line, curr) => {
     for (let index = 0; index < line.length; index += 1) {
-      if (line[index] === emptySymbol) line[index] = backgroundSymbol;
-      else break;
+      if (line[index] === emptySymbol) {
+        drawPosition({
+          debugMode,
+          graph,
+          scaledX: index,
+          scaledY: curr,
+          symbol: backgroundSymbol,
+        });
+      } else break;
     }
   });
 };
@@ -271,6 +317,7 @@ export const addThresholds = ({
   plotHeight,
   expansionX,
   expansionY,
+  debugMode,
 }: {
   graph: Graph;
   thresholds: Threshold[];
@@ -279,6 +326,7 @@ export const addThresholds = ({
   plotHeight: number;
   expansionX: number[];
   expansionY: number[];
+  debugMode?: boolean;
 }) => {
   const mappedThreshold = thresholds.map(({ x: thresholdX, y: thresholdY }) => {
     let { x, y } = axis;
@@ -299,22 +347,30 @@ export const addThresholds = ({
       if (thresholds[thresholdNumber]?.x && graph[0][scaledX]) {
         graph.forEach((_, index) => {
           if (graph[index][scaledX]) {
-            graph[index][scaledX] = thresholds[thresholdNumber]?.color
-              ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${
-                  CHART.ns
-                }\u001b[0m`
-              : CHART.ns;
+            drawPosition({
+              debugMode,
+              graph,
+              scaledX: scaledX + 1,
+              scaledY: index,
+              symbol: thresholds[thresholdNumber]?.color
+                ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${CHART.ns}\u001b[0m`
+                : CHART.ns,
+            });
           }
         });
       }
       if (thresholds[thresholdNumber]?.y && graph[scaledY]) {
         graph[scaledY].forEach((_, index) => {
           if (graph[scaledY][index]) {
-            graph[scaledY][index] = thresholds[thresholdNumber]?.color
-              ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${
-                  CHART.we
-                }\u001b[0m`
-              : CHART.we;
+            drawPosition({
+              debugMode,
+              graph,
+              scaledX: index,
+              scaledY: scaledY + 1,
+              symbol: thresholds[thresholdNumber]?.color
+                ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${CHART.we}\u001b[0m`
+                : CHART.we,
+            });
           }
         });
       }
@@ -331,9 +387,11 @@ export const addThresholds = ({
 export const setFillArea = ({
   graph,
   chartSymbols,
+  debugMode,
 }: {
   graph: Graph;
   chartSymbols: Symbols['chart'];
+  debugMode?: boolean;
 }) => {
   graph.forEach((xValues, yIndex) => {
     xValues.forEach((xSymbol, xIndex) => {
@@ -344,7 +402,13 @@ export const setFillArea = ({
         xSymbol === chartSymbols?.area
       ) {
         if (graph[yIndex + 1]?.[xIndex]) {
-          graph[yIndex + 1][xIndex] = chartSymbols.area || CHART.area;
+          drawPosition({
+            debugMode,
+            graph,
+            scaledX: xIndex,
+            scaledY: yIndex + 1,
+            symbol: chartSymbols.area || CHART.area,
+          });
         }
       }
     });

@@ -64,6 +64,7 @@ export const getChartSize = ({
 
   return {
     minX,
+    minY,
     plotWidth,
     plotHeight,
     expansionX,

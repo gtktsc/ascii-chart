@@ -7,11 +7,76 @@ import {
   drawCustomLine,
   drawLine,
   drawShift,
+  drawPosition,
 } from '../draw';
 import { AXIS, CHART } from '../../constants';
 import { MultiLine, Point } from '../../types';
 
 describe('Drawing functions', () => {
+  describe('drawPosition', () => {
+    it('should correctly draw a symbol at the specified position in the graph', () => {
+      const graph = [
+        [' ', ' ', ' '],
+        [' ', ' ', ' '],
+        [' ', ' ', ' '],
+      ];
+      drawPosition({ graph, scaledX: 1, scaledY: 1, symbol: 'X' });
+      expect(graph[1][1]).toEqual('X');
+    });
+
+    it('should handle out-of-bounds Y position in debug mode', () => {
+      const graph = [
+        [' ', ' ', ' '],
+        [' ', ' ', ' '],
+        [' ', ' ', ' '],
+      ];
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      drawPosition({ graph, scaledX: 1, scaledY: 3, symbol: 'X', debugMode: true });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Drawing at [1, 3]',
+        'Error: out of bounds Y',
+        expect.objectContaining({
+          graph,
+          scaledX: 1,
+          scaledY: 3,
+        }),
+      );
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle out-of-bounds X position in debug mode', () => {
+      const graph = [
+        [' ', ' ', ' '],
+        [' ', ' ', ' '],
+        [' ', ' ', ' '],
+      ];
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      drawPosition({ graph, scaledX: 4, scaledY: 1, symbol: 'X', debugMode: true });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Drawing at [4, 1]',
+        'Error: out of bounds X',
+        expect.objectContaining({
+          graph,
+          scaledX: 4,
+          scaledY: 1,
+        }),
+      );
+      consoleSpy.mockRestore();
+    });
+
+    it('should not log any errors if debugMode is off and out-of-bounds error occurs', () => {
+      const graph = [
+        [' ', ' ', ' '],
+        [' ', ' ', ' '],
+        [' ', ' ', ' '],
+      ];
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      drawPosition({ graph, scaledX: 4, scaledY: 1, symbol: 'X' });
+      expect(consoleSpy).not.toHaveBeenCalled();
+      consoleSpy.mockRestore();
+    });
+  });
+
   describe('drawXAxisEnd', () => {
     it('should draw the X-axis end correctly', () => {
       const graph = [
@@ -63,6 +128,35 @@ describe('Drawing functions', () => {
   });
 
   describe('drawYAxisEnd', () => {
+    it('should draw tick labels for each step when showTickLabel is true', () => {
+      const graph = [
+        [' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', ' '],
+      ];
+      const args = {
+        graph,
+        scaledY: 1,
+        yShift: 1,
+        axis: { x: 1, y: 1 },
+        pointY: 2,
+        plotHeight: 4,
+        transformLabel: (value: number) => value.toString(),
+        axisSymbols: { y: 'Y' },
+        expansionX: [0],
+        expansionY: [0, 1, 2, 3],
+        showTickLabel: true,
+      };
+      drawYAxisEnd(args);
+
+      // Expect Y-axis labels to be drawn starting from [1][2], not [0][2]
+      expect(graph[1][2]).toEqual('3'); // Top of the axis (Y value 3)
+      expect(graph[2][2]).toEqual('2'); // Mid Y value (Y value 2)
+      expect(graph[3][2]).toEqual('1'); // Near bottom (Y value 1)
+      // The bottom Y value '0' might not be drawn, depending on the graph size
+    });
+
     it('should draw the Y-axis end correctly', () => {
       const graph = [
         [' ', ' ', ' ', ' '],
@@ -149,7 +243,12 @@ describe('Drawing functions', () => {
         scaledY: 1,
         input: [[1, 1]] as unknown as MultiLine,
         index: 0,
+        minY: 0,
+        minX: 0,
+        expansionX: [0],
+        expansionY: [0],
         lineFormatter: () => ({ x: 1, y: 1, symbol: 'X' }),
+        toPlotCoordinates: () => [1, 1] as Point,
         graph,
       };
       drawCustomLine(args);
@@ -172,7 +271,11 @@ describe('Drawing functions', () => {
           [1, 1],
         ] as Point[],
         graph,
+        horizontalBarChart: false,
+        barChart: false,
         scaledX: 1,
+        axis: { x: 0, y: 5 },
+        axisCenter: undefined,
         scaledY: 1,
         plotHeight: 3,
         emptySymbol: ' ',

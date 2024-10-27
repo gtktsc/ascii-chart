@@ -43,6 +43,7 @@ describe('Chart Helper Functions', () => {
       const size = getChartSize({ input });
       expect(size).toEqual({
         minX: 1,
+        minY: 2,
         plotWidth: 3, // length of rangeX
         plotHeight: 5, // maxY - minY + 1
         expansionX: [1, 3],
@@ -62,6 +63,7 @@ describe('Chart Helper Functions', () => {
       const size = getChartSize({ input, width: 10, height: 10 });
       expect(size).toEqual({
         minX: 1,
+        minY: 2,
         plotWidth: 10,
         plotHeight: 10,
         expansionX: [1, 3],
@@ -79,6 +81,7 @@ describe('Chart Helper Functions', () => {
       const size = getChartSize({ input });
       expect(size).toEqual({
         minX: 1,
+        minY: 2,
         plotWidth: 2, // length of rangeX
         plotHeight: 3, // length of rangeY since it's less than 3 without provided height
         expansionX: [1, 2],
@@ -98,6 +101,7 @@ describe('Chart Helper Functions', () => {
       const size = getChartSize({ input });
       expect(size).toEqual({
         minX: -3,
+        minY: -2,
         plotWidth: 4, // length of rangeX
         plotHeight: 7, // maxY - minY + 1
         expansionX: [-3, 3],

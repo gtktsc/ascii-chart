@@ -40,12 +40,15 @@ export const plot: Plot = (
     symbols,
     title,
     fillArea,
+    horizontalBarChart,
+    barChart,
     hideXAxis,
     hideYAxis,
     xLabel,
     yLabel,
     legend,
     thresholds,
+    debugMode,
   } = {},
 ) => {
   // Multiline
@@ -67,7 +70,7 @@ export const plot: Plot = (
 
   let scaledCoords = [[0, 0]];
 
-  const { minX, plotWidth, plotHeight, expansionX, expansionY } = getChartSize({
+  const { minX, minY, plotWidth, plotHeight, expansionX, expansionY } = getChartSize({
     width,
     height,
     input,
@@ -93,16 +96,45 @@ export const plot: Plot = (
 
     scaledCoords = getPlotCoords(sortedCoords, plotWidth, plotHeight, expansionX, expansionY).map(
       ([x, y], index, arr) => {
-        const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
+        const toPlotCoordinates = toPlot(plotWidth, plotHeight);
+        const [scaledX, scaledY] = toPlotCoordinates(x, y);
         if (!lineFormatter) {
-          drawLine({ index, arr, graph, scaledX, scaledY, plotHeight, emptySymbol, chartSymbols });
+          drawLine({
+            debugMode,
+            index,
+            arr,
+            graph,
+            scaledX,
+            scaledY,
+            plotHeight,
+            emptySymbol,
+            chartSymbols,
+            horizontalBarChart,
+            axis,
+            axisCenter,
+            barChart,
+          });
 
           // fill empty area under the line if fill area is true
           if (fillArea) {
-            setFillArea({ graph, chartSymbols });
+            setFillArea({ graph, chartSymbols, debugMode });
           }
         } else {
-          drawCustomLine({ sortedCoords, scaledX, scaledY, input, index, lineFormatter, graph });
+          drawCustomLine({
+            debugMode,
+            sortedCoords,
+            scaledX,
+            scaledY,
+            input,
+            index,
+            lineFormatter,
+            graph,
+            toPlotCoordinates,
+            expansionX,
+            expansionY,
+            minY,
+            minX,
+          });
         }
 
         return [scaledX, scaledY];
@@ -112,6 +144,7 @@ export const plot: Plot = (
 
   if (thresholds) {
     addThresholds({
+      debugMode,
       graph,
       thresholds,
       axis,
@@ -124,6 +157,7 @@ export const plot: Plot = (
 
   // axis
   drawAxis({
+    debugMode,
     graph,
     hideXAxis,
     hideYAxis,
@@ -150,7 +184,7 @@ export const plot: Plot = (
 
   // apply background symbol if override
   if (backgroundSymbol) {
-    addBackgroundSymbol({ graph, backgroundSymbol, emptySymbol });
+    addBackgroundSymbol({ debugMode, graph, backgroundSymbol, emptySymbol });
   }
 
   // shift coords
@@ -162,6 +196,7 @@ export const plot: Plot = (
       const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
       if (!hideYAxis) {
         drawYAxisEnd({
+          debugMode,
           showTickLabel,
           plotHeight,
           graph,
@@ -228,6 +263,7 @@ export const plot: Plot = (
           }
 
           drawXAxisEnd({
+            debugMode,
             hasPlaceToRender,
             axisCenter,
             yPos,
@@ -251,6 +287,7 @@ export const plot: Plot = (
   // Adds title above the graph
   if (title) {
     setTitle({
+      debugMode,
       title,
       graph,
       backgroundSymbol,
@@ -262,6 +299,7 @@ export const plot: Plot = (
   // Adds x axis label below the graph
   if (xLabel) {
     addXLable({
+      debugMode,
       xLabel,
       graph,
       backgroundSymbol,
@@ -273,6 +311,7 @@ export const plot: Plot = (
   // Adds x axis label below the graph
   if (yLabel) {
     addYLabel({
+      debugMode,
       yLabel,
       graph,
       backgroundSymbol,
@@ -281,6 +320,7 @@ export const plot: Plot = (
 
   if (legend) {
     addLegend({
+      debugMode,
       input,
       graph,
       legend,

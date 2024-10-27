@@ -1,11 +1,12 @@
 {
   "name": "simple-ascii-chart",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "description": "Simple ascii chart generator",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "start": "tsc-watch -p tsconfig.json --preserveWatchOutput -w --onSuccess 'node ./dist/index.js'",
+    "examples": "tsc-watch -p tsconfig.json --preserveWatchOutput -w --onSuccess 'node ./dist/examples.js'",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "jest --coverage",

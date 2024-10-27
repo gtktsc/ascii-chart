@@ -48,6 +48,11 @@ export type LineFormatterArgs = {
   plotY: number; // y-coordinate on the plot
   input: SingleLine; // line input containing points
   index: number; // index of the current point
+  minY: number; // minimum y-value
+  minX: number; // minimum y-value
+  expansionX: number[]; // expansion values for x-axis
+  expansionY: number[]; // expansion values for y-axis
+  toPlotCoordinates: (x: number, y: number) => Point; // function to convert coordinates to plot coordinates
 };
 
 /**
@@ -128,11 +133,14 @@ export type Settings = {
   yLabel?: string; // Label for the y-axis
   thresholds?: Threshold[]; // Array of threshold lines or points
   fillArea?: boolean; // Option to fill the area under lines
+  horizontalBarChart?: boolean; // Option to draw horizontal bar chart
+  barChart?: boolean; // Option to draw bar chart
   legend?: Legend; // Legend settings
   axisCenter?: MaybePoint; // Center point for axes alignment
   formatter?: Formatter; // Custom formatter for axis values
   lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[]; // Custom line formatter
   symbols?: Symbols; // Custom symbols for chart elements
+  debugMode?: boolean; // Option to enable debug mode
 };
 
 /**
