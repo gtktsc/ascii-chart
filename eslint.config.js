@@ -1,15 +1,17 @@
-// eslint.config.js
-const typescript = require('@typescript-eslint/eslint-plugin');
-const importPlugin = require('eslint-plugin-import');
-const prettierConfig = require('eslint-config-prettier');
+import typescript from '@typescript-eslint/eslint-plugin';
+import parser from '@typescript-eslint/parser';
+import importPlugin from 'eslint-plugin-import';
+import prettierConfig from 'eslint-config-prettier';
 
-module.exports = [
+export default [
   {
-    ignores: ['node_modules/**', 'dist/**', 'coverage/**'], // Top-level ignores
+    ignores: ['node_modules/**', 'dist/**', 'coverage/**'],
   },
   prettierConfig,
   {
+    files: ['**/*.ts'],
     languageOptions: {
+      parser,
       ecmaVersion: 2021,
       sourceType: 'module',
     },
@@ -21,10 +23,18 @@ module.exports = [
       'import/extensions': 'off',
       'no-param-reassign': 'off',
     },
-    files: ['*.ts', '*.js'],
-    settings: {
-      jest: true,
-      browser: true,
+  },
+  {
+    files: ['**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2021,
+      sourceType: 'module',
+    },
+    plugins: {
+      import: importPlugin,
+    },
+    rules: {
+      'import/extensions': 'off',
     },
   },
 ];
