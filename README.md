@@ -20,10 +20,28 @@ yarn add simple-ascii-chart
 
 ## Usage
 
-```typescript
+In ESM (e.g., TypeScript, modern Node.js)
+
+```javascript
 import plot from 'simple-ascii-chart';
+// or, if you prefer named imports:
+import { plot } from 'simple-ascii-chart';
 
 const graph = plot(input, settings);
+console.log(graph);
+```
+
+In CommonJS (e.g., legacy Node.js)
+
+```javascript
+// Option 1: access default export
+const plot = require('simple-ascii-chart').default;
+
+// Option 2: use named export
+const { plot } = require('simple-ascii-chart');
+
+const graph = plot(input, settings);
+console.log(graph);
 ```
 
 ## CLI

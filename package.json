@@ -1,32 +1,47 @@
 {
   "name": "simple-ascii-chart",
-  "version": "4.2.0",
+  "version": "5.0.0",
   "description": "Simple ascii chart generator",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "import": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "require": {
+      "types": "./dist/index.d.cts",
+      "require": "./dist/index.cjs"
+    }
+  },
   "scripts": {
-    "start": "tsc-watch -p tsconfig.json --preserveWatchOutput -w --onSuccess 'node ./dist/index.js'",
-    "examples": "tsc-watch -p tsconfig.json --preserveWatchOutput -w --onSuccess 'node ./dist/examples.js'",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "build": "tsc -p tsconfig.build.json",
-    "build:watch": "tsc -p tsconfig.build.json -w",
+    "check-exports": "npx --yes @arethetypeswrong/cli --pack .",
+    "build": "tsup src/index.ts src/examples.ts --format cjs,esm --dts --clean --sourcemap",
+    "build:watch": "tsup src/index.ts src/examples.ts --watch",
+    "start": "node dist/index.cjs",
+    "examples": "node dist/examples.cjs --watch",
     "prepare": "npm test && npm run lint && npm run build"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
-    "@types/node": "^22.7.9",
-    "@typescript-eslint/eslint-plugin": "^8.11.0",
-    "eslint": "^9.13.0",
-    "eslint-config-prettier": "^9.0.0",
+    "@types/node": "^22.15.17",
+    "@typescript-eslint/eslint-plugin": "^8.32.0",
+    "@typescript-eslint/parser": "^8.32.0",
+    "eslint": "^9.26.0",
+    "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-import": "^2.28.1",
     "jest": "^29.7.0",
-    "prettier": "^3.3.2",
-    "ts-jest": "^29.1.5",
-    "tsc-watch": "^6.2.0",
-    "typescript": "^5.5.3"
+    "prettier": "^3.5.3",
+    "ts-jest": "^29.3.2",
+    "tsc-watch": "^6.2.1",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3"
   },
   "keywords": [
     "ascii",

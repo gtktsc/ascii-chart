@@ -178,7 +178,6 @@ export const addLegend = ({
             ...Array(legendWidth - label.length - 2).fill(backgroundSymbol),
           ].reverse();
           if (reversedLabel[i]) {
-            // eslint-disable-next-line no-param-reassign
             line[0] = reversedLabel[i];
           }
         });
@@ -197,7 +196,6 @@ export const addLegend = ({
             ...Array(legendWidth - label.length - 2).fill(backgroundSymbol),
           ];
           if (lineIndex === index) {
-            // eslint-disable-next-line no-param-reassign
             line[line.length - 1] = newSymbol[i];
           }
         });
