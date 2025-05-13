@@ -1,8 +1,9 @@
-import { AXIS, CHART } from '../constants';
+import { AXIS, CHART, POINT } from '../constants';
 import {
   CustomSymbol,
   Formatter,
   Graph,
+  GraphMode,
   LineFormatterArgs,
   MaybePoint,
   MultiLine,
@@ -427,8 +428,6 @@ export const drawCustomLine = ({
  * @param {Graph} params.graph - The graph matrix to modify.
  * @param {number} params.scaledX - X-axis scaling.
  * @param {number} params.scaledY - Y-axis scaling.
- * @param {boolean} params.horizontalBarChart - Whether to fill the width of the bars.
- * @param {boolean} params.barChart - Whether to fill the width of the bars.
  * @param {number} params.plotHeight - Height of the plot area.
  * @param {string} params.emptySymbol - Symbol used to fill empty cells.
  * @param {Object} params.axis - Axis position.
@@ -436,6 +435,7 @@ export const drawCustomLine = ({
  * @param {MaybePoint} params.axisCenter - Axis position selected by user.
  * @param {number} params.axis.x - X-position of the Y-axis on the graph.
  * @param {number} params.axis.y - Y-position of the X-axis on the graph.
+ * @param {string} params.mode - Graph mode (e.g., 'line', 'point').
  * @param {boolean} [params.debugMode=false] - If true, logs errors for out-of-bounds access.
  */
 export const drawLine = ({
@@ -447,11 +447,10 @@ export const drawLine = ({
   plotHeight,
   emptySymbol,
   chartSymbols,
-  horizontalBarChart,
-  barChart,
   axisCenter,
   debugMode,
   axis,
+  mode,
 }: {
   index: number;
   arr: Point[];
@@ -461,18 +460,17 @@ export const drawLine = ({
   plotHeight: number;
   emptySymbol: string;
   chartSymbols: Symbols['chart'];
-  horizontalBarChart?: boolean;
-  barChart?: boolean;
   axisCenter: MaybePoint;
   axis: { x: number; y: number };
   debugMode?: boolean;
+  mode: GraphMode;
 }) => {
   const [currX, currY] = arr[index];
-  if (barChart || horizontalBarChart) {
+  if (mode === 'bar' || mode === 'horizontalBar') {
     const positions: [number, number][] = [];
     const axisCenterShift = axisCenter ? 0 : 1;
     // For vertical bar chart
-    if (barChart) {
+    if (mode === 'bar') {
       let i;
       // Check if the value is positive or negative
       if (scaledY >= axis.y) {
@@ -493,7 +491,7 @@ export const drawLine = ({
     }
 
     // For horizontal bar chart
-    if (horizontalBarChart) {
+    if (mode === 'horizontalBar') {
       let i;
       if (scaledX >= axis.x) {
         // For positive values, draw rightward from the value to the axis
@@ -523,6 +521,17 @@ export const drawLine = ({
       });
     });
 
+    return;
+  }
+
+  if (mode === 'point') {
+    drawPosition({
+      debugMode,
+      graph,
+      scaledX: scaledX + 1,
+      scaledY: scaledY + 1,
+      symbol: POINT,
+    });
     return;
   }
 

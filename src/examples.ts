@@ -16,7 +16,7 @@ const examples: Array<[Coordinates, Settings & { only?: boolean }]> = [
       [3, 4],
       [4, 1],
     ],
-    { title: 'bar chart', width: 10, barChart: true, height: 10 },
+    { title: 'bar chart', width: 10, mode: 'bar', height: 10 },
   ],
   [
     [
@@ -25,7 +25,7 @@ const examples: Array<[Coordinates, Settings & { only?: boolean }]> = [
       [3, 4],
       [4, 1],
     ],
-    { title: 'horizontal bar chart', width: 20, horizontalBarChart: true, height: 10 },
+    { title: 'horizontal bar chart', width: 20, mode: 'horizontalBar', height: 10 },
   ],
   [
     [
@@ -101,9 +101,42 @@ const examples: Array<[Coordinates, Settings & { only?: boolean }]> = [
 
     {
       title: 'multiline',
-      width: 20,
+      width: 50,
+    },
+  ],
+  [
+    [
+      [
+        [1, 2],
+        [2, 3],
+        [3, 4],
+        [4, 1],
+      ],
+      [
+        [1, -2],
+        [2, -3],
+        [3, 3],
+        [4, 0],
+      ],
+      [
+        [1, -6],
+        [2, -3],
+        [3, 3],
+        [4, 0],
+      ],
+      [
+        [1, -2],
+        [2, -3],
+        [3, 3],
+        [4, 0],
+        [5, 3],
+      ],
+    ],
 
-      height: 10,
+    {
+      title: 'multiline points',
+      width: 50,
+      mode: 'point',
     },
   ],
   [
@@ -415,7 +448,7 @@ const examples: Array<[Coordinates, Settings & { only?: boolean }]> = [
     {
       title: 'bar chart with colors',
       color: 'ansiGreen',
-      barChart: true,
+      mode: 'bar',
       showTickLabel: true,
       width: 40,
       axisCenter: [0, 0],
@@ -434,7 +467,7 @@ const examples: Array<[Coordinates, Settings & { only?: boolean }]> = [
     ],
     {
       title: 'horizontal bar chart with axis center',
-      horizontalBarChart: true,
+      mode: 'horizontalBar',
       showTickLabel: true,
       width: 40,
       height: 20,
@@ -447,7 +480,7 @@ const examples: Array<[Coordinates, Settings & { only?: boolean }]> = [
       [2, 20],
       [3, 29],
     ],
-    { height: 10, horizontalBarChart: true, width: 20, showTickLabel: true },
+    { height: 10, mode: 'horizontalBar', width: 20, showTickLabel: true },
   ],
   [
     [
@@ -455,7 +488,7 @@ const examples: Array<[Coordinates, Settings & { only?: boolean }]> = [
       [2, 20],
       [3, 29],
     ],
-    { height: 10, barChart: true, width: 20, showTickLabel: true },
+    { height: 10, mode: 'bar', width: 20, showTickLabel: true },
   ],
 ];
 

@@ -440,7 +440,7 @@ s-30┤━━━━━━━━━━━━━━━━━━┛
         [2, 20],
         [3, 29],
       ],
-      { height: 10, barChart: true, width: 20, showTickLabel: true },
+      { height: 10, mode: 'bar', width: 20, showTickLabel: true },
       `
   ▲                   █ 
 26┤                   █ 
@@ -464,7 +464,7 @@ s-30┤━━━━━━━━━━━━━━━━━━┛
         [2, 20],
         [3, 29],
       ],
-      { height: 10, horizontalBarChart: true, width: 20, showTickLabel: true },
+      { height: 10, mode: 'horizontalBar', width: 20, showTickLabel: true },
       `
   ▲                     
 26┤███████████████████  
@@ -494,7 +494,7 @@ s-30┤━━━━━━━━━━━━━━━━━━┛
         [7, 0],
       ],
       {
-        horizontalBarChart: true,
+        mode: 'horizontalBar',
         showTickLabel: true,
         width: 40,
         height: 20,
@@ -568,7 +568,7 @@ s-30┤━━━━━━━━━━━━━━━━━━┛
       ],
       {
         title: 'bar chart with axis',
-        barChart: true,
+        mode: 'bar',
         showTickLabel: true,
         width: 40,
         axisCenter: [0, 0],
@@ -1402,6 +1402,32 @@ verylongtitleverylongtitleverylongtitleverylongtitleverylongtitleverylongtitleve
 1┤┛  
  └┬┬▶
   12 
+`,
+    ],
+    [
+      'plot with points',
+      [
+        [1, 2],
+        [2, 3],
+        [3, 4],
+        [4, 1],
+      ],
+      { title: 'Points', width: 10, mode: 'point', height: 10 },
+      `
+Points       
+ ▲           
+4┤      ●    
+ │           
+ │           
+3┤   ●       
+ │           
+ │           
+2┤●          
+ │           
+ │           
+1┤         ● 
+ └┬──┬──┬──┬▶
+  1  2  3  4 
 `,
     ],
     [

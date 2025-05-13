@@ -133,10 +133,9 @@ Customize the `plot` function with a variety of settings:
 | `thresholds`     | Defines threshold lines or points with optional colors at specific x or y coordinates.                        |
 | `points`         | Defines points with optional colors at specific x or y coordinates.                                           |
 | `fillArea`       | Fills the area under each line, suitable for area charts.                                                     |
-| `barChart`       | Draws bar chart.                                                                                              |
-| `horizontalBarChart`| Draws horizontal bar chart.                                                                                |
 | `hideXAxis`      | Hides the x-axis.                                                                                             |
 | `hideYAxis`      | Hides the y-axis.                                                                                             |
+| `mode`           | Sets the plotting mode (line, point, bar, horizontal bar), defaults to line                                   |
 | `symbols`        | Symbols for customizing the chart’s appearance, including axis, background, and chart symbols.                |
 | `legend`         | Configuration for a legend, showing series names and position options (`left`, `right`, `top`, `bottom`).     |
 | `debugMode`      | Enables debug mode (`default = false`).                                                                       |
@@ -1064,7 +1063,7 @@ plot(
 ],
 {
   title: 'bar chart with axis',
-  barChart: true,
+  mode: 'bar',
   showTickLabel: true,
   width: 40,
   axisCenter: [0, 0],
@@ -1107,7 +1106,7 @@ plot(
     [7, 0],
   ],
   {
-    horizontalBarChart: true,
+    mode: 'horizontalBar',
     showTickLabel: true,
     width: 40,
     height: 20,
