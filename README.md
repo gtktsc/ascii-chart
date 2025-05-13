@@ -16,6 +16,8 @@ Install the package using `yarn` (or `npm`):
 
 ```bash
 yarn add simple-ascii-chart
+# or
+npm install simple-ascii-chart
 ```
 
 ## Usage
@@ -73,13 +75,10 @@ Input data should be a two-dimensional array of points or an array of arrays for
 
 ```typescript
 type Point = [x: number, y: number];
-type MaybePoint = Point | undefined | [number | undefined, number | undefined];
-type SingleLine = Point[];
-type MultiLine = SingleLine[];
-type Input = SingleLine | MultiLine;
+type Input = Point[] | Point[][];
 ```
 
-For a single series, use:
+Single series
 
 ```typescript
 const input = [
@@ -87,9 +86,10 @@ const input = [
   [2, 4],
   [3, 40],
 ];
+
 ```
 
-For multiple series, use:
+Multiple series
 
 ```typescript
 const input = [
@@ -131,6 +131,7 @@ Customize the `plot` function with a variety of settings:
 | `xLabel`         | Label for the x-axis.                                                                                         |
 | `yLabel`         | Label for the y-axis.                                                                                         |
 | `thresholds`     | Defines threshold lines or points with optional colors at specific x or y coordinates.                        |
+| `points`         | Defines points with optional colors at specific x or y coordinates.                                           |
 | `fillArea`       | Fills the area under each line, suitable for area charts.                                                     |
 | `barChart`       | Draws bar chart.                                                                                              |
 | `horizontalBarChart`| Draws horizontal bar chart.                                                                                |
@@ -146,7 +147,7 @@ Customize the `plot` function with a variety of settings:
 |----------------------|-----------------------------------------------------------------------------------------------------------|
 | `yRange`             | Specifies the y-axis range as `[min, max]`.                                                               |
 | `showTickLabel`      | Enables tick labels on the axis, improving readability for larger plots.                                  |
-| `legend`             | Configures legend display with position and series names, such as `{ position: 'top', series: ['Series 1', 'Series 2'] }`. |
+| `legend`             | Configures legend display with position and series names, such as `{ position: 'top', series: ['Series 1', 'Series 2'] }, thresholds: ['first', 'second'], points: ['1', '2']]`. |
 | `ColorGetter`        | A function for dynamic color assignment based on series or coordinates.                                   |
 | `axisCenter`         | Sets a custom origin point for the chart, shifting the chart layout to focus around a particular point.    |
 | `lineFormatter`      | Customize each line using the format `lineFormatter: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[]`. |
@@ -160,6 +161,11 @@ Overrides default symbols. Three independent sections are: `empty` - background,
 symbols: {
   background: ' ',
   border: undefined,
+  point: '●',
+  thresholds:{
+    x: '━',
+    y: '┃',
+  },
   empty: ' ',
   axis: {
     n: '▲',
@@ -196,7 +202,8 @@ Settings = {
   title?: string; // Title of the plot
   xLabel?: string; // Label for the x-axis
   yLabel?: string; // Label for the y-axis
-  thresholds?: Threshold[]; // Array of threshold lines or points
+  thresholds?: Threshold[]; // Array of threshold lines
+  points?: GraphPoint[] // Array of points to render
   fillArea?: boolean; // Option to fill the area under lines
   legend?: Legend; // Legend settings
   axisCenter?: MaybePoint; // Center point for axes alignment
@@ -525,6 +532,153 @@ Expected Output:
  1┤━━━━━┃               ┃     ┃    ┃     ┃
   │     ┃               ┃     ┃    ┃     ┃
 -1┤     ┃               ┃━━━━━┛    ┗━━━━━┛
+  └┬─────┬────┬─────┬────┬─────┬────┬─────┬▶
+   1     2    3     4    5     6    7     8
+```
+
+### Add points, threshold and legend
+
+Input:
+
+```typescript
+plot(
+    [
+      [
+        [1, 2],
+        [2, -2],
+        [3, 4],
+        [4, 1],
+      ],
+      [
+        [1, 6],
+        [2, -3],
+        [3, 0],
+        [4, 0],
+      ],
+    ],
+    {
+      width: 40,
+      color: ['ansiGreen', 'ansiMagenta', 'ansiBlack', 'ansiYellow'],
+      legend: {
+        position: 'left',
+        series: ['series 1', 'series 2'],
+        points: ['point 1', 'point 2', 'point 3'],
+        thresholds: ['threshold 1', 'threshold 2'],
+      },
+      title: 'Points',
+      thresholds: [
+        {
+          y: 5,
+          x: 2,
+          color: 'ansiBlue',
+        },
+        {
+          y: 2,
+          color: 'ansiGreen',
+        },
+      ],
+      points: [
+        {
+          y: 5,
+          x: 5,
+          color: 'ansiBlue',
+        },
+        {
+          y: -1,
+          x: 1,
+          color: 'ansiCyan',
+        },
+        {
+          y: 2,
+          x: 2,
+          color: 'ansiRed',
+        },
+      ],
+    },
+);
+```
+
+Expected Output:
+
+```bash
+Points
+█ series 1     ▲             ┃
+█ series 2    6┤━━━━━━━━━━━━┓┃
+               │━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━●
+┃ threshold 1 4┤            ┃┃           ┏━━━━━━━━━━━━┓
+┃ threshold 2  │            ┃┃           ┃            ┃
+              2┤━━━━━━━━━━━━━●━━━━━━━━━━━━━━━━━━━━━━━━━━━
+● point 1     1┤            ┃┃           ┃            ┗━
+● point 2     0┤            ┃┃           ┏━━━━━━━━━━━━━━
+● point 3      │●           ┃┃           ┃
+             -2┤            ┃┃━━━━━━━━━━━┃
+             -3┤            ┗┃━━━━━━━━━━━┛
+               └┬────────────┬────────────┬────────────┬▶
+                1            2            3            4
+```
+
+
+### Add Points
+
+Input:
+
+```typescript
+plot(
+  [
+      [1, 1],
+      [2, 4],
+      [3, 4],
+      [4, 2],
+      [5, -1],
+      [6, 3],
+      [7, -1],
+      [8, 9],
+    ],
+    {
+      width: 40,
+      title: 'Points',
+      points: [
+        {
+          y: 5,
+          x: 5,
+          color: 'ansiBlue',
+        },
+        {
+          y: -1,
+          x: 1,
+          color: 'ansiBlue',
+        },
+        {
+          y: 205,
+          x: 1005,
+          color: 'ansiBlue',
+        },
+        {
+          y: 2,
+          x: 2,
+          color: 'ansiRed',
+        },
+      ],
+    },
+);
+```
+
+Expected Output:
+
+```bash
+Points
+  ▲
+ 9┤                                      ┏━
+  │                                      ┃
+  │                                      ┃
+  │                                      ┃
+  │                      ●               ┃
+ 4┤     ┏━━━━━━━━━━┓                     ┃
+ 3┤     ┃          ┃          ┏━━━━┓     ┃
+ 2┤     ┃●         ┗━━━━┓     ┃    ┃     ┃
+ 1┤━━━━━┛               ┃     ┃    ┃     ┃
+  │                     ┃     ┃    ┃     ┃
+-1┤●                    ┗━━━━━┛    ┗━━━━━┛
   └┬─────┬────┬─────┬────┬─────┬────┬─────┬▶
    1     2    3     4    5     6    7     8
 ```
@@ -936,7 +1090,7 @@ bar chart with axis
   │                                         
 ```
 
-### Bar chart
+### Horizontal Bar chart
 
 Input:
 

@@ -296,6 +296,94 @@ const examples: Array<[Coordinates, Settings & { only?: boolean }]> = [
   ],
   [
     [
+      [1, 1],
+      [2, 4],
+      [3, 4],
+      [4, 2],
+      [5, -1],
+      [6, 3],
+      [7, -1],
+      [8, 9],
+    ],
+    {
+      width: 40,
+      title: 'thresholds',
+      symbols: {
+        thresholds: {
+          x: 'X',
+          y: 'Y',
+        },
+      },
+      thresholds: [
+        {
+          y: 5,
+          x: 5,
+          color: 'ansiBlue',
+        },
+        {
+          y: 2,
+          color: 'ansiGreen',
+        },
+      ],
+    },
+  ],
+  [
+    [
+      [
+        [1, 2],
+        [2, -2],
+        [3, 4],
+        [4, 1],
+      ],
+      [
+        [1, 6],
+        [2, -3],
+        [3, 0],
+        [4, 0],
+      ],
+    ],
+    {
+      width: 40,
+      color: ['ansiGreen', 'ansiMagenta', 'ansiBlack', 'ansiYellow'],
+      legend: {
+        position: 'left',
+        series: ['series 1', 'series 2'],
+        points: ['point 1', 'point 2', 'point 3'],
+        thresholds: ['threshold 1', 'threshold 2'],
+      },
+      title: 'Points',
+      thresholds: [
+        {
+          y: 5,
+          x: 2,
+          color: 'ansiBlue',
+        },
+        {
+          y: 2,
+          color: 'ansiGreen',
+        },
+      ],
+      points: [
+        {
+          y: 5,
+          x: 5,
+          color: 'ansiBlue',
+        },
+        {
+          y: -1,
+          x: 1,
+          color: 'ansiCyan',
+        },
+        {
+          y: 2,
+          x: 2,
+          color: 'ansiRed',
+        },
+      ],
+    },
+  ],
+  [
+    [
       [0, 3],
       [1, 2],
       [2, 3],

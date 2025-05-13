@@ -28,3 +28,16 @@ export const CHART = {
  * Symbol representing an empty space on the graph.
  */
 export const EMPTY = ' ';
+
+/**
+ * Symbols for drawing thresholds on the graph.
+ */
+export const THRESHOLDS = {
+  x: '━', // Symbol for horizontal threshold line
+  y: '┃', // Symbol for vertical threshold line
+};
+
+/**
+ * Symbol for the point of the graph.
+ */
+export const POINT = '●';

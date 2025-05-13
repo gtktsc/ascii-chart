@@ -1,4 +1,4 @@
-import { AXIS, CHART } from '../constants';
+import { AXIS, CHART, THRESHOLDS } from '../constants';
 
 /**
  * Represents a point with x and y coordinates.
@@ -78,6 +78,8 @@ export type Symbols = {
   empty?: string; // Symbol representing empty space
   background?: string; // Symbol for background
   border?: string; // Symbol for border
+  thresholds?: Partial<typeof THRESHOLDS>; // Custom threshold symbols
+  point?: string; // Symbol for points
 };
 
 /**
@@ -90,7 +92,9 @@ export type Formatter = (value: number, helpers: FormatterHelpers) => number | s
  */
 export type Legend = {
   position?: 'left' | 'right' | 'top' | 'bottom'; // Legend position
-  series: string | string[]; // Series labels in the legend
+  series?: string | string[]; // Series labels in the legend
+  points?: string | string[]; // Points labels in the legend
+  thresholds?: string | string[]; // Thresholds labels in the legend
 };
 
 /**
@@ -100,6 +104,15 @@ export type Threshold = {
   x?: number; // x-coordinate threshold
   y?: number; // y-coordinate threshold
   color?: Color; // Color for threshold line or point
+};
+
+/**
+ * Points definition with x, y coordinates and a color.
+ */
+export type GraphPoint = {
+  x: number; // x-coordinate
+  y: number; // y-coordinate
+  color?: Color; // Color for point
 };
 
 /**
@@ -131,7 +144,8 @@ export type Settings = {
   title?: string; // Title of the plot
   xLabel?: string; // Label for the x-axis
   yLabel?: string; // Label for the y-axis
-  thresholds?: Threshold[]; // Array of threshold lines or points
+  thresholds?: Threshold[]; // Array of threshold lines
+  points?: GraphPoint[]; // Array of points to plot
   fillArea?: boolean; // Option to fill the area under lines
   horizontalBarChart?: boolean; // Option to draw horizontal bar chart
   barChart?: boolean; // Option to draw bar chart

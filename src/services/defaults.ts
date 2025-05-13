@@ -1,6 +1,6 @@
-import { AXIS, EMPTY } from '../constants';
-import { Symbols, MultiLine, Formatter, Coordinates } from '../types';
-import { toArrays, getMin, getMax, toArray } from './coords';
+import { AXIS, EMPTY, POINT, THRESHOLDS } from '../constants';
+import { Symbols, MultiLine, Formatter, Coordinates, GraphPoint, Threshold } from '../types';
+import { toArrays, getMin, getMax, toArray, padOrTrim, normalize } from './coords';
 
 /**
  * Merges custom symbols with default axis symbols and defines plot symbols.
@@ -9,16 +9,17 @@ import { toArrays, getMin, getMax, toArray } from './coords';
  * @returns {object} - Object containing the merged axis symbols, and defined symbols for empty, background, and border.
  */
 export const getSymbols = ({ symbols }: { symbols?: Symbols }) => {
-  const axisSymbols = { ...AXIS, ...symbols?.axis };
   const emptySymbol = symbols?.empty || EMPTY;
-  const backgroundSymbol = symbols?.background || emptySymbol;
-  const borderSymbol = symbols?.border;
-
   return {
-    axisSymbols,
+    axisSymbols: { ...AXIS, ...symbols?.axis },
     emptySymbol,
-    backgroundSymbol,
-    borderSymbol,
+    backgroundSymbol: symbols?.background || emptySymbol,
+    borderSymbol: symbols?.border,
+    thresholdSymbols: {
+      x: symbols?.thresholds?.x || THRESHOLDS.x,
+      y: symbols?.thresholds?.y || THRESHOLDS.y,
+    },
+    pointSymbol: symbols?.point || POINT,
   };
 };
 
@@ -157,4 +158,47 @@ export const getInput = ({ rawInput }: { rawInput: Coordinates }) => {
   }
 
   return input as MultiLine;
+};
+
+/**
+ * Generates legend data based on the provided points, thresholds, and series.
+ * @param {object} options - Contains points, thresholds, and series data.
+ * @param {Coordinates} options.points - The coordinates of the points.
+ * @param {THRESHOLDS} options.thresholds - The thresholds for the plot.
+ * @param {string[]} options.series - The series names for the plot.
+ * @param {string[]} options.pointsSeries - The series names for the points.
+ * @param {string[]} options.thresholdsSeries - The series names for the thresholds.
+ * @param {string[]} options.dataSeries - The series names for the data.
+ * @param {MultiLine} options.input - The input data for the plot.
+ * @returns {object} - Object containing the series, points, and thresholds for the legend.
+ *
+ */
+export const getLegendData = ({
+  input,
+  thresholds,
+  points,
+  pointsSeries,
+  thresholdsSeries,
+  dataSeries,
+}: {
+  input: MultiLine;
+  points?: GraphPoint[];
+  thresholds?: Threshold[];
+  pointsSeries?: string[] | string;
+  thresholdsSeries?: string[] | string;
+  dataSeries?: string[] | string;
+}) => {
+  const legendSeries = dataSeries && input ? padOrTrim(normalize(dataSeries), input.length) : [];
+
+  const legendPoints =
+    pointsSeries && points ? padOrTrim(normalize(pointsSeries), points.length) : [];
+
+  const legendThresholds =
+    thresholdsSeries && thresholds ? padOrTrim(normalize(thresholdsSeries), thresholds.length) : [];
+
+  return {
+    series: legendSeries,
+    points: legendPoints,
+    thresholds: legendThresholds,
+  };
 };

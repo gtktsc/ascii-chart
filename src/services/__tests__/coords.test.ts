@@ -7,7 +7,48 @@ import {
   getPlotCoords,
   toSorted,
   toEmpty,
+  normalize,
+  padOrTrim,
 } from '../coords';
+
+describe('normalize', () => {
+  it('should return empty array for undefined input', () => {
+    expect(normalize(undefined)).toEqual([]);
+  });
+
+  it('should wrap string input in an array', () => {
+    expect(normalize('hello')).toEqual(['hello']);
+  });
+
+  it('should return array as-is if input is already an array', () => {
+    expect(normalize(['a', 'b', 'c'])).toEqual(['a', 'b', 'c']);
+  });
+});
+
+describe('padOrTrim', () => {
+  it('should return the same array if already correct length', () => {
+    const input = ['a', 'b', 'c'];
+    expect(padOrTrim(input, 3)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('should trim the array if it is too long', () => {
+    const input = ['a', 'b', 'c', 'd'];
+    expect(padOrTrim(input, 2)).toEqual(['a', 'b']);
+  });
+
+  it('should pad the array with empty strings if too short', () => {
+    const input = ['a'];
+    expect(padOrTrim(input, 3)).toEqual(['a', '', '']);
+  });
+
+  it('should return an array of empty strings if original is empty', () => {
+    expect(padOrTrim([], 3)).toEqual(['', '', '']);
+  });
+
+  it('should return an empty array if target length is 0', () => {
+    expect(padOrTrim(['a', 'b'], 0)).toEqual([]);
+  });
+});
 
 describe('toCoordinates', () => {
   const plotWidth = 10;

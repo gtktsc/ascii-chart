@@ -12,6 +12,7 @@ import {
   setFillArea,
   removeEmptyLines,
   getTransformLabel,
+  addPoints,
 } from './overrides';
 import { getSymbols, getChartSize, getLabelShift, getInput } from './defaults';
 
@@ -48,6 +49,7 @@ export const plot: Plot = (
     yLabel,
     legend,
     thresholds,
+    points,
     debugMode,
   } = {},
 ) => {
@@ -76,7 +78,14 @@ export const plot: Plot = (
     input,
     yRange,
   });
-  const { axisSymbols, emptySymbol, backgroundSymbol, borderSymbol } = getSymbols({ symbols });
+  const {
+    axisSymbols,
+    emptySymbol,
+    backgroundSymbol,
+    borderSymbol,
+    thresholdSymbols,
+    pointSymbol,
+  } = getSymbols({ symbols });
 
   // create placeholder
   const graph = drawGraph({ plotWidth, plotHeight, emptySymbol });
@@ -144,10 +153,24 @@ export const plot: Plot = (
 
   if (thresholds) {
     addThresholds({
+      thresholdSymbols,
       debugMode,
       graph,
       thresholds,
       axis,
+      plotWidth,
+      plotHeight,
+      expansionX,
+      expansionY,
+    });
+  }
+
+  if (points) {
+    addPoints({
+      pointSymbol,
+      debugMode,
+      graph,
+      points,
       plotWidth,
       plotHeight,
       expansionX,
@@ -201,7 +224,6 @@ export const plot: Plot = (
           plotHeight,
           graph,
           scaledY,
-          axisCenter,
           yShift,
           axis,
           pointY,
@@ -284,18 +306,6 @@ export const plot: Plot = (
   // Remove empty lines
   removeEmptyLines({ graph, backgroundSymbol });
 
-  // Adds title above the graph
-  if (title) {
-    setTitle({
-      debugMode,
-      title,
-      graph,
-      backgroundSymbol,
-      plotWidth,
-      yShift,
-    });
-  }
-
   // Adds x axis label below the graph
   if (xLabel) {
     addXLable({
@@ -320,6 +330,9 @@ export const plot: Plot = (
 
   if (legend) {
     addLegend({
+      points,
+      thresholds,
+      pointSymbol,
       debugMode,
       input,
       graph,
@@ -328,6 +341,18 @@ export const plot: Plot = (
       color,
       symbols,
       fillArea,
+    });
+  }
+
+  // Adds title above the graph
+  if (title) {
+    setTitle({
+      debugMode,
+      title,
+      graph,
+      backgroundSymbol,
+      plotWidth,
+      yShift,
     });
   }
 
