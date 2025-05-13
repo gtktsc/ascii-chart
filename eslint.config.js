@@ -2,6 +2,7 @@ import typescript from '@typescript-eslint/eslint-plugin';
 import parser from '@typescript-eslint/parser';
 import importPlugin from 'eslint-plugin-import';
 import prettierConfig from 'eslint-config-prettier';
+import jsdoc from 'eslint-plugin-jsdoc';
 
 export default [
   {
@@ -18,10 +19,39 @@ export default [
     plugins: {
       '@typescript-eslint': typescript,
       import: importPlugin,
+      jsdoc,
     },
     rules: {
       'import/extensions': 'off',
       'no-param-reassign': 'off',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          vars: 'all',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrors: 'none',
+        },
+      ],
+
+      'jsdoc/require-jsdoc': [
+        'warn',
+        {
+          require: {
+            FunctionDeclaration: true,
+            MethodDefinition: true,
+            ClassDeclaration: true,
+            ArrowFunctionExpression: false,
+            FunctionExpression: false,
+          },
+        },
+      ],
+      'jsdoc/require-param': 'warn',
+      'jsdoc/require-param-type': 'off',
+      'jsdoc/require-returns': 'warn',
+      'jsdoc/require-returns-type': 'off',
     },
   },
   {
@@ -35,6 +65,16 @@ export default [
     },
     rules: {
       'import/extensions': 'off',
+      'no-unused-vars': [
+        'warn',
+        {
+          vars: 'all',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrors: 'none',
+        },
+      ],
     },
   },
 ];

@@ -1,4 +1,4 @@
-import { CHART } from '../constants';
+import { CHART, THRESHOLDS } from '../constants';
 import {
   Colors,
   Formatter,
@@ -9,8 +9,10 @@ import {
   Symbols,
   Threshold,
   FormatterHelpers,
+  GraphPoint,
 } from '../types';
 import { getPlotCoords, toArray, toEmpty, toPlot } from './coords';
+import { getLegendData } from './defaults';
 import { drawPosition } from './draw';
 import { defaultFormatter, getAnsiColor, getChartSymbols } from './settings';
 
@@ -22,6 +24,7 @@ import { defaultFormatter, getAnsiColor, getChartSymbols } from './settings';
  * @param {string} options.backgroundSymbol - Background symbol for the graph.
  * @param {number} options.plotWidth - Width of the plot.
  * @param {number} options.yShift - Vertical shift for positioning.
+ * @param {boolean} [options.debugMode=false] - If true, logs errors for out-of-bounds access.
  */
 export const setTitle = ({
   title,
@@ -58,6 +61,7 @@ export const setTitle = ({
  * @param {string} options.backgroundSymbol - Background symbol for the graph.
  * @param {number} options.plotWidth - Width of the plot.
  * @param {number} options.yShift - Vertical shift for positioning.
+ * @param {boolean} [options.debugMode=false] - If true, logs errors for out-of-bounds access.
  */
 export const addXLable = ({
   graph,
@@ -96,6 +100,7 @@ export const addXLable = ({
  * @param {Graph} options.graph - The graph array to modify.
  * @param {string} options.backgroundSymbol - Background symbol for the graph.
  * @param {string} options.yLabel - The y-axis label text.
+ * @param {boolean} [options.debugMode=false] - If true, logs errors for out-of-bounds access.
  */
 export const addYLabel = ({
   graph,
@@ -134,9 +139,13 @@ export const addYLabel = ({
  * @param {Legend} options.legend - Configuration for the legend's position and series.
  * @param {string} options.backgroundSymbol - Background symbol for the graph.
  * @param {MultiLine} options.input - Input data series for the chart.
+ * @param {string} options.pointSymbol - Symbol used to draw points.
+ * @param {GraphPoint[]} [options.points] - Points to render, with optional colors.
+ * @param {Threshold[]} [options.thresholds] - Thresholds for the plot.
  * @param {Colors} [options.color] - Color(s) for each series.
  * @param {Symbols} [options.symbols] - Custom symbols for the chart.
  * @param {boolean} [options.fillArea] - Whether to fill the area below the lines.
+ * @param {boolean} [options.debugMode=false] - If true, logs errors for out-of-bounds access.
  */
 export const addLegend = ({
   graph,
@@ -146,103 +155,161 @@ export const addLegend = ({
   symbols,
   fillArea,
   input,
+  pointSymbol,
   debugMode,
+  points,
+  thresholds,
 }: {
   graph: Graph;
   legend: Legend;
   backgroundSymbol: string;
   input: MultiLine;
   color?: Colors;
+  pointSymbol: string;
   symbols?: Symbols;
   fillArea?: boolean;
   debugMode?: boolean;
+  points?: GraphPoint[];
+  thresholds?: Threshold[];
 }) => {
-  const series = Array.isArray(legend.series) ? legend.series : [legend.series];
-  const legendWidth = 2 + series.reduce((acc, label) => Math.max(acc, toArray(label).length), 0);
+  const {
+    series: legendSeries,
+    points: legendPoints,
+    thresholds: legendThresholds,
+  } = getLegendData({
+    input,
+    thresholds,
+    points,
+    pointsSeries: legend.points,
+    thresholdsSeries: legend.thresholds,
+    dataSeries: legend.series,
+  });
 
-  for (let i = 0; i < legendWidth; i += 1) {
-    graph.forEach((line, lineIndex) => {
-      if (legend.position === 'left') {
-        line.unshift(backgroundSymbol); // left
+  const allLabels = [
+    ...legendSeries.map((label, i) => ({
+      type: 'series' as const,
+      label,
+      index: i,
+    })),
+    ...(legendThresholds.length > 0 ? [{ type: 'spacer' as const }] : []),
+    ...legendThresholds.map((label, i) => ({
+      type: 'threshold' as const,
+      label,
+      index: i,
+    })),
+    ...(legendPoints.length > 0 ? [{ type: 'spacer' as const }] : []),
+    ...legendPoints.map((label, i) => ({
+      type: 'point' as const,
+      label,
+      index: i,
+    })),
+  ];
 
-        series.forEach((label, index) => {
-          if (lineIndex !== index) return;
-          // get chart symbols for series
-          const chartSymbols = getChartSymbols(color, index, symbols?.chart, input, fillArea);
+  const legendWidth =
+    2 +
+    Math.max(
+      ...allLabels.map((entry) => {
+        if (entry.type === 'spacer') return 0;
+        return toArray(entry.label).length;
+      }),
+    );
 
-          const reversedLabel = [
-            chartSymbols.area,
-            backgroundSymbol,
-            ...Array.from(label),
-            // add empty space to fill the legend on the left side
-            ...Array(legendWidth - label.length - 2).fill(backgroundSymbol),
-          ].reverse();
-          if (reversedLabel[i]) {
-            line[0] = reversedLabel[i];
-          }
-        });
+  const makePointSymbol = (index: number) =>
+    points && points[index]?.color
+      ? `${getAnsiColor(points[index].color)}${pointSymbol}\u001b[0m`
+      : pointSymbol;
+
+  const makeThresholdSymbol = (index: number) =>
+    thresholds && thresholds[index]?.color
+      ? `${getAnsiColor(thresholds[index].color)}┃\u001b[0m`
+      : '┃';
+
+  const makeLabelRow = (entry: (typeof allLabels)[number]) => {
+    if (entry.type === 'spacer') return Array(legendWidth).fill(backgroundSymbol);
+
+    const { label } = entry;
+    const labelText = toArray(label);
+    const pad = legendWidth - labelText.length - 2;
+    const padArr = Array(pad).fill(backgroundSymbol);
+
+    let symbol: string;
+    if (entry.type === 'point') symbol = makePointSymbol(entry.index);
+    else if (entry.type === 'threshold') symbol = makeThresholdSymbol(entry.index);
+    else symbol = getChartSymbols(color, entry.index, symbols?.chart, input, fillArea).area;
+
+    return [symbol, backgroundSymbol, ...labelText, ...padArr];
+  };
+
+  if (legend.position === 'left') {
+    const newRows = allLabels.map(makeLabelRow);
+    for (let i = 0; i < graph.length; i++) {
+      const label = newRows[i];
+      if (label) {
+        for (let j = legendWidth - 1; j >= 0; j--) {
+          graph[i].unshift(label[j]);
+        }
+      } else {
+        for (let j = 0; j < legendWidth; j++) {
+          graph[i].unshift(backgroundSymbol);
+        }
       }
-      if (legend.position === 'right') {
-        line.push(backgroundSymbol);
+    }
+  }
 
-        series.forEach((label, index) => {
-          // get chart symbols for series
-
-          const chartSymbols = getChartSymbols(color, index, symbols?.chart, input, fillArea);
-          const newSymbol = [
-            chartSymbols.area,
-            backgroundSymbol,
-            ...Array.from(label),
-            ...Array(legendWidth - label.length - 2).fill(backgroundSymbol),
-          ];
-          if (lineIndex === index) {
-            line[line.length - 1] = newSymbol[i];
-          }
-        });
+  if (legend.position === 'right') {
+    // Pre-pad each row with empty space on the right so chart rendering doesn't overwrite legend
+    for (let row of graph) {
+      for (let i = 0; i < legendWidth + 2; i++) {
+        row.push(backgroundSymbol);
       }
-    });
+    }
+
+    const newRows = allLabels.map(makeLabelRow);
+    for (let i = 0; i < graph.length; i++) {
+      const label = newRows[i];
+      if (label) {
+        for (let j = 0; j < legendWidth; j++) {
+          const columnIndex = graph[i].length - legendWidth + j;
+          graph[i][columnIndex] = label[j];
+        }
+      }
+    }
   }
 
   if (legend.position === 'top') {
-    series.reverse().forEach((label, index) => {
-      graph.unshift(toEmpty(graph[0].length, backgroundSymbol)); // top
+    allLabels
+      .slice()
+      .reverse()
+      .forEach((entry) => {
+        const line = makeLabelRow(entry);
+        const row = toEmpty(graph[0].length, backgroundSymbol);
+        graph.unshift(row);
 
-      // get chart symbols for series
-      const chartSymbols = getChartSymbols(color, index, symbols?.chart, input, fillArea);
-      const newSymbol = [chartSymbols.area, backgroundSymbol, ...Array.from(label)];
-
-      graph[index].forEach((_, symbolIndex) => {
-        if (newSymbol[symbolIndex]) {
+        line.forEach((symbol, i) => {
           drawPosition({
             debugMode,
             graph,
-            scaledX: symbolIndex,
+            scaledX: i,
             scaledY: 0,
-            symbol: newSymbol[symbolIndex],
+            symbol,
           });
-        }
+        });
       });
-    });
   }
 
   if (legend.position === 'bottom') {
-    series.forEach((label, index) => {
-      graph.push(toEmpty(graph[0].length, backgroundSymbol)); // bottom
-
-      // get chart symbols for series
-      const chartSymbols = getChartSymbols(color, index, symbols?.chart, input, fillArea);
-      const newSymbol = [chartSymbols.area, backgroundSymbol, ...Array.from(label)];
-
-      graph[index].forEach((_, symbolIndex) => {
-        if (newSymbol[symbolIndex]) {
-          drawPosition({
-            debugMode,
-            graph,
-            scaledX: symbolIndex,
-            scaledY: graph.length - 1,
-            symbol: newSymbol[symbolIndex],
-          });
-        }
+    allLabels.forEach((entry) => {
+      const line = makeLabelRow(entry);
+      graph.push(toEmpty(graph[0].length, backgroundSymbol));
+      const y = graph.length - 1;
+      line.forEach((symbol, i) => {
+        drawPosition({
+          debugMode,
+          graph,
+          scaledX: i,
+          scaledY: y,
+          symbol,
+        });
       });
     });
   }
@@ -269,6 +336,7 @@ export const addBorder = ({ graph, borderSymbol }: { graph: Graph; borderSymbol:
  * @param {Graph} options.graph - The graph array to modify.
  * @param {string} options.backgroundSymbol - Symbol to fill empty cells with.
  * @param {string} options.emptySymbol - Symbol representing empty cells.
+ * @param {boolean} [options.debugMode=false] - If true, logs errors for out-of-bounds access.
  */
 export const addBackgroundSymbol = ({
   graph,
@@ -297,15 +365,71 @@ export const addBackgroundSymbol = ({
 };
 
 /**
- * Adds threshold lines to the graph based on specified x or y values.
- * @param {object} options - Object containing threshold options.
+ * Adds points to the graph at specified (x, y) coordinates.
+ *
+ * @param {object} options - Configuration options.
  * @param {Graph} options.graph - The graph array to modify.
- * @param {Threshold[]} options.thresholds - Array of threshold objects with x, y, and color.
- * @param {object} options.axis - The axis configuration.
+ * @param {GraphPoint[]} options.points - Points to render, with optional colors.
  * @param {number} options.plotWidth - Width of the plot.
  * @param {number} options.plotHeight - Height of the plot.
- * @param {number[]} options.expansionX - x-axis range for scaling.
- * @param {number[]} options.expansionY - y-axis range for scaling.
+ * @param {number[]} options.expansionX - Range of x-values for scaling.
+ * @param {number[]} options.expansionY - Range of y-values for scaling.
+ * @param {string} options.pointSymbol - Symbol used to draw the point.
+ * @param {boolean} [options.debugMode] - Enables debug logging.
+ */
+export const addPoints = ({
+  graph,
+  points,
+  plotWidth,
+  plotHeight,
+  expansionX,
+  expansionY,
+  pointSymbol,
+  debugMode,
+}: {
+  graph: Graph;
+  points: GraphPoint[];
+  plotWidth: number;
+  plotHeight: number;
+  expansionX: number[];
+  expansionY: number[];
+  pointSymbol: string;
+  debugMode?: boolean;
+}) => {
+  const mappedPoints = points.map(({ x, y }) => [x, y] as Point);
+
+  getPlotCoords(mappedPoints, plotWidth, plotHeight, expansionX, expansionY).forEach(
+    ([x, y], pointNumber) => {
+      const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
+
+      drawPosition({
+        debugMode,
+        graph,
+        scaledX: scaledX + 1,
+        scaledY: scaledY + 1,
+        symbol: points[pointNumber]?.color
+          ? `${getAnsiColor(points[pointNumber]?.color || 'ansiRed')}${pointSymbol}\u001b[0m`
+          : pointSymbol,
+      });
+    },
+  );
+};
+
+/**
+ * Draws threshold lines on the graph at specified x and/or y coordinates.
+ *
+ * @param {object} options - Configuration object for threshold rendering.
+ * @param {Graph} options.graph - The 2D graph matrix to modify.
+ * @param {Threshold[]} options.thresholds - List of threshold definitions with x, y, and optional color.
+ * @param {object} options.axis - Axis configuration defining origin point.
+ * @param {number} options.axis.x - X-position of the Y-axis on the graph.
+ * @param {number} options.axis.y - Y-position of the X-axis on the graph.
+ * @param {number} options.plotWidth - Width of the plot area in characters.
+ * @param {number} options.plotHeight - Height of the plot area in characters.
+ * @param {number[]} options.expansionX - Original data range for the X-axis, used for scaling.
+ * @param {number[]} options.expansionY - Original data range for the Y-axis, used for scaling.
+ * @param {typeof THRESHOLDS} options.thresholdSymbols - Symbols used to draw horizontal and vertical threshold lines.
+ * @param {boolean} [options.debugMode=false] - Enables debug logging for invalid coordinates or out-of-bounds access.
  */
 export const addThresholds = ({
   graph,
@@ -315,6 +439,7 @@ export const addThresholds = ({
   plotHeight,
   expansionX,
   expansionY,
+  thresholdSymbols,
   debugMode,
 }: {
   graph: Graph;
@@ -324,6 +449,7 @@ export const addThresholds = ({
   plotHeight: number;
   expansionX: number[];
   expansionY: number[];
+  thresholdSymbols: typeof THRESHOLDS;
   debugMode?: boolean;
 }) => {
   const mappedThreshold = thresholds.map(({ x: thresholdX, y: thresholdY }) => {
@@ -351,8 +477,8 @@ export const addThresholds = ({
               scaledX: scaledX + 1,
               scaledY: index,
               symbol: thresholds[thresholdNumber]?.color
-                ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${CHART.ns}\u001b[0m`
-                : CHART.ns,
+                ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${thresholdSymbols.y}\u001b[0m`
+                : thresholdSymbols.y,
             });
           }
         });
@@ -366,8 +492,8 @@ export const addThresholds = ({
               scaledX: index,
               scaledY: scaledY + 1,
               symbol: thresholds[thresholdNumber]?.color
-                ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${CHART.we}\u001b[0m`
-                : CHART.we,
+                ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${thresholdSymbols.x}\u001b[0m`
+                : thresholdSymbols.x,
             });
           }
         });
@@ -381,6 +507,7 @@ export const addThresholds = ({
  * @param {object} options - Object containing fill options.
  * @param {Graph} options.graph - The graph array to modify.
  * @param {Symbols['chart']} options.chartSymbols - Chart symbols to use for filling.
+ * @param {boolean} [options.debugMode=false] - If true, logs errors for out-of-bounds access.
  */
 export const setFillArea = ({
   graph,
@@ -393,11 +520,12 @@ export const setFillArea = ({
 }) => {
   graph.forEach((xValues, yIndex) => {
     xValues.forEach((xSymbol, xIndex) => {
+      let areaSymbol = chartSymbols?.area || CHART.area;
       if (
         xSymbol === chartSymbols?.nse ||
         xSymbol === chartSymbols?.wsn ||
         xSymbol === chartSymbols?.we ||
-        xSymbol === chartSymbols?.area
+        xSymbol === areaSymbol
       ) {
         if (graph[yIndex + 1]?.[xIndex]) {
           drawPosition({
@@ -405,7 +533,7 @@ export const setFillArea = ({
             graph,
             scaledX: xIndex,
             scaledY: yIndex + 1,
-            symbol: chartSymbols.area || CHART.area,
+            symbol: areaSymbol,
           });
         }
       }

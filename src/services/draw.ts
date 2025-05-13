@@ -18,6 +18,7 @@ import { distance, toArray, toEmpty } from './coords';
  * @param {number} params.scaledX - X-coordinate on the graph (scaled).
  * @param {number} params.scaledY - Y-coordinate on the graph (scaled).
  * @param {string} params.symbol - Symbol to draw on the graph.
+ * @param {boolean} [params.debugMode=false] - If true, logs errors for out-of-bounds access.
  */
 export const drawPosition = ({
   graph,
@@ -75,6 +76,7 @@ export const drawPosition = ({
  * @param {number} params.signShift - Additional shift based on the sign of the axis.
  * @param {Symbols['axis']} params.axisSymbols - Symbols used for the axis rendering.
  * @param {string[]} params.pointXShift - Array of characters representing the X-axis labels.
+ * @param {boolean} [params.debugMode=false] - If true, logs errors for out-of-bounds access.
  */
 export const drawXAxisEnd = ({
   hasPlaceToRender,
@@ -149,7 +151,6 @@ export const drawXAxisEnd = ({
  * @param {number} params.scaledY - Scaled Y-coordinate.
  * @param {number} params.yShift - Shift applied to the Y-axis.
  * @param {Object} params.axis - Object defining the axis position.
- * @param {MaybePoint} [params.axisCenter] - Optional axis center coordinates.
  * @param {number} params.pointY - The actual Y-coordinate of the point.
  * @param {Formatter} params.transformLabel - Function to format the label for the Y-axis.
  * @param {Symbols['axis']} params.axisSymbols - Symbols used for drawing the axis.
@@ -157,13 +158,15 @@ export const drawXAxisEnd = ({
  * @param {number[]} params.expansionY - Array of Y-axis expansion factors.
  * @param {number} params.plotHeight - The height of the plot.
  * @param {boolean} [params.showTickLabel] - If true, displays tick labels for all points.
+ * @param {number} params.axis.x - X-position of the Y-axis on the graph.
+ * @param {number} params.axis.y - Y-position of the X-axis on the graph.
+ * @param {boolean} [params.debugMode=false] - If true, logs errors for out-of-bounds access.
  */
 export const drawYAxisEnd = ({
   graph,
   scaledY,
   yShift,
   axis,
-  axisCenter,
   pointY,
   transformLabel,
   axisSymbols,
@@ -178,7 +181,6 @@ export const drawYAxisEnd = ({
   yShift: number;
   plotHeight: number;
   axis: { x: number; y: number };
-  axisCenter?: MaybePoint;
   pointY: number;
   transformLabel: Formatter;
   axisSymbols: Symbols['axis'];
@@ -264,6 +266,9 @@ export const drawYAxisEnd = ({
  * @param {MaybePoint} [params.axisCenter] - Optional axis center coordinates.
  * @param {Symbols['axis']} params.axisSymbols - Symbols used for axis rendering.
  * @param {Object} params.axis - Object defining the axis position (x and y coordinates).
+ * @param {number} params.axis.x - X-position of the Y-axis on the graph.
+ * @param {number} params.axis.y - Y-position of the X-axis on the graph.
+ * @param {boolean} [params.debugMode=false] - If true, logs errors for out-of-bounds access.
  */
 export const drawAxis = ({
   graph,
@@ -354,6 +359,7 @@ export const drawChart = ({ graph }: { graph: Graph }) =>
  * @param {number} params.index - Current index in the coordinate array.
  * @param {function} params.lineFormatter - Custom function for line formatting.
  * @param {Graph} params.graph - The graph matrix to modify.
+ * @param {boolean} [params.debugMode=false] - If true, logs errors for out-of-bounds access.
  */
 export const drawCustomLine = ({
   sortedCoords,
@@ -426,8 +432,11 @@ export const drawCustomLine = ({
  * @param {number} params.plotHeight - Height of the plot area.
  * @param {string} params.emptySymbol - Symbol used to fill empty cells.
  * @param {Object} params.axis - Axis position.
- * @param {MaybePoint} axisCenter - Axis position selected by user.
  * @param {Symbols['chart']} params.chartSymbols - Symbols used for chart rendering.
+ * @param {MaybePoint} params.axisCenter - Axis position selected by user.
+ * @param {number} params.axis.x - X-position of the Y-axis on the graph.
+ * @param {number} params.axis.y - Y-position of the X-axis on the graph.
+ * @param {boolean} [params.debugMode=false] - If true, logs errors for out-of-bounds access.
  */
 export const drawLine = ({
   index,

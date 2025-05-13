@@ -2,6 +2,27 @@ import { SingleLine, Point, MultiLine } from '../types/index';
 import { EMPTY } from '../constants/index';
 
 /**
+ * Normalizes the input value to an array of strings.
+ * @param value - The value to normalize, which can be a string, an array of strings, or undefined.
+ * @returns {string[]} - An array of strings. If the input is undefined, an empty array is returned.
+ */
+export const normalize = (value?: string[] | string): string[] =>
+  value === undefined ? [] : Array.isArray(value) ? value : [value];
+
+/**
+ * Pads or trims an array of labels to a specified target length.
+ * @param {string[]} labels - The array of labels to pad or trim.
+ * @param {number} targetLength - The target length for the array.
+ * @returns {string[]} - The padded or trimmed array of labels.
+ */
+export const padOrTrim = (labels: string[], targetLength: number): string[] => {
+  if (labels.length > targetLength) return labels.slice(0, targetLength);
+  if (labels.length < targetLength)
+    return [...labels, ...Array(targetLength - labels.length).fill('')];
+  return labels;
+};
+
+/**
  * Creates an array filled with a specified string.
  * @param {number} size - The size of the array.
  * @param {string} empty - The value to fill the array with (default: EMPTY).
@@ -15,7 +36,9 @@ export const toEmpty = (size: number, empty: string = EMPTY): string[] =>
  * @param {number | string} input - The input to convert.
  * @returns {string[]} - An array of characters.
  */
-export const toArray = (input: number | string): string[] => input.toString().split('');
+export const toArray = (input: number | string): string[] => {
+  return input.toString().split('');
+};
 
 /**
  * Removes duplicate values from an array.

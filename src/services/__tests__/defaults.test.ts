@@ -1,8 +1,99 @@
-import { getSymbols, getLabelShift, getInput, getChartSize } from '../defaults';
-import { AXIS, EMPTY } from '../../constants';
-import { Coordinates, MultiLine } from '../../types';
+import { getSymbols, getLabelShift, getInput, getChartSize, getLegendData } from '../defaults';
+import { AXIS, EMPTY, POINT, THRESHOLDS } from '../../constants';
+import { Coordinates, MultiLine, Symbols } from '../../types';
 
 describe('Chart Helper Functions', () => {
+  describe('getLegendData', () => {
+    const input = [
+      [
+        [1, 2],
+        [3, 4],
+      ],
+      [
+        [5, 6],
+        [7, 8],
+      ],
+    ] as MultiLine;
+
+    const points = [
+      { x: 1, y: 2 },
+      { x: 3, y: 4 },
+    ];
+    const thresholds = [{ x: 5 }, { y: 6 }];
+
+    it('normalizes string inputs to arrays', () => {
+      const result = getLegendData({
+        input,
+        points,
+        thresholds,
+        dataSeries: 'S',
+        pointsSeries: 'P',
+        thresholdsSeries: 'T',
+      });
+
+      expect(result.series).toEqual(['S', '']);
+      expect(result.points).toEqual(['P', '']);
+      expect(result.thresholds).toEqual(['T', '']);
+    });
+
+    it('pads short legend arrays with empty strings', () => {
+      const result = getLegendData({
+        input,
+        points,
+        thresholds,
+        dataSeries: ['A'],
+        pointsSeries: ['X'],
+        thresholdsSeries: ['T1'],
+      });
+
+      expect(result.series).toEqual(['A', '']);
+      expect(result.points).toEqual(['X', '']);
+      expect(result.thresholds).toEqual(['T1', '']);
+    });
+
+    it('trims long legend arrays', () => {
+      const result = getLegendData({
+        input,
+        points,
+        thresholds,
+        dataSeries: ['S1', 'S2', 'S3'],
+        pointsSeries: ['P1', 'P2', 'P3'],
+        thresholdsSeries: ['T1', 'T2', 'T3'],
+      });
+
+      expect(result.series).toEqual(['S1', 'S2']);
+      expect(result.points).toEqual(['P1', 'P2']);
+      expect(result.thresholds).toEqual(['T1', 'T2']);
+    });
+
+    it('returns empty arrays if series are not provided', () => {
+      const result = getLegendData({
+        input,
+        points,
+        thresholds,
+      });
+
+      expect(result.series).toEqual([]);
+      expect(result.points).toEqual([]);
+      expect(result.thresholds).toEqual([]);
+    });
+
+    it('returns empty arrays when input data is missing', () => {
+      const result = getLegendData({
+        input,
+        dataSeries: undefined,
+        pointsSeries: undefined,
+        thresholdsSeries: undefined,
+      });
+
+      expect(result).toEqual({
+        series: [],
+        points: [],
+        thresholds: [],
+      });
+    });
+  });
+
   describe('getSymbols', () => {
     it('should return default symbols when none are provided', () => {
       const symbols = getSymbols({});
@@ -11,22 +102,35 @@ describe('Chart Helper Functions', () => {
         emptySymbol: EMPTY,
         backgroundSymbol: EMPTY,
         borderSymbol: undefined,
+        thresholdSymbols: {
+          x: THRESHOLDS.x,
+          y: THRESHOLDS.y,
+        },
+        pointSymbol: POINT,
       });
     });
 
     it('should override default symbols when provided', () => {
-      const customSymbols = {
+      const customSymbols: Symbols = {
         axis: { x: 'X', y: 'Y' },
         empty: '-',
         background: '=',
         border: '#',
+        thresholds: {
+          x: 'X',
+          y: 'Y',
+        },
+        point: 'o',
       };
+
       const symbols = getSymbols({ symbols: customSymbols });
       expect(symbols).toEqual({
         axisSymbols: { ...AXIS, ...customSymbols.axis },
         emptySymbol: customSymbols.empty,
         backgroundSymbol: customSymbols.background,
         borderSymbol: customSymbols.border,
+        thresholdSymbols: customSymbols.thresholds,
+        pointSymbol: customSymbols.point,
       });
     });
   });
