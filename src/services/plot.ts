@@ -41,8 +41,6 @@ export const plot: Plot = (
     symbols,
     title,
     fillArea,
-    horizontalBarChart,
-    barChart,
     hideXAxis,
     hideYAxis,
     xLabel,
@@ -51,6 +49,7 @@ export const plot: Plot = (
     thresholds,
     points,
     debugMode,
+    mode = 'line',
   } = {},
 ) => {
   // Multiline
@@ -109,6 +108,7 @@ export const plot: Plot = (
         const [scaledX, scaledY] = toPlotCoordinates(x, y);
         if (!lineFormatter) {
           drawLine({
+            mode,
             debugMode,
             index,
             arr,
@@ -118,10 +118,8 @@ export const plot: Plot = (
             plotHeight,
             emptySymbol,
             chartSymbols,
-            horizontalBarChart,
             axis,
             axisCenter,
-            barChart,
           });
 
           // fill empty area under the line if fill area is true

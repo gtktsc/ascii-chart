@@ -10,7 +10,7 @@ import {
   drawPosition,
 } from '../draw';
 import { AXIS, CHART } from '../../constants';
-import { MultiLine, Point } from '../../types';
+import { GraphMode, MultiLine, Point } from '../../types';
 
 describe('Drawing functions', () => {
   describe('drawPosition', () => {
@@ -271,8 +271,7 @@ describe('Drawing functions', () => {
           [1, 1],
         ] as Point[],
         graph,
-        horizontalBarChart: false,
-        barChart: false,
+        mode: 'line' as GraphMode,
         scaledX: 1,
         axis: { x: 0, y: 5 },
         axisCenter: undefined,

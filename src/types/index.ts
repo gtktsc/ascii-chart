@@ -131,6 +131,14 @@ export type Colors = Color | Color[] | ColorGetter;
 export type Graph = string[][];
 
 /**
+ * Graph mode options for rendering the graph.
+ * 'line' mode connects points with lines.
+ * 'point' mode displays points without connecting lines.
+ * line is the default mode.
+ */
+export type GraphMode = 'line' | 'point' | 'bar' | 'horizontalBar';
+
+/**
  * Configuration settings for rendering a plot.
  */
 export type Settings = {
@@ -147,13 +155,12 @@ export type Settings = {
   thresholds?: Threshold[]; // Array of threshold lines
   points?: GraphPoint[]; // Array of points to plot
   fillArea?: boolean; // Option to fill the area under lines
-  horizontalBarChart?: boolean; // Option to draw horizontal bar chart
-  barChart?: boolean; // Option to draw bar chart
   legend?: Legend; // Legend settings
   axisCenter?: MaybePoint; // Center point for axes alignment
   formatter?: Formatter; // Custom formatter for axis values
   lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[]; // Custom line formatter
   symbols?: Symbols; // Custom symbols for chart elements
+  mode?: GraphMode; // Option to enable debug mode
   debugMode?: boolean; // Option to enable debug mode
 };
 
