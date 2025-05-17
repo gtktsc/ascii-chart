@@ -10,7 +10,7 @@ import {
   removeEmptyLines,
   getTransformLabel,
   addPoints,
-} from '../overrides';
+} from '../../services/overrides';
 import { CHART, EMPTY, THRESHOLDS, POINT } from '../../constants';
 import { Formatter, FormatterHelpers, Graph, Legend, Threshold, GraphPoint } from '../../types';
 
@@ -236,7 +236,7 @@ describe('Graph Utility Functions', () => {
     it('should add the border correctly', () => {
       const borderSymbol = '#';
 
-      addBorder({ graph, borderSymbol });
+      addBorder({ graph, borderSymbol, backgroundSymbol });
 
       expect(graph[0][0]).toBe(borderSymbol);
       expect(graph[0][graph[0].length - 1]).toBe(borderSymbol);

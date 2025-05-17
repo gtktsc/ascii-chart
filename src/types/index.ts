@@ -148,7 +148,11 @@ export type Settings = {
   yRange?: [number, number]; // Range of y-axis values
   showTickLabel?: boolean; // Option to show tick labels on the axis
   hideXAxis?: boolean; // Option to hide the x-axis
+  hideXAxisTicks?: boolean; // Option to hide the x-axis ticks
   hideYAxis?: boolean; // Option to hide the y-axis
+  hideYAxisTicks?: boolean; // Option to hide the y-axis ticks
+  customXAxisTicks?: number[]; // Custom values for x-axis ticks
+  customYAxisTicks?: number[]; // Custom values for y-axis ticks
   title?: string; // Title of the plot
   xLabel?: string; // Label for the x-axis
   yLabel?: string; // Label for the y-axis

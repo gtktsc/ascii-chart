@@ -1,4 +1,4 @@
-import { getSymbols, getLabelShift, getInput, getChartSize, getLegendData } from '../defaults';
+import { getSymbols, getLabelShift, getInput, getChartSize, getLegendData } from '../../services/defaults';
 import { AXIS, EMPTY, POINT, THRESHOLDS } from '../../constants';
 import { Coordinates, MultiLine, Symbols } from '../../types';
 
@@ -225,6 +225,7 @@ describe('Chart Helper Functions', () => {
       ];
       const transformLabel = (value: number) => value.toString();
       const result = getLabelShift({
+        showTickLabel: false,
         input,
         transformLabel,
         expansionX: [1, 5],
