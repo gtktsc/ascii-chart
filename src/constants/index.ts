@@ -9,6 +9,9 @@ export const AXIS = {
   x: '┬', // Top tick mark on the X-axis
   we: '─', // Horizontal line for the X-axis
   e: '▶', // Arrow symbol for the end of the X-axis
+  intersectionXY: '┼', // Intersection of the X and Y axes
+  intersectionX: '┴', // Bottom tick mark on the X-axis
+  intersectionY: '├', // Left tick mark on the Y-axis
 };
 
 /**

@@ -1,5 +1,5 @@
-import { getAnsiColor, getChartSymbols } from '../settings';
-import { Color } from '../../types/index';
+import { getAnsiColor, getChartSymbols } from '../../services/settings';
+import { Color } from '../../types';
 import { CHART } from '../../constants';
 
 describe('getAnsiColor', () => {

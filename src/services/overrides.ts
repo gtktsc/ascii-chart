@@ -297,7 +297,7 @@ export const addLegend = ({
       });
   }
 
-  if (legend.position === 'bottom') {
+  if (legend.position === 'bottom' || !legend.position) {
     allLabels.forEach((entry) => {
       const line = makeLabelRow(entry);
       graph.push(toEmpty(graph[0].length, backgroundSymbol));
@@ -319,10 +319,21 @@ export const addLegend = ({
  * Adds a border around the graph.
  * @param {object} options - Object containing border options.
  * @param {Graph} options.graph - The graph array to modify.
+ * @param {string} options.backgroundSymbol - The symbol to use for the background.
  * @param {string} options.borderSymbol - The symbol to use for the border.
  */
-export const addBorder = ({ graph, borderSymbol }: { graph: Graph; borderSymbol: string }) => {
+export const addBorder = ({
+  graph,
+  borderSymbol,
+  backgroundSymbol,
+}: {
+  graph: Graph;
+  borderSymbol: string;
+  backgroundSymbol: string;
+}) => {
+  const maxLength = Math.max(...graph.map((line) => line.length));
   graph.forEach((line) => {
+    while (line.length < maxLength) line.push(backgroundSymbol);
     line.unshift(borderSymbol);
     line.push(borderSymbol);
   });

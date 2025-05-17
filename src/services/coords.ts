@@ -92,6 +92,14 @@ export const toSorted = (array: SingleLine): SingleLine =>
   });
 
 /**
+ * Converts a number or undefined value to a point represented as an array.
+ * @param {number} [x] - The x-coordinate (default: 0).
+ * @param {number} [y] - The y-coordinate (default: 0).
+ * @returns {Point} - The point represented as an array [x, y].
+ */
+export const toPoint = (x?: number, y?: number): Point => [x ?? 0, y ?? 0];
+
+/**
  * Returns a function that converts a coordinate (x, y) to scaled plot coordinates.
  * @param {number} plotWidth - The width of the plot.
  * @param {number} plotHeight - The height of the plot.

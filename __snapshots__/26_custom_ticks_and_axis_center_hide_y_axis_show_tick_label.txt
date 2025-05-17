@@ -1,0 +1,14 @@
+
+custom ticks and axis center, hide y axis, show tick label
+   ▲                 
+ 10┤              ┏━ 
+  9┤          ┏━━━┛  
+   │          ┃      
+  6┤          ┃      
+  5┤          ┃      
+  4┤━┓        ┃      
+ ┏3┤ ┃    ┏━┓ ┃      
+━┛1┤ ┗━┓  ┃ ┃ ┃      
+  0┤   ┃  ┃ ┃ ┃      
+ -1┤   ┗━━┛ ┗━┛      
+   │                 

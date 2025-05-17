@@ -8,7 +8,7 @@ import {
   drawLine,
   drawShift,
   drawPosition,
-} from '../draw';
+} from '../../services/draw';
 import { AXIS, CHART } from '../../constants';
 import { GraphMode, MultiLine, Point } from '../../types';
 
@@ -99,13 +99,12 @@ describe('Drawing functions', () => {
       };
       drawXAxisEnd(args);
       expect(graph[0][4]).toEqual('1');
-      expect(graph[1][4]).toEqual(AXIS.x);
     });
     it('should draw Y axis end', () => {
       const graph = [
         [' ', ' ', ' '],
         [' ', ' ', ' '],
-        [' ', ' ', ' '],
+        [' ', 'A', ' '],
       ];
       const params = {
         graph,
@@ -115,7 +114,7 @@ describe('Drawing functions', () => {
         pointY: 1,
         plotHeight: 3,
         transformLabel: (value: number) => value.toString(),
-        axisSymbols: { y: 'Y' },
+        axisSymbols: { y: 'Y', ns: 'A', we: 'B' },
         expansionX: [0],
         expansionY: [0, 1, 2],
         coordsGetter: () => [0, 0] as Point,
@@ -123,6 +122,7 @@ describe('Drawing functions', () => {
       };
 
       drawYAxisEnd(params);
+
       expect(graph[2][1]).toBe('Y');
     });
   });
@@ -161,7 +161,7 @@ describe('Drawing functions', () => {
       const graph = [
         [' ', ' ', ' ', ' '],
         [' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', ' '],
+        [' ', ' ', ' ', AXIS.ns],
       ];
       const args = {
         graph,
@@ -178,6 +178,7 @@ describe('Drawing functions', () => {
         plotGetter: () => [0, 0] as Point,
       };
       drawYAxisEnd(args);
+
       expect(graph[2][3]).toEqual(AXIS.y);
       expect(graph[2][2]).toEqual('2');
     });

@@ -1,4 +1,4 @@
-import { getPlotCoords, toArray, toPlot, toSorted, getAxisCenter } from './coords';
+import { getPlotCoords, toPlot, toSorted, getAxisCenter } from './coords';
 import { getChartSymbols } from './settings';
 import { SingleLine, Plot } from '../types/index';
 import {
@@ -22,9 +22,9 @@ import {
   drawChart,
   drawCustomLine,
   drawLine,
-  drawYAxisEnd,
-  drawXAxisEnd,
   drawShift,
+  drawTicks,
+  drawAxisCenter,
 } from './draw';
 
 export const plot: Plot = (
@@ -35,6 +35,10 @@ export const plot: Plot = (
     height,
     yRange,
     showTickLabel,
+    hideXAxisTicks,
+    hideYAxisTicks,
+    customXAxisTicks,
+    customYAxisTicks,
     axisCenter,
     formatter,
     lineFormatter,
@@ -76,6 +80,7 @@ export const plot: Plot = (
     height,
     input,
     yRange,
+    axisCenter,
   });
   const {
     axisSymbols,
@@ -187,14 +192,19 @@ export const plot: Plot = (
     axis,
   });
 
-  // labels
-
   // takes the longest label that needs to be rendered
   // on the Y axis and returns it's length
-  const { xShift, yShift } = getLabelShift({ input, transformLabel, expansionX, expansionY, minX });
+  const { xShift, yShift } = getLabelShift({
+    input,
+    transformLabel,
+    showTickLabel,
+    expansionX,
+    expansionY,
+    minX,
+  });
 
   // shift graph
-  const { hasToBeMoved } = drawShift({
+  let { realXShift } = drawShift({
     graph,
     plotWidth,
     emptySymbol,
@@ -208,97 +218,39 @@ export const plot: Plot = (
     addBackgroundSymbol({ debugMode, graph, backgroundSymbol, emptySymbol });
   }
 
-  // shift coords
-  input.forEach((current) => {
-    const coord = getPlotCoords(current, plotWidth, plotHeight, expansionX, expansionY);
-    current.forEach(([pointX, pointY], index) => {
-      const [x, y] = coord[index];
+  // axis
+  drawAxisCenter({
+    realXShift,
+    debugMode,
+    emptySymbol,
+    backgroundSymbol,
+    graph,
+    axisSymbols,
+    axis,
+  });
 
-      const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
-      if (!hideYAxis) {
-        drawYAxisEnd({
-          debugMode,
-          showTickLabel,
-          plotHeight,
-          graph,
-          scaledY,
-          yShift,
-          axis,
-          pointY,
-          transformLabel,
-          axisSymbols,
-          expansionX,
-          expansionY,
-        });
-      }
-
-      if (!hideXAxis) {
-        const pointXShift = toArray(
-          transformLabel(pointX, { axis: 'x', xRange: expansionX, yRange: expansionY }),
-        );
-        let yPos = graph.length - 1;
-        const shift = axisCenter ? -1 : 0;
-
-        // check if place is taken by previous point
-        // take into consideration different axis center,
-        // when axis center is set to true symbol might be '-'
-        const hasPlaceToRender = pointXShift.every((_, i) =>
-          [emptySymbol, axisSymbols.ns].includes(graph[yPos - 1][scaledX + yShift - i + 2 + shift]),
-        );
-
-        for (let i = 0; i < pointXShift.length; i += 1) {
-          let signShift = -1;
-          if (hasToBeMoved) {
-            signShift = -2;
-          }
-
-          const rowIndex = yPos + signShift;
-          const colIndex = scaledX + yShift + 2 + shift;
-
-          // Check if rowIndex is within bounds
-          const rowExists = rowIndex >= 0 && rowIndex < graph.length;
-
-          // Initialize isSymbolOnXAxisOccupied
-          let isSymbolOnXAxisOccupied = false;
-
-          if (rowExists) {
-            const row = graph[rowIndex];
-
-            // Check if colIndex is within bounds
-            const colExists = colIndex >= 0 && colIndex < row.length;
-
-            if (colExists) {
-              isSymbolOnXAxisOccupied = row[colIndex] === axisSymbols.x;
-            }
-          }
-
-          // Make sure position is not taken already
-          if (isSymbolOnXAxisOccupied) {
-            break;
-          }
-
-          // Apply shift only when place is taken
-          if (axisCenter) {
-            yPos = axis.y + 1;
-          }
-
-          drawXAxisEnd({
-            debugMode,
-            hasPlaceToRender,
-            axisCenter,
-            yPos,
-            graph,
-            yShift,
-            i,
-            scaledX,
-            shift,
-            signShift,
-            axisSymbols,
-            pointXShift,
-          });
-        }
-      }
-    });
+  // draw axis ends and ticks
+  drawTicks({
+    input,
+    graph,
+    plotWidth,
+    plotHeight,
+    axis,
+    axisCenter,
+    yShift,
+    emptySymbol,
+    debugMode,
+    hideXAxis,
+    expansionX,
+    expansionY,
+    hideYAxis,
+    customYAxisTicks,
+    customXAxisTicks,
+    hideYAxisTicks,
+    hideXAxisTicks,
+    showTickLabel,
+    axisSymbols,
+    transformLabel,
   });
 
   // Remove empty lines
@@ -355,7 +307,7 @@ export const plot: Plot = (
   }
 
   if (borderSymbol) {
-    addBorder({ graph, borderSymbol });
+    addBorder({ graph, borderSymbol, backgroundSymbol });
   }
 
   return drawChart({ graph });

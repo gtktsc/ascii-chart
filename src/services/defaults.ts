@@ -1,5 +1,13 @@
 import { AXIS, EMPTY, POINT, THRESHOLDS } from '../constants';
-import { Symbols, MultiLine, Formatter, Coordinates, GraphPoint, Threshold } from '../types';
+import {
+  Symbols,
+  MultiLine,
+  Formatter,
+  Coordinates,
+  GraphPoint,
+  Threshold,
+  MaybePoint,
+} from '../types';
 import { toArrays, getMin, getMax, toArray, padOrTrim, normalize } from './coords';
 
 /**
@@ -29,6 +37,7 @@ export const getSymbols = ({ symbols }: { symbols?: Symbols }) => {
  * @param {MultiLine} options.input - The multiline array of points.
  * @param {number} [options.width] - Optional width of the plot.
  * @param {number} [options.height] - Optional height of the plot.
+ * @param {MaybePoint} [options.axisCenter] - Optional axis center point.
  * @param {[number, number]} [options.yRange] - Optional range for the y-axis.
  * @returns {object} - Object containing min x value, plot width, plot height, and x and y expansions.
  */
@@ -37,13 +46,18 @@ export const getChartSize = ({
   width,
   height,
   yRange,
+  axisCenter,
 }: {
   input: MultiLine;
   width?: number;
   height?: number;
+  axisCenter?: MaybePoint;
   yRange?: [number, number];
 }) => {
-  const [rangeX, rangeY] = toArrays(input);
+  const [inputRangeX, inputRangeY] = toArrays(input);
+
+  const rangeX = [...inputRangeX, axisCenter?.[0]].filter((v) => typeof v === 'number') as number[];
+  const rangeY = [...inputRangeY, axisCenter?.[1]].filter((v) => typeof v === 'number') as number[];
 
   const minX = getMin(rangeX);
   const maxX = getMax(rangeX);
@@ -51,6 +65,7 @@ export const getChartSize = ({
   const maxY = getMax(rangeY);
 
   const expansionX = [minX, maxX];
+
   const expansionY = yRange || [minY, maxY];
 
   // Set default plot dimensions if not provided
@@ -81,6 +96,7 @@ export const getChartSize = ({
  * @param {number[]} options.expansionX - The x-axis range.
  * @param {number[]} options.expansionY - The y-axis range.
  * @param {number} options.minX - The minimum x value for label calculation.
+ * @param {boolean} [options.showTickLabel] - Flag to indicate if tick labels should be shown.
  * @returns {object} - Object containing the calculated xShift and yShift.
  */
 export const getLabelShift = ({
@@ -89,58 +105,45 @@ export const getLabelShift = ({
   expansionX,
   expansionY,
   minX,
+  showTickLabel,
 }: {
   input: MultiLine;
   transformLabel: Formatter;
   expansionX: number[];
   expansionY: number[];
   minX: number;
+  showTickLabel?: boolean;
 }) => {
-  let xShift = 0;
-  let longestY = 0;
-
-  // Find the longest labels for x and y axes
-  input.forEach((current) => {
-    current.forEach(([pointX, pointY]) => {
-      xShift = Math.max(
-        toArray(
-          transformLabel(pointX, {
-            axis: 'x',
-            xRange: expansionX,
-            yRange: expansionY,
-          }),
-        ).length,
-        xShift,
-      );
-
-      longestY = Math.max(
-        toArray(
-          transformLabel(pointY, {
-            axis: 'y',
-            xRange: expansionX,
-            yRange: expansionY,
-          }),
-        ).length,
-        longestY,
-      );
-    });
-  });
-
-  // Calculate shift for x and y labels based on the longest formatted label
-  const formattedMinX = transformLabel(minX, {
-    axis: 'x',
-    xRange: expansionX,
-    yRange: expansionY,
-  });
-
-  // Adjust x-axis shift; -2 ensures space for labels and axis symbols
-  const x0Shift = toArray(formattedMinX).length - 2;
-  const yShift = Math.max(x0Shift, longestY);
-
-  return {
-    xShift,
-    yShift,
+  // Helper to compute the length of a formatted label
+  const getLength = (value: number, axis: 'x' | 'y'): number => {
+    const formatted = transformLabel(value, { axis, xRange: expansionX, yRange: expansionY });
+    return toArray(formatted).length;
   };
+
+  // Combine all points into one array for iteration
+  const points = input.flat<MultiLine>();
+
+  // Determine the maximum label lengths for x and y
+  const { x: xShift, y: longestY } = points.reduce(
+    (acc, [x, y]) => ({
+      x: Math.max(acc.x, getLength(x, 'x')),
+      y: Math.max(acc.y, getLength(y, 'y')),
+    }),
+    { x: 0, y: 0 },
+  );
+
+  if (!showTickLabel) {
+    // For minimal mode, ensure space for the axis symbol and labels
+    const minXLength = getLength(minX, 'x');
+    const baseShift = Math.max(0, minXLength - 2);
+    return {
+      xShift,
+      yShift: Math.max(baseShift, longestY),
+    };
+  }
+
+  // Full mode: add extra padding for tick labels
+  return { xShift, yShift: longestY + 1 };
 };
 
 /**

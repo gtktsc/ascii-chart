@@ -9,7 +9,7 @@ import {
   toEmpty,
   normalize,
   padOrTrim,
-} from '../coords';
+} from '../../services/coords';
 
 describe('normalize', () => {
   it('should return empty array for undefined input', () => {
