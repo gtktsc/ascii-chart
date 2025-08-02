@@ -337,8 +337,9 @@ export const drawAxis = ({
   axisSymbols: Symbols['axis'];
   debugMode?: boolean;
 }) => {
-  graph.forEach((line, index) => {
-    line.forEach((_, curr) => {
+  for (let index = 0; index < graph.length; index++) {
+    const line = graph[index];
+    for (let curr = 0; curr < line.length; curr++) {
       let lineChar = '';
 
       if (curr === axis.x && !hideYAxis) {
@@ -360,8 +361,8 @@ export const drawAxis = ({
       if (lineChar) {
         drawPosition({ debugMode, graph, scaledX: curr, scaledY: index, symbol: lineChar });
       }
-    });
-  });
+    }
+  }
 };
 
 /**

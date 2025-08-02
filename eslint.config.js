@@ -52,6 +52,24 @@ export default [
       'jsdoc/require-param-type': 'off',
       'jsdoc/require-returns': 'warn',
       'jsdoc/require-returns-type': 'off',
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'describe',
+          property: 'only',
+          message: 'describe.only should not be committed to version control.',
+        },
+        {
+          object: 'it',
+          property: 'only',
+          message: 'it.only should not be committed to version control.',
+        },
+        {
+          object: 'test',
+          property: 'only',
+          message: 'test.only should not be committed to version control.',
+        },
+      ],
     },
   },
   {

@@ -71,10 +71,12 @@ export const toArrays = (array: MultiLine): [number[], number[]] => {
   const rangeX: number[] = [];
   const rangeY: number[] = [];
 
-  toFlat(array).forEach(([x, y]) => {
+  const flatArray = toFlat(array);
+  for (let i = 0; i < flatArray.length; i++) {
+    const [x, y] = flatArray[i];
     rangeX.push(x);
     rangeY.push(y);
-  });
+  }
 
   return [toUnique(rangeX), toUnique(rangeY)];
 };

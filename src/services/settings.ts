@@ -1,5 +1,6 @@
-import { CHART } from '../constants/index';
-import { Color, ColorGetter, Formatter, MultiLine } from '../types/index';
+import { CHART } from '../constants';
+import { LAYOUT } from '../constants';
+import { Color, ColorGetter, Formatter, MultiLine } from '../types';
 
 const colorMap: Record<Color, string> = {
   ansiBlack: '\u001b[30m',
@@ -70,9 +71,9 @@ export const getChartSymbols = (
  * @returns {string | number} - The formatted value as a string with "k" for thousands or as a rounded number.
  */
 export const defaultFormatter: Formatter = (value) => {
-  if (Math.abs(value) >= 1000) {
-    const rounded = value / 1000;
-    return rounded % 1 === 0 ? `${rounded}k` : `${rounded.toFixed(3)}k`;
+  if (Math.abs(value) >= LAYOUT.K_FORMAT_THRESHOLD) {
+    const rounded = value / LAYOUT.K_FORMAT_THRESHOLD;
+    return rounded % 1 === 0 ? `${rounded}k` : `${rounded.toFixed(LAYOUT.DEFAULT_DECIMAL_PLACES)}k`;
   }
-  return Number(value.toFixed(3));
+  return Number(value.toFixed(LAYOUT.DEFAULT_DECIMAL_PLACES));
 };

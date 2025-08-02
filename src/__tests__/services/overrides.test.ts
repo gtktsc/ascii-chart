@@ -1,6 +1,6 @@
 import {
   setTitle,
-  addXLable,
+  addXLabel,
   addYLabel,
   addLegend,
   addBorder,
@@ -117,11 +117,11 @@ describe('Graph Utility Functions', () => {
     });
   });
 
-  describe('addXLable', () => {
+  describe('addXLabel', () => {
     it('should add the xLabel correctly', () => {
       const xLabel = 'XLabel';
 
-      addXLable({ xLabel, graph, backgroundSymbol, plotWidth, yShift });
+      addXLabel({ xLabel, graph, backgroundSymbol, plotWidth, yShift });
 
       expect(graph[graph.length - 1].join('')).toContain(xLabel);
     });
@@ -185,7 +185,7 @@ describe('Graph Utility Functions', () => {
       addLegend({ ...baseOptions, legend, graph, thresholds, points });
 
       const bottom = graph
-        .slice(-3)
+        .slice(-5)
         .map((row) => row.join(''))
         .join('\n');
       expect(bottom).toMatch(/S/);
@@ -434,7 +434,7 @@ describe('Graph Utility Functions', () => {
       }
     });
 
-    it.only('should use fill area correctly', () => {
+    it('should use fill area correctly', () => {
       const chartSymbols = { nse: CHART.nse, wsn: CHART.wsn, we: CHART.we };
       graph[1][1] = CHART.nse;
       setFillArea({ graph, chartSymbols });

@@ -44,3 +44,14 @@ export const THRESHOLDS = {
  * Symbol for the point of the graph.
  */
 export const POINT = '●';
+
+/**
+ * Layout and formatting constants
+ */
+export const LAYOUT = {
+  MIN_PLOT_HEIGHT: 3,
+  DEFAULT_DECIMAL_PLACES: 3,
+  K_FORMAT_THRESHOLD: 1000,
+  DEFAULT_PADDING: 2,
+  DEFAULT_Y_SHIFT_OFFSET: 1,
+} as const;
