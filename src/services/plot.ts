@@ -1,12 +1,12 @@
 import { getPlotCoords, toPlot, toSorted, getAxisCenter } from './coords';
 import { getChartSymbols } from './settings';
-import { SingleLine, Plot } from '../types/index';
+import { Plot } from '../types/index';
 import {
   addBackgroundSymbol,
   addBorder,
   addLegend,
   addThresholds,
-  addXLable,
+  addXLabel,
   addYLabel,
   setTitle,
   setFillArea,
@@ -100,7 +100,8 @@ export const plot: Plot = (
   ]);
 
   // get default chart symbols
-  input.forEach((coords: SingleLine, series) => {
+  for (let series = 0; series < input.length; series++) {
+    const coords = input[series];
     // override default chart symbols with colored ones
     const chartSymbols = getChartSymbols(color, series, symbols?.chart, input, fillArea);
 
@@ -152,7 +153,7 @@ export const plot: Plot = (
         return [scaledX, scaledY];
       },
     );
-  });
+  }
 
   if (thresholds) {
     addThresholds({
@@ -258,7 +259,7 @@ export const plot: Plot = (
 
   // Adds x axis label below the graph
   if (xLabel) {
-    addXLable({
+    addXLabel({
       debugMode,
       xLabel,
       graph,

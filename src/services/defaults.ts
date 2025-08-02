@@ -1,4 +1,4 @@
-import { AXIS, EMPTY, POINT, THRESHOLDS } from '../constants';
+import { AXIS, EMPTY, POINT, THRESHOLDS, LAYOUT } from '../constants';
 import {
   Symbols,
   MultiLine,
@@ -74,7 +74,7 @@ export const getChartSize = ({
   let plotHeight = Math.round(height || maxY - minY + 1);
 
   // Adjust plot height for small value ranges if no height is provided
-  if (!height && plotHeight < 3) {
+  if (!height && plotHeight < LAYOUT.MIN_PLOT_HEIGHT) {
     plotHeight = rangeY.length;
   }
 
@@ -135,7 +135,7 @@ export const getLabelShift = ({
   if (!showTickLabel) {
     // For minimal mode, ensure space for the axis symbol and labels
     const minXLength = getLength(minX, 'x');
-    const baseShift = Math.max(0, minXLength - 2);
+    const baseShift = Math.max(0, minXLength - LAYOUT.DEFAULT_PADDING);
     return {
       xShift,
       yShift: Math.max(baseShift, longestY),
@@ -143,7 +143,7 @@ export const getLabelShift = ({
   }
 
   // Full mode: add extra padding for tick labels
-  return { xShift, yShift: longestY + 1 };
+  return { xShift, yShift: longestY + LAYOUT.DEFAULT_Y_SHIFT_OFFSET };
 };
 
 /**
@@ -166,15 +166,13 @@ export const getInput = ({ rawInput }: { rawInput: Coordinates }) => {
 /**
  * Generates legend data based on the provided points, thresholds, and series.
  * @param {object} options - Contains points, thresholds, and series data.
- * @param {Coordinates} options.points - The coordinates of the points.
- * @param {THRESHOLDS} options.thresholds - The thresholds for the plot.
- * @param {string[]} options.series - The series names for the plot.
- * @param {string[]} options.pointsSeries - The series names for the points.
- * @param {string[]} options.thresholdsSeries - The series names for the thresholds.
- * @param {string[]} options.dataSeries - The series names for the data.
  * @param {MultiLine} options.input - The input data for the plot.
+ * @param {GraphPoint[]} options.points - The coordinates of the points.
+ * @param {Threshold[]} options.thresholds - The thresholds for the plot.
+ * @param {string[] | string} options.pointsSeries - The series names for the points.
+ * @param {string[] | string} options.thresholdsSeries - The series names for the thresholds.
+ * @param {string[] | string} options.dataSeries - The series names for the data.
  * @returns {object} - Object containing the series, points, and thresholds for the legend.
- *
  */
 export const getLegendData = ({
   input,

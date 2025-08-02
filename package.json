@@ -1,6 +1,6 @@
 {
   "name": "simple-ascii-chart",
-  "version": "5.3.0",
+  "version": "5.3.1",
   "description": "Simple ascii chart generator",
   "type": "module",
   "main": "./dist/index.cjs",

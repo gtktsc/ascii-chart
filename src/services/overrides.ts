@@ -11,8 +11,7 @@ import {
   FormatterHelpers,
   GraphPoint,
 } from '../types';
-import { getPlotCoords, toArray, toEmpty, toPlot } from './coords';
-import { getLegendData } from './defaults';
+import { getPlotCoords, toArray, toEmpty, toPlot, normalize } from './coords';
 import { drawPosition } from './draw';
 import { defaultFormatter, getAnsiColor, getChartSymbols } from './settings';
 
@@ -42,7 +41,8 @@ export const setTitle = ({
   debugMode?: boolean;
 }) => {
   graph.unshift(toEmpty(plotWidth + yShift + 2, backgroundSymbol));
-  Array.from(title).forEach((letter, index) => {
+  for (let index = 0; index < title.length; index++) {
+    const letter = title[index];
     drawPosition({
       debugMode,
       graph,
@@ -50,7 +50,7 @@ export const setTitle = ({
       scaledY: 0,
       symbol: letter,
     });
-  });
+  }
 };
 
 /**
@@ -63,7 +63,7 @@ export const setTitle = ({
  * @param {number} options.yShift - Vertical shift for positioning.
  * @param {boolean} [options.debugMode=false] - If true, logs errors for out-of-bounds access.
  */
-export const addXLable = ({
+export const addXLabel = ({
   graph,
   plotWidth,
   yShift,
@@ -83,7 +83,8 @@ export const addXLable = ({
   const startingPosition = Math.round((totalWidth - labelLength) / 2);
 
   graph.push(toEmpty(plotWidth + yShift + 2, backgroundSymbol));
-  Array.from(xLabel).forEach((letter, index) => {
+  for (let index = 0; index < xLabel.length; index++) {
+    const letter = xLabel[index];
     drawPosition({
       debugMode,
       graph,
@@ -91,7 +92,7 @@ export const addXLable = ({
       scaledY: graph.length - 1,
       symbol: letter,
     });
-  });
+  }
 };
 
 /**
@@ -172,33 +173,26 @@ export const addLegend = ({
   points?: GraphPoint[];
   thresholds?: Threshold[];
 }) => {
-  const {
-    series: legendSeries,
-    points: legendPoints,
-    thresholds: legendThresholds,
-  } = getLegendData({
-    input,
-    thresholds,
-    points,
-    pointsSeries: legend.points,
-    thresholdsSeries: legend.thresholds,
-    dataSeries: legend.series,
-  });
+  // Process legend data directly without using getLegendData to avoid trimming
+  // This preserves all legend items regardless of input data length
+  const legendSeries = legend.series ? normalize(legend.series) : [];
+  const legendPoints = legend.points ? normalize(legend.points) : [];
+  const legendThresholds = legend.thresholds ? normalize(legend.thresholds) : [];
 
   const allLabels = [
-    ...legendSeries.map((label, i) => ({
+    ...legendSeries.map((label: string, i: number) => ({
       type: 'series' as const,
       label,
       index: i,
     })),
     ...(legendThresholds.length > 0 ? [{ type: 'spacer' as const }] : []),
-    ...legendThresholds.map((label, i) => ({
+    ...legendThresholds.map((label: string, i: number) => ({
       type: 'threshold' as const,
       label,
       index: i,
     })),
     ...(legendPoints.length > 0 ? [{ type: 'spacer' as const }] : []),
-    ...legendPoints.map((label, i) => ({
+    ...legendPoints.map((label: string, i: number) => ({
       type: 'point' as const,
       label,
       index: i,
@@ -277,32 +271,36 @@ export const addLegend = ({
   }
 
   if (legend.position === 'top') {
-    allLabels
-      .slice()
-      .reverse()
-      .forEach((entry) => {
-        const line = makeLabelRow(entry);
-        const row = toEmpty(graph[0].length, backgroundSymbol);
-        graph.unshift(row);
+    allLabels;
+    const reversedEntries = allLabels.slice().reverse();
 
-        line.forEach((symbol, i) => {
-          drawPosition({
-            debugMode,
-            graph,
-            scaledX: i,
-            scaledY: 0,
-            symbol,
-          });
+    for (let entryIndex = 0; entryIndex < reversedEntries.length; entryIndex++) {
+      const entry = reversedEntries[entryIndex];
+      const line = makeLabelRow(entry);
+      const row = toEmpty(graph[0].length, backgroundSymbol);
+      graph.unshift(row);
+
+      for (let i = 0; i < line.length; i++) {
+        const symbol = line[i];
+        drawPosition({
+          debugMode,
+          graph,
+          scaledX: i,
+          scaledY: 0,
+          symbol,
         });
-      });
+      }
+    }
   }
 
   if (legend.position === 'bottom' || !legend.position) {
-    allLabels.forEach((entry) => {
+    for (let entryIndex = 0; entryIndex < allLabels.length; entryIndex++) {
+      const entry = allLabels[entryIndex];
       const line = makeLabelRow(entry);
       graph.push(toEmpty(graph[0].length, backgroundSymbol));
       const y = graph.length - 1;
-      line.forEach((symbol, i) => {
+      for (let i = 0; i < line.length; i++) {
+        const symbol = line[i];
         drawPosition({
           debugMode,
           graph,
@@ -310,8 +308,8 @@ export const addLegend = ({
           scaledY: y,
           symbol,
         });
-      });
-    });
+      }
+    }
   }
 };
 
@@ -409,21 +407,21 @@ export const addPoints = ({
 }) => {
   const mappedPoints = points.map(({ x, y }) => [x, y] as Point);
 
-  getPlotCoords(mappedPoints, plotWidth, plotHeight, expansionX, expansionY).forEach(
-    ([x, y], pointNumber) => {
-      const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
+  const plotCoords = getPlotCoords(mappedPoints, plotWidth, plotHeight, expansionX, expansionY);
+  for (let pointNumber = 0; pointNumber < plotCoords.length; pointNumber++) {
+    const [x, y] = plotCoords[pointNumber];
+    const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
 
-      drawPosition({
-        debugMode,
-        graph,
-        scaledX: scaledX + 1,
-        scaledY: scaledY + 1,
-        symbol: points[pointNumber]?.color
-          ? `${getAnsiColor(points[pointNumber]?.color || 'ansiRed')}${pointSymbol}\u001b[0m`
-          : pointSymbol,
-      });
-    },
-  );
+    drawPosition({
+      debugMode,
+      graph,
+      scaledX: scaledX + 1,
+      scaledY: scaledY + 1,
+      symbol: points[pointNumber]?.color
+        ? `${getAnsiColor(points[pointNumber]?.color || 'ansiRed')}${pointSymbol}\u001b[0m`
+        : pointSymbol,
+    });
+  }
 };
 
 /**
@@ -475,42 +473,42 @@ export const addThresholds = ({
     return [x, y] as Point;
   });
 
-  getPlotCoords(mappedThreshold, plotWidth, plotHeight, expansionX, expansionY).forEach(
-    ([x, y], thresholdNumber) => {
-      const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
+  const plotCoords = getPlotCoords(mappedThreshold, plotWidth, plotHeight, expansionX, expansionY);
+  for (let thresholdNumber = 0; thresholdNumber < plotCoords.length; thresholdNumber++) {
+    const [x, y] = plotCoords[thresholdNumber];
+    const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
 
-      if (thresholds[thresholdNumber]?.x && graph[0][scaledX]) {
-        graph.forEach((_, index) => {
-          if (graph[index][scaledX]) {
-            drawPosition({
-              debugMode,
-              graph,
-              scaledX: scaledX + 1,
-              scaledY: index,
-              symbol: thresholds[thresholdNumber]?.color
-                ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${thresholdSymbols.y}\u001b[0m`
-                : thresholdSymbols.y,
-            });
-          }
-        });
+    if (thresholds[thresholdNumber]?.x && graph[0][scaledX]) {
+      for (let index = 0; index < graph.length; index++) {
+        if (graph[index][scaledX]) {
+          drawPosition({
+            debugMode,
+            graph,
+            scaledX: scaledX + 1,
+            scaledY: index,
+            symbol: thresholds[thresholdNumber]?.color
+              ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${thresholdSymbols.y}\u001b[0m`
+              : thresholdSymbols.y,
+          });
+        }
       }
-      if (thresholds[thresholdNumber]?.y && graph[scaledY]) {
-        graph[scaledY].forEach((_, index) => {
-          if (graph[scaledY][index]) {
-            drawPosition({
-              debugMode,
-              graph,
-              scaledX: index,
-              scaledY: scaledY + 1,
-              symbol: thresholds[thresholdNumber]?.color
-                ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${thresholdSymbols.x}\u001b[0m`
-                : thresholdSymbols.x,
-            });
-          }
-        });
+    }
+    if (thresholds[thresholdNumber]?.y && graph[scaledY]) {
+      for (let index = 0; index < graph[scaledY].length; index++) {
+        if (graph[scaledY][index]) {
+          drawPosition({
+            debugMode,
+            graph,
+            scaledX: index,
+            scaledY: scaledY + 1,
+            symbol: thresholds[thresholdNumber]?.color
+              ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${thresholdSymbols.x}\u001b[0m`
+              : thresholdSymbols.x,
+          });
+        }
       }
-    },
-  );
+    }
+  }
 };
 
 /**
@@ -529,8 +527,10 @@ export const setFillArea = ({
   chartSymbols: Symbols['chart'];
   debugMode?: boolean;
 }) => {
-  graph.forEach((xValues, yIndex) => {
-    xValues.forEach((xSymbol, xIndex) => {
+  for (let yIndex = 0; yIndex < graph.length; yIndex++) {
+    const xValues = graph[yIndex];
+    for (let xIndex = 0; xIndex < xValues.length; xIndex++) {
+      const xSymbol = xValues[xIndex];
       let areaSymbol = chartSymbols?.area || CHART.area;
       if (
         xSymbol === chartSymbols?.nse ||
@@ -548,8 +548,8 @@ export const setFillArea = ({
           });
         }
       }
-    });
-  });
+    }
+  }
 };
 
 /**
