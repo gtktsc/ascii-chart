@@ -857,51 +857,84 @@ export const getDrawXAxisTicks =
     axisSymbols: typeof AXIS;
     expansionX: number[];
     expansionY: number[];
-  }) =>
-  (points: Point[]) => {
-    const coords = getPlotCoords(points, plotWidth, plotHeight, expansionX, expansionY);
-    points.forEach(([pointX], i) => {
-      const [x, y] = coords[i];
-      const [scaledX] = toPlot(plotWidth, plotHeight)(x, y);
-      const pointXShift = toArray(
-        transformLabel(pointX, { axis: 'x', xRange: expansionX, yRange: expansionY }),
-      );
-      const yPos = axisCenter ? axis.y + 1 : graph.length - 1;
+  }) => {
+    const occupiedByRow = new Map<number, Set<number>>();
 
-      const tickXPosition = scaledX + yShift + (axisCenter ? 1 : 2);
-
-      const hasPlaceToRender = pointXShift.every((_, j) =>
-        [emptySymbol, axisSymbols.ns].includes(graph[yPos - 1][scaledX + yShift - j + 2]),
-      );
-
-      for (let j = 0; j < pointXShift.length; j++) {
-        const isOccupied = graph[yPos - 2][tickXPosition] === axisSymbols.x;
-
-        if (isOccupied) break;
-
-        drawXAxisEnd({
-          debugMode,
-          hasPlaceToRender,
-          yPos,
-          graph,
-          axisCenter,
-          yShift,
-          i: j,
-          scaledX,
-          hideXAxisTicks,
-          pointXShift,
-        });
+    const getOccupiedRow = (row: number) => {
+      if (!occupiedByRow.has(row)) {
+        occupiedByRow.set(row, new Set<number>());
       }
+      return occupiedByRow.get(row)!;
+    };
 
-      drawXAxisTick({
-        debugMode,
-        axis,
-        xPosition: tickXPosition,
-        graph,
-        hideXAxisTicks,
-        axisSymbols,
+    return (points: Point[]) => {
+      const coords = getPlotCoords(points, plotWidth, plotHeight, expansionX, expansionY);
+      points.forEach(([pointX], i) => {
+        const [x, y] = coords[i];
+        const [scaledX] = toPlot(plotWidth, plotHeight)(x, y);
+        const pointXShift = toArray(
+          transformLabel(pointX, { axis: 'x', xRange: expansionX, yRange: expansionY }),
+        );
+        const yPos = axisCenter ? axis.y + 1 : graph.length - 1;
+
+        const tickXPosition = scaledX + yShift + (axisCenter ? 1 : 2);
+
+        const hasPlaceToRender = pointXShift.every((_, j) =>
+          [emptySymbol, axisSymbols.ns].includes(graph[yPos - 1][scaledX + yShift - j + 2]),
+        );
+
+        const targetY = hasPlaceToRender ? yPos - 1 : yPos;
+        const occupied = getOccupiedRow(targetY);
+        const targetWidth = graph[targetY]?.length ?? 1;
+
+        const hasLabelCollision =
+          !axisCenter &&
+          pointXShift.some((_, j) => {
+            const rawX = scaledX + yShift - j + 2;
+            const graphX = Math.max(0, Math.min(targetWidth - 1, rawX));
+            return occupied.has(graphX);
+          });
+
+        if (!hasLabelCollision) {
+          for (let j = 0; j < pointXShift.length; j++) {
+            const isOccupied = graph[yPos - 2][tickXPosition] === axisSymbols.x;
+
+            if (isOccupied) break;
+
+            drawXAxisEnd({
+              debugMode,
+              hasPlaceToRender,
+              yPos,
+              graph,
+              axisCenter,
+              yShift,
+              i: j,
+              scaledX,
+              hideXAxisTicks,
+              pointXShift,
+            });
+          }
+
+          for (let j = 0; j < pointXShift.length; j++) {
+            if (axisCenter) {
+              break;
+            }
+            const rawX = scaledX + yShift - j + 2;
+            const graphX = Math.max(0, Math.min(targetWidth - 1, rawX));
+            occupied.add(graphX);
+          }
+        }
+
+        drawXAxisTick({
+          debugMode,
+          axis,
+          xPosition: tickXPosition,
+          graph,
+          hideXAxisTicks,
+          axisSymbols,
+        });
       });
-    });
+    };
   };
 
 /**

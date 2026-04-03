@@ -86,6 +86,101 @@ describe('plot', () => {
       expect(chart).toStrictEqual('');
     });
   });
+
+  describe('regressions', () => {
+    it('does not mutate input order', () => {
+      const input: Coordinates = [
+        [3, 0],
+        [1, 5],
+        [2, 1],
+      ];
+      const original = JSON.parse(JSON.stringify(input));
+
+      plot(input, { width: 10, height: 6 });
+
+      expect(input).toEqual(original);
+    });
+
+    it('renders threshold when x is 0', () => {
+      const output = plot(
+        [
+          [-1, -1],
+          [0, 0],
+          [1, 1],
+        ],
+        {
+          width: 10,
+          height: 5,
+          mode: 'point',
+          thresholds: [{ x: 0 }],
+          symbols: { thresholds: { y: 'T' } },
+        },
+      );
+
+      expect(output).toContain('T');
+    });
+
+    it('renders threshold when y is 0', () => {
+      const output = plot(
+        [
+          [-1, -1],
+          [0, 0],
+          [1, 1],
+        ],
+        {
+          width: 10,
+          height: 5,
+          mode: 'point',
+          thresholds: [{ y: 0 }],
+          symbols: { thresholds: { x: 'H' } },
+        },
+      );
+
+      expect(output).toContain('H');
+    });
+
+    it('prevents malformed x-axis label fragments when formatted labels are dense', () => {
+      const output = plot(
+        Array.from({ length: 32 }, (_, i) => [
+          i,
+          i < 8
+            ? 4 + (i % 3)
+            : i < 15
+              ? 6
+              : i < 20
+                ? 8
+                : i < 26
+                  ? 30 - (i - 20) * 3
+                  : 12 - (i - 26) * 1.2,
+        ]),
+        {
+          width: 22,
+          height: 10,
+          title: 'CPU usage %',
+          formatter: (value: number, { axis }: FormatterHelpers) => {
+            if (axis === 'x') {
+              return `+${value}s`;
+            }
+            return Number(value.toFixed(2));
+          },
+        },
+      );
+
+      const xLabelLines = output.split('\n').filter((line) => /\+\d+s/.test(line));
+
+      xLabelLines.forEach((line) => {
+        const fragments = line
+          .trim()
+          .split(/(?=\+)/)
+          .filter(Boolean);
+
+        fragments.forEach((fragment) => {
+          expect(fragment).toMatch(/^\+\d+s$/);
+        });
+      });
+    });
+  });
+
   describe.each([
     [
       'generates output with custom formatter',

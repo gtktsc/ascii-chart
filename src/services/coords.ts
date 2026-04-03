@@ -87,7 +87,7 @@ export const toArrays = (array: MultiLine): [number[], number[]] => {
  * @returns {SingleLine} - The sorted array.
  */
 export const toSorted = (array: SingleLine): SingleLine =>
-  array.sort(([x1], [x2]) => {
+  [...array].sort(([x1], [x2]) => {
     if (x1 < x2) return -1;
     if (x1 > x2) return 1;
     return 0;

@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowJs": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": false,
+    "types": [],
+    "outDir": "dist"
+  },
+  "include": ["src/index.ts"],
+  "exclude": ["src/__tests__/**", "src/scripts/**"]
+}

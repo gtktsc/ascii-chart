@@ -105,6 +105,22 @@ describe('Graph Utility Functions', () => {
       const flattened = graph.flat().join('');
       expect(flattened).not.toContain(pointSymbol); // point is outside
     });
+
+    it('should apply ANSI color when point color is provided', () => {
+      const points: GraphPoint[] = [{ x: 1, y: 1, color: 'ansiRed' }];
+      addPoints({
+        graph,
+        points,
+        plotWidth,
+        plotHeight,
+        expansionX,
+        expansionY,
+        pointSymbol: 'P',
+      });
+
+      const flattened = graph.flat().join('');
+      expect(flattened).toContain('\u001b[31mP\u001b[0m');
+    });
   });
 
   describe('setTitle', () => {
@@ -229,6 +245,38 @@ describe('Graph Utility Functions', () => {
       const right = graph.map((row) => row.slice(-5).join('')).join('\n');
       expect(right).toMatch(/R1/);
       expect(right).toMatch(/R2/);
+    });
+
+    it('adds legend with only points labels', () => {
+      const legend: Legend = {
+        position: 'bottom',
+        points: ['P1'],
+      };
+      const graph: Graph = Array(3)
+        .fill(null)
+        .map(() => Array(10).fill('.'));
+      const points = [{ x: 2, y: 1 }] as GraphPoint[];
+
+      addLegend({ ...baseOptions, legend, graph, points });
+
+      const output = graph.map((row) => row.join('')).join('\n');
+      expect(output).toMatch(/P1/);
+    });
+
+    it('adds legend with only thresholds labels', () => {
+      const legend: Legend = {
+        position: 'bottom',
+        thresholds: ['T1'],
+      };
+      const graph: Graph = Array(3)
+        .fill(null)
+        .map(() => Array(10).fill('.'));
+      const thresholds = [{ y: 2 }] as Threshold[];
+
+      addLegend({ ...baseOptions, legend, graph, thresholds });
+
+      const output = graph.map((row) => row.join('')).join('\n');
+      expect(output).toMatch(/T1/);
     });
   });
 
@@ -419,6 +467,66 @@ describe('Graph Utility Functions', () => {
         expansionY,
       });
       expect(graph.map((line) => line.join('')).join('')).not.toContain(CHART.we);
+    });
+
+    it('should render threshold when x is 0', () => {
+      addThresholds({
+        thresholdSymbols: { x: 'X', y: 'Y' },
+        graph,
+        thresholds: [{ x: 0 }],
+        axis: { x: 0, y: 0 },
+        plotWidth,
+        plotHeight,
+        expansionX,
+        expansionY,
+      });
+
+      expect(graph.flat().join('')).toContain('Y');
+    });
+
+    it('should render threshold when y is 0', () => {
+      addThresholds({
+        thresholdSymbols: { x: 'X', y: 'Y' },
+        graph,
+        thresholds: [{ y: 0 }],
+        axis: { x: 0, y: 0 },
+        plotWidth,
+        plotHeight,
+        expansionX,
+        expansionY: [-5, 5],
+      });
+
+      expect(graph.flat().join('')).toContain('X');
+    });
+
+    it('should colorize vertical threshold symbol when x threshold has color', () => {
+      addThresholds({
+        thresholdSymbols: { x: 'X', y: 'Y' },
+        graph,
+        thresholds: [{ x: 1, color: 'ansiBlue' }],
+        axis: { x: 0, y: 0 },
+        plotWidth,
+        plotHeight,
+        expansionX,
+        expansionY,
+      });
+
+      expect(graph.flat().join('')).toContain('\u001b[34mY\u001b[0m');
+    });
+
+    it('should colorize horizontal threshold symbol when y threshold has color', () => {
+      addThresholds({
+        thresholdSymbols: { x: 'X', y: 'Y' },
+        graph,
+        thresholds: [{ y: 1, color: 'ansiRed' }],
+        axis: { x: 0, y: 0 },
+        plotWidth,
+        plotHeight,
+        expansionX,
+        expansionY,
+      });
+
+      expect(graph.flat().join('')).toContain('\u001b[31mX\u001b[0m');
     });
   });
 
