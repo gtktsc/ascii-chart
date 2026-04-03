@@ -138,6 +138,47 @@ describe('plot', () => {
 
       expect(output).toContain('H');
     });
+
+    it('prevents malformed x-axis label fragments when formatted labels are dense', () => {
+      const output = plot(
+        Array.from({ length: 32 }, (_, i) => [
+          i,
+          i < 8
+            ? 4 + (i % 3)
+            : i < 15
+              ? 6
+              : i < 20
+                ? 8
+                : i < 26
+                  ? 30 - (i - 20) * 3
+                  : 12 - (i - 26) * 1.2,
+        ]),
+        {
+          width: 22,
+          height: 10,
+          title: 'CPU usage %',
+          formatter: (value: number, { axis }: FormatterHelpers) => {
+            if (axis === 'x') {
+              return `+${value}s`;
+            }
+            return Number(value.toFixed(2));
+          },
+        },
+      );
+
+      const xLabelLines = output.split('\n').filter((line) => /\+\d+s/.test(line));
+
+      xLabelLines.forEach((line) => {
+        const fragments = line
+          .trim()
+          .split(/(?=\+)/)
+          .filter(Boolean);
+
+        fragments.forEach((fragment) => {
+          expect(fragment).toMatch(/^\+\d+s$/);
+        });
+      });
+    });
   });
 
   describe.each([

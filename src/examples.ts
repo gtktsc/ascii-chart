@@ -156,6 +156,19 @@ const datasets: Record<string, SingleLine> = {
     [7, -1],
     [8, 9],
   ],
+  cpuUsageOverflow: [
+    [0, 4.77],
+    [3, 4.77],
+    [4, 6.3],
+    [9, 6.3],
+    [11, 6.3],
+    [15, 16.84],
+    [17, 16.84],
+    [20, 32.49],
+    [23, 24.66],
+    [26, 16.84],
+    [31, 6.3],
+  ],
 };
 
 export const examples: Example[] = [
@@ -622,4 +635,10 @@ export const examples: Example[] = [
       axisCenter: [0, 0],
     },
   ),
+  create(datasets.cpuUsageOverflow, {
+    title: 'cpu usage label overflow',
+    width: 22,
+    height: 10,
+    formatter: (value, { axis }) => (axis === 'x' ? `+${value}s` : Number(value.toFixed(2))),
+  }),
 ];
