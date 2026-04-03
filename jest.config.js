@@ -16,4 +16,9 @@ export default {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
+  coverageThreshold: {
+    global: {
+      branches: 98,
+    },
+  },
 };

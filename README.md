@@ -5,10 +5,10 @@
 ![npm package minimized gzipped size (select exports)](https://img.shields.io/bundlejs/size/simple-ascii-chart)
 ![Codecov](https://img.shields.io/codecov/c/github/gtktsc/ascii-chart)
 
-**Simple ASCII Chart** is a TypeScript package for creating customizable ASCII charts in the terminal. It supports two-dimensional data, multiple series, custom colors, and formatters, making it a versatile solution for terminal-based data visualization.
+**Simple ASCII Chart** is a TypeScript package for creating customizable ASCII charts in the terminal. It supports two-dimensional data, multiple series, custom colors, and formatters.
 
-[Playground and documentation](https://simple-ascii-chart.vercel.app/)
-[NPM](https://www.npmjs.com/package/simple-ascii-chart)
+- [Playground and documentation](https://simple-ascii-chart.vercel.app/)
+- [NPM package](https://www.npmjs.com/package/simple-ascii-chart)
 
 ## Installation
 
@@ -22,7 +22,7 @@ npm install simple-ascii-chart
 
 ## Usage
 
-In ESM (e.g., TypeScript, modern Node.js)
+In ESM (for example, TypeScript or modern Node.js):
 
 ```javascript
 import plot from 'simple-ascii-chart';
@@ -33,7 +33,7 @@ const graph = plot(input, settings);
 console.log(graph);
 ```
 
-In CommonJS (e.g., legacy Node.js)
+In CommonJS:
 
 ```javascript
 // Option 1: access default export
@@ -48,8 +48,10 @@ console.log(graph);
 
 ## CLI
 
-[CLI tool is available too](https://github.com/gtktsc/simple-ascii-chart-cli)
-[NPM](https://www.npmjs.com/package/simple-ascii-chart-cli)
+A CLI tool is also available:
+
+- [GitHub repository](https://github.com/gtktsc/simple-ascii-chart-cli)
+- [NPM package](https://www.npmjs.com/package/simple-ascii-chart-cli)
 
 ## Playground
 
@@ -71,14 +73,14 @@ https://simple-ascii-chart.vercel.app/api?input=[[1,2],[2,3],[3,4]]&settings={%2
 
 ## Input Format
 
-Input data should be a two-dimensional array of points or an array of arrays for multiple series:
+Input data should be a list of points (single series) or a list of point-lists (multiple series):
 
 ```typescript
 type Point = [x: number, y: number];
-type Input = Point[] | Point[][];
+type Coordinates = Point[] | Point[][];
 ```
 
-Single series
+Single series:
 
 ```typescript
 const input = [
@@ -86,10 +88,9 @@ const input = [
   [2, 4],
   [3, 40],
 ];
-
 ```
 
-Multiple series
+Multiple series:
 
 ```typescript
 const input = [
@@ -106,7 +107,7 @@ const input = [
 ];
 ```
 
-### Detailed Input Parameters
+### Input Types
 
 - **`Point`**: A single point with x and y coordinates, represented as `[x, y]`.
 - **`MaybePoint`**: Allows partial or undefined values within a point, accommodating incomplete data.
@@ -115,53 +116,47 @@ const input = [
 
 ## Configuration (Settings)
 
-Customize the `plot` function with a variety of settings:
+Customize `plot` with the following settings:
 
-### Available Settings
+### Settings Reference
 
-| Option           | Description                                                                                                   |
-|------------------|---------------------------------------------------------------------------------------------------------------|
-| `color`          | Colors for the graph. Options include `'ansiRed'`, `'ansiGreen'`, etc. Multiple colors are accepted for series. |
-| `width`          | Sets the graph width.                                                                                         |
-| `height`         | Sets the graph height.                                                                                        |
-| `axisCenter`     | Specifies the center of the axis as `[x, y]`, with default as bottom-left.                                    |
-| `formatter`      | A function to format axis labels, offering custom display styles.                                             |
-| `lineFormatter`  | Function to define custom styles for each line.                                                               |
-| `title`          | Title of the chart, displayed above the graph.                                                                |
-| `xLabel`         | Label for the x-axis.                                                                                         |
-| `yLabel`         | Label for the y-axis.                                                                                         |
-| `thresholds`     | Defines threshold lines or points with optional colors at specific x or y coordinates.                        |
-| `points`         | Defines points with optional colors at specific x or y coordinates.                                           |
-| `fillArea`       | Fills the area under each line, suitable for area charts.                                                     |
-| `hideXAxis`      | Hides the x-axis.                                                                                             |
-| `hideYAxis`      | Hides the y-axis.                                                                                             |
-| `mode`           | Sets the plotting mode (line, point, bar, horizontal bar), defaults to line                                   |
-| `symbols`        | Symbols for customizing the chart’s appearance, including axis, background, and chart symbols.                |
-| `legend`         | Configuration for a legend, showing series names and position options (`left`, `right`, `top`, `bottom`).     |
-| `debugMode`      | Enables debug mode (`default = false`).                                                                       |
-
-### Advanced Settings
-
-| Setting              | Description                                                                                               |
-|----------------------|-----------------------------------------------------------------------------------------------------------|
-| `yRange`             | Specifies the y-axis range as `[min, max]`.                                                               |
-| `showTickLabel`      | Enables tick labels on the axis, improving readability for larger plots.                                  |
-| `legend`             | Configures legend display with position and series names, such as `{ position: 'top', series: ['Series 1', 'Series 2'] }, thresholds: ['first', 'second'], points: ['1', '2']]`. |
-| `ColorGetter`        | A function for dynamic color assignment based on series or coordinates.                                   |
-| `axisCenter`         | Sets a custom origin point for the chart, shifting the chart layout to focus around a particular point.    |
-| `lineFormatter`      | Customize each line using the format `lineFormatter: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[]`. |
-| `formatterHelpers`   | Provides helpers such as axis type and range for detailed formatting of axis labels.                      |
+| Option | Description |
+|--------|-------------|
+| `color` | `Color`, `Color[]`, or `ColorGetter` for series coloring. |
+| `width` | Plot width. |
+| `height` | Plot height. |
+| `yRange` | Y-axis range as `[min, max]`. Values outside this range are filtered before rendering. |
+| `showTickLabel` | Show full tick labels on the Y-axis. |
+| `hideXAxis` | Hide the X-axis line. |
+| `hideXAxisTicks` | Hide X-axis tick markers and labels. |
+| `hideYAxis` | Hide the Y-axis line. |
+| `hideYAxisTicks` | Hide Y-axis tick markers and labels. |
+| `customXAxisTicks` | Explicit X tick values. |
+| `customYAxisTicks` | Explicit Y tick values. |
+| `axisCenter` | Axis center as `[x, y]`. Default axis origin is bottom-left. |
+| `formatter` | Axis label formatter: `(value, helpers) => string \| number`. |
+| `lineFormatter` | Custom point renderer: `(args: LineFormatterArgs) => CustomSymbol \| CustomSymbol[]`. |
+| `title` | Chart title shown above the plot. |
+| `xLabel` | X-axis label. |
+| `yLabel` | Y-axis label. |
+| `thresholds` | Threshold lines (`x` and/or `y`) with optional color. |
+| `points` | Overlay points with optional color. |
+| `fillArea` | Fill area under lines using the `area` chart symbol. |
+| `legend` | Legend config (`position`, `series`, `points`, `thresholds`). |
+| `symbols` | Symbol overrides for `axis`, `chart`, `empty`, `background`, `border`, `thresholds`, `point`. |
+| `mode` | Plot mode: `'line'`, `'point'`, `'bar'`, `'horizontalBar'`. |
+| `debugMode` | Enable debug logging for out-of-bounds draw attempts. |
 
 ### Symbols
 
-Overrides default symbols. Three independent sections are: `empty` - background, `axis` - symbols used to draw axis, `chart` - symbols used to draw graph.
+Override default symbols. Main sections are `axis`, `chart`, `thresholds`, `point`, `empty`, `background`, and `border`.
 
 ```typescript
 symbols: {
-  background: ' ',
+  background: '.',
   border: undefined,
   point: '●',
-  thresholds:{
+  thresholds: {
     x: '━',
     y: '┃',
   },
@@ -182,33 +177,39 @@ symbols: {
     nse: '┗',
     wsn: '┛',
     sne: '┏',
-    area: '█'
-    }
+    area: '█',
+  },
 }
 ```
 
 ### Summary
 
 ```typescript
-Settings = {
+type Settings = {
   color?: Colors; // Colors for the plot lines or areas
   width?: number; // Width of the plot
   height?: number; // Height of the plot
   yRange?: [number, number]; // Range of y-axis values
   showTickLabel?: boolean; // Option to show tick labels on the axis
   hideXAxis?: boolean; // Option to hide the x-axis
+  hideXAxisTicks?: boolean; // Option to hide x-axis ticks and labels
   hideYAxis?: boolean; // Option to hide the y-axis
+  hideYAxisTicks?: boolean; // Option to hide y-axis ticks and labels
+  customXAxisTicks?: number[]; // Custom values for x-axis ticks
+  customYAxisTicks?: number[]; // Custom values for y-axis ticks
   title?: string; // Title of the plot
   xLabel?: string; // Label for the x-axis
   yLabel?: string; // Label for the y-axis
   thresholds?: Threshold[]; // Array of threshold lines
-  points?: GraphPoint[] // Array of points to render
+  points?: GraphPoint[]; // Array of points to render
   fillArea?: boolean; // Option to fill the area under lines
   legend?: Legend; // Legend settings
   axisCenter?: MaybePoint; // Center point for axes alignment
   formatter?: Formatter; // Custom formatter for axis values
   lineFormatter?: (args: LineFormatterArgs) => CustomSymbol | CustomSymbol[]; // Custom line formatter
   symbols?: Symbols; // Custom symbols for chart elements
+  mode?: GraphMode; // Graph rendering mode
+  debugMode?: boolean; // Option to enable debug mode
 };
 ```
 
@@ -319,7 +320,7 @@ y 2┤  ┃    ┗━━┓  ┃ ┃  ┃
              x
 ```
 
-### Plot with colors
+### Plot with Colors
 
 Input:
 
@@ -365,7 +366,7 @@ Expected Output:
 
 ```
 
-### Plot with borders
+### Plot with Border
 
 Input:
 
@@ -404,7 +405,7 @@ Expected Output:
 ███████████████████████████
 ```
 
-### Plot with filled area
+### Plot with Filled Area
 
 Input:
 
@@ -445,7 +446,7 @@ Expected Output:
    1234
 ```
 
-### Scaled up plot
+### Scaled-Up Plot
 
 Input:
 
@@ -485,7 +486,7 @@ Expected Output:
     1   2    3   4   5    6   7   8    9   10
 ```
 
-### Add thresholds
+### Add Thresholds
 
 Input:
 
@@ -535,65 +536,65 @@ Expected Output:
    1     2    3     4    5     6    7     8
 ```
 
-### Add points, threshold and legend
+### Add Points, Thresholds, and Legend
 
 Input:
 
 ```typescript
 plot(
+  [
     [
-      [
-        [1, 2],
-        [2, -2],
-        [3, 4],
-        [4, 1],
-      ],
-      [
-        [1, 6],
-        [2, -3],
-        [3, 0],
-        [4, 0],
-      ],
+      [1, 2],
+      [2, -2],
+      [3, 4],
+      [4, 1],
     ],
-    {
-      width: 40,
-      color: ['ansiGreen', 'ansiMagenta', 'ansiBlack', 'ansiYellow'],
-      legend: {
-        position: 'left',
-        series: ['series 1', 'series 2'],
-        points: ['point 1', 'point 2', 'point 3'],
-        thresholds: ['threshold 1', 'threshold 2'],
-      },
-      title: 'Points',
-      thresholds: [
-        {
-          y: 5,
-          x: 2,
-          color: 'ansiBlue',
-        },
-        {
-          y: 2,
-          color: 'ansiGreen',
-        },
-      ],
-      points: [
-        {
-          y: 5,
-          x: 5,
-          color: 'ansiBlue',
-        },
-        {
-          y: -1,
-          x: 1,
-          color: 'ansiCyan',
-        },
-        {
-          y: 2,
-          x: 2,
-          color: 'ansiRed',
-        },
-      ],
+    [
+      [1, 6],
+      [2, -3],
+      [3, 0],
+      [4, 0],
+    ],
+  ],
+  {
+    width: 40,
+    color: ['ansiGreen', 'ansiMagenta', 'ansiBlack', 'ansiYellow'],
+    legend: {
+      position: 'left',
+      series: ['series 1', 'series 2'],
+      points: ['point 1', 'point 2', 'point 3'],
+      thresholds: ['threshold 1', 'threshold 2'],
     },
+    title: 'Points',
+    thresholds: [
+      {
+        y: 5,
+        x: 2,
+        color: 'ansiBlue',
+      },
+      {
+        y: 2,
+        color: 'ansiGreen',
+      },
+    ],
+    points: [
+      {
+        y: 5,
+        x: 5,
+        color: 'ansiBlue',
+      },
+      {
+        y: -1,
+        x: 1,
+        color: 'ansiCyan',
+      },
+      {
+        y: 2,
+        x: 2,
+        color: 'ansiRed',
+      },
+    ],
+  },
 );
 ```
 
@@ -616,49 +617,48 @@ Points
                 1            2            3            4
 ```
 
-
-### Add Points
+### Add Points Overlay
 
 Input:
 
 ```typescript
 plot(
   [
-      [1, 1],
-      [2, 4],
-      [3, 4],
-      [4, 2],
-      [5, -1],
-      [6, 3],
-      [7, -1],
-      [8, 9],
+    [1, 1],
+    [2, 4],
+    [3, 4],
+    [4, 2],
+    [5, -1],
+    [6, 3],
+    [7, -1],
+    [8, 9],
+  ],
+  {
+    width: 40,
+    title: 'Points',
+    points: [
+      {
+        y: 5,
+        x: 5,
+        color: 'ansiBlue',
+      },
+      {
+        y: -1,
+        x: 1,
+        color: 'ansiBlue',
+      },
+      {
+        y: 205,
+        x: 1005,
+        color: 'ansiBlue',
+      },
+      {
+        y: 2,
+        x: 2,
+        color: 'ansiRed',
+      },
     ],
-    {
-      width: 40,
-      title: 'Points',
-      points: [
-        {
-          y: 5,
-          x: 5,
-          color: 'ansiBlue',
-        },
-        {
-          y: -1,
-          x: 1,
-          color: 'ansiBlue',
-        },
-        {
-          y: 205,
-          x: 1005,
-          color: 'ansiBlue',
-        },
-        {
-          y: 2,
-          x: 2,
-          color: 'ansiRed',
-        },
-      ],
-    },
+  },
 );
 ```
 
@@ -682,7 +682,7 @@ Points
    1     2    3     4    5     6    7     8
 ```
 
-### Multi-series plot
+### Multi-Series Plot
 
 Input:
 
@@ -736,7 +736,7 @@ Expected Output:
     0    1     2    3     4    5     6    7     8    9
 ```
 
-### Plot with formatting applied
+### Plot with Custom Formatter
 
 Input:
 
@@ -793,7 +793,7 @@ Expected Output:
           A    B    C    D   E    F    G
 ```
 
-### Plot with axis center
+### Plot with Axis Center
 
 Input:
 
@@ -844,7 +844,7 @@ Expected Output:
                                  │
 ```
 
-## Plot with custom symbols
+### Plot with Custom Symbols
 
 Input:
 
@@ -861,7 +861,7 @@ plot(
   {
     symbols: {
       empty: 'x',
-      empty: '-',
+      background: '-',
       axis: {
         n: 'A',
         ns: 'i',
@@ -904,7 +904,7 @@ xxojmmmmmmmjmmmmmmmjmmmmmmjmmmmmmmjmmmmmmmjB
 xxx1xxxxxxx2xxxxxxx3xxxxxx4xxxxxxx5xxxxxxx6x
 ```
 
-### Plot without axis
+### Plot without Axes
 
 Input:
 
@@ -942,7 +942,7 @@ Expected Output:
                   ┗━━━━┛
 ```
 
-### Plot with with large numbers
+### Plot with Large Numbers
 
 Input:
 
@@ -995,7 +995,7 @@ Expected Output:
      -9k                 -2k            3k                10k   12k
 ```
 
-### Plot with custom line format
+### Plot with Custom Line Formatter
 
 Input:
 
@@ -1045,29 +1045,29 @@ Expected Output:
     1   2   3   4    5   6   7   8
 ```
 
-### Bar chart
+### Bar Chart
 
 Input:
 
 ```typescript
 plot(
   [
-  [0, 3],
-  [1, 2],
-  [2, 3],
-  [3, 4],
-  [4, -2],
-  [5, -5],
-  [6, 2],
-  [7, 0],
-],
-{
-  title: 'bar chart with axis',
-  mode: 'bar',
-  showTickLabel: true,
-  width: 40,
-  axisCenter: [0, 0],
-},
+    [0, 3],
+    [1, 2],
+    [2, 3],
+    [3, 4],
+    [4, -2],
+    [5, -5],
+    [6, 2],
+    [7, 0],
+  ],
+  {
+    title: 'bar chart with axis',
+    mode: 'bar',
+    showTickLabel: true,
+    width: 40,
+    axisCenter: [0, 0],
+  },
 );
 ```
 
@@ -1089,7 +1089,7 @@ bar chart with axis
   │                                         
 ```
 
-### Horizontal Bar chart
+### Horizontal Bar Chart
 
 Input:
 
@@ -1141,3 +1141,9 @@ Expected Output:
                -5┤███████████             
                  │                        
 ```
+
+## Support
+
+If this project helps you, consider supporting my open-source work:
+
+[Buy me a coffee](https://buymeacoffee.com/gtktsc)

@@ -411,15 +411,14 @@ export const addPoints = ({
   for (let pointNumber = 0; pointNumber < plotCoords.length; pointNumber++) {
     const [x, y] = plotCoords[pointNumber];
     const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
+    const pointColor = points[pointNumber]?.color;
 
     drawPosition({
       debugMode,
       graph,
       scaledX: scaledX + 1,
       scaledY: scaledY + 1,
-      symbol: points[pointNumber]?.color
-        ? `${getAnsiColor(points[pointNumber]?.color || 'ansiRed')}${pointSymbol}\u001b[0m`
-        : pointSymbol,
+      symbol: pointColor ? `${getAnsiColor(pointColor)}${pointSymbol}\u001b[0m` : pointSymbol,
     });
   }
 };
@@ -464,10 +463,10 @@ export const addThresholds = ({
   const mappedThreshold = thresholds.map(({ x: thresholdX, y: thresholdY }) => {
     let { x, y } = axis;
 
-    if (thresholdX) {
+    if (typeof thresholdX === 'number') {
       x = thresholdX;
     }
-    if (thresholdY) {
+    if (typeof thresholdY === 'number') {
       y = thresholdY;
     }
     return [x, y] as Point;
@@ -478,7 +477,11 @@ export const addThresholds = ({
     const [x, y] = plotCoords[thresholdNumber];
     const [scaledX, scaledY] = toPlot(plotWidth, plotHeight)(x, y);
 
-    if (thresholds[thresholdNumber]?.x && graph[0][scaledX]) {
+    const hasThresholdX = typeof thresholds[thresholdNumber]?.x === 'number';
+    const hasThresholdY = typeof thresholds[thresholdNumber]?.y === 'number';
+    const thresholdColor = thresholds[thresholdNumber]?.color;
+
+    if (hasThresholdX && graph[0][scaledX]) {
       for (let index = 0; index < graph.length; index++) {
         if (graph[index][scaledX]) {
           drawPosition({
@@ -486,14 +489,14 @@ export const addThresholds = ({
             graph,
             scaledX: scaledX + 1,
             scaledY: index,
-            symbol: thresholds[thresholdNumber]?.color
-              ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${thresholdSymbols.y}\u001b[0m`
+            symbol: thresholdColor
+              ? `${getAnsiColor(thresholdColor)}${thresholdSymbols.y}\u001b[0m`
               : thresholdSymbols.y,
           });
         }
       }
     }
-    if (thresholds[thresholdNumber]?.y && graph[scaledY]) {
+    if (hasThresholdY && graph[scaledY]) {
       for (let index = 0; index < graph[scaledY].length; index++) {
         if (graph[scaledY][index]) {
           drawPosition({
@@ -501,8 +504,8 @@ export const addThresholds = ({
             graph,
             scaledX: index,
             scaledY: scaledY + 1,
-            symbol: thresholds[thresholdNumber]?.color
-              ? `${getAnsiColor(thresholds[thresholdNumber]?.color || 'ansiRed')}${thresholdSymbols.x}\u001b[0m`
+            symbol: thresholdColor
+              ? `${getAnsiColor(thresholdColor)}${thresholdSymbols.x}\u001b[0m`
               : thresholdSymbols.x,
           });
         }

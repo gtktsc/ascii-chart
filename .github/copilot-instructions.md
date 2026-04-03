@@ -1,125 +1,102 @@
-# ASCII Chart Library - AI Coding Instructions
+# Simple ASCII Chart - Copilot Instructions
 
-## Architecture Overview
+## What This App Does
 
-This is a TypeScript library for generating ASCII charts in terminals. The codebase follows a modular service-oriented architecture:
+`simple-ascii-chart` is a TypeScript library that turns numeric 2D data into terminal-friendly ASCII charts.
 
-- **Core Entry**: `src/index.ts` exports the main `plot` function and all types
-- **Main Service**: `src/services/plot.ts` orchestrates chart generation through coordinate transformation, drawing, and styling
-- **Service Modules**: Separate services handle coordinates (`coords.ts`), drawing (`draw.ts`), settings (`settings.ts`), defaults (`defaults.ts`), and overrides (`overrides.ts`)
-- **Type System**: All types centralized in `src/types/index.ts` with comprehensive JSDoc documentation
-- **Constants**: ASCII symbols defined in `src/constants/index.ts` (AXIS, CHART, THRESHOLDS, POINT)
+- Input: `Coordinates` (`Point[]` or `Point[][]`)
+- Output: a rendered chart string from `plot()`
+- Modes: `line` (default), `point`, `bar`, `horizontalBar`
+- Styling: custom symbols, ANSI colors, thresholds, points, legend, title, axis labels, axis/tick visibility options
 
-## Key Patterns & Conventions
+Entry point: `src/index.ts` (default export and named export for `plot`, plus types/constants exports).
 
-### Type System & Documentation
+## Current Architecture
 
-- Use descriptive union types: `Point = [x: number, y: number]`, `Coordinates = SingleLine | MultiLine`
-- All public APIs require comprehensive JSDoc documentation (enforced by ESLint)
-- Service functions are typed with specific parameter interfaces
-- Unused variables prefixed with `_` to avoid ESLint warnings
+- `src/services/plot.ts`: orchestrates the full rendering pipeline.
+- `src/services/coords.ts`: normalization, sorting, scaling, extrema, coordinate transforms.
+- `src/services/draw.ts`: low-level graph writes and axis/line/tick drawing.
+- `src/services/overrides.ts`: labels, legend, background, thresholds, points, border/title overlays.
+- `src/services/settings.ts`: formatter + ANSI color and chart symbol resolution.
+- `src/services/defaults.ts`: input normalization and derived chart defaults/shifts/symbol settings.
+- `src/types/index.ts`: public API types (`Settings`, `Plot`, `LineFormatterArgs`, etc.).
+- `src/constants/index.ts`: default glyph sets (`AXIS`, `CHART`, `THRESHOLDS`, `POINT`, `LAYOUT`).
 
-### Data Flow Architecture
+## Rendering Pipeline (as implemented)
 
-```typescript
-Input → getInput() → toPlot() → drawChart() → addOverrides() → Output
-```
+In `plot()`:
 
-1. **Input Processing**: Raw coordinates normalized via `getInput()` in `defaults.ts`, with yRange filtering
-2. **Coordinate Transformation**: `coords.ts` handles scaling via `scaler()`, two-phase transformation, and bounds checking
-3. **Drawing Pipeline**: `draw.ts` renders with position validation and `debugMode` for out-of-bounds logging
-4. **Style Overrides**: `overrides.ts` applies colors using ANSI escape codes, labels, legends, thresholds
+1. Normalize input with `getInput()`.
+2. Optionally filter by `yRange`.
+3. Early-return `''` for empty top-level input.
+4. Resolve formatter and chart dimensions (`getChartSize()`), symbols (`getSymbols()`), and axis center.
+5. Build graph matrix via `drawGraph()`.
+6. For each series:
+   - resolve chart symbols (`getChartSymbols()`)
+   - sort coordinates (`toSorted()`)
+   - map into plot coordinates (`getPlotCoords()`)
+   - render with `drawLine()` or `drawCustomLine()`
+   - optionally apply `setFillArea()`
+7. Apply thresholds and points overlays.
+8. Draw axes, shift graph for labels, axis center/ticks.
+9. Apply background symbol replacement and remove empty lines.
+10. Add labels (`xLabel`, `yLabel`), legend, title, border.
+11. Convert graph to final string via `drawChart()`.
 
-### Error Handling & Debugging
+## Important Behavioral Invariants
 
-- **Debug Mode**: `debugMode: true` enables console logging for out-of-bounds drawing attempts
-- **Bounds Validation**: `drawPosition()` includes try-catch with silent failures when debugMode is off
-- **Input Filtering**: Invalid coordinates filtered early in the pipeline (yRange, undefined points)
-- **Graceful Degradation**: Charts render with available data even when some points are invalid
+Keep these behaviors intact unless intentionally changing them with tests:
 
-### Testing Strategy
+- Thresholds treat zero as valid: use explicit numeric checks (`typeof value === 'number'`) for both mapping and rendering.
+- `plot()` must not mutate caller-owned input ordering:
+  - `toSorted()` returns a sorted copy (no in-place sort side effects).
+- Out-of-bounds graph writes are non-fatal:
+  - `drawPosition()` logs only in `debugMode`; otherwise fails silently.
+- Symbol fallbacks matter:
+  - axis/chart/threshold symbols fall back to defaults in `constants`.
+- Color output must remain ANSI-safe:
+  - use `getAnsiColor()` and always append `\u001b[0m` resets.
 
-- **Snapshot Testing**: Primary testing method using visual ASCII output comparison
-- **Test Structure**: `src/__tests__/snapshot.test.ts` runs all examples against `__snapshots__/*.txt`
-- **Example-Driven**: `src/examples.ts` contains 600+ test cases using `create()` helper
-- **Test Generation**: `generateAllSettingsExamples()` creates exhaustive boolean/numeric combinations
-- **Snapshot Updates**: `npm run snapshots:generate` recreates all expected outputs
+## Code Patterns To Follow
 
-### Build System (tsup)
+- Prefer small service functions with explicit typed params.
+- Keep `plot()` public API stable (`Plot`, `Settings`, exported types/signatures).
+- Use tuple types for coordinates (`Point = [x, y]`) and preserve existing type unions.
+- Preserve current option naming and semantics (`hideXAxisTicks`, `customXAxisTicks`, etc.).
+- Add concise JSDoc for function declarations; ESLint checks this.
+- Avoid introducing focused tests (`it.only`, `describe.only`, `test.only`) - lint blocks them.
 
-- **Dual Format**: Builds both ESM (`dist/index.js`) and CJS (`dist/index.cjs`) with correct `package.json` exports
-- **Type Declarations**: Generates `.d.ts` for ESM and `.d.cts` for CJS
-- **Watch Mode**: `npm run build:watch` for development
-- **Example Preview**: `npm run examples` with live reloading for chart development
+## Testing & Coverage (Current Policy)
 
-## Development Workflows
+- Main tests:
+  - service unit tests in `src/__tests__/services/*.test.ts`
+  - snapshot parity test in `src/__tests__/snapshot.test.ts` against `src/__snapshots__/*.txt`
+  - additional snapshot branch tests in `src/__tests__/snapshot.options.test.ts`
+  - snapshot coverage bridge in `src/__tests__/snapshot.services-coverage.test.js` for `jest ... snapshot`
+- Snapshot fixtures (`src/__snapshots__/*.txt`) are generated by:
+  - `npm run snapshots:generate` (`src/scripts/generate-snapshots.ts`)
+- Coverage is strict:
+  - `jest.config.js` enforces global `branches: 98`
+- CI:
+  - GitHub Actions runs matrix Node versions from `.github/workflows/ci.yaml`
+  - setup-node uses `${{ matrix.node-version }}`
 
-### Adding New Features
+## Safe Change Workflow
 
-1. Add types to `src/types/index.ts` with comprehensive JSDoc (required by ESLint)
-2. Update `Settings` interface and defaults in `src/services/defaults.ts`
-3. Implement logic in appropriate service module (`draw.ts`, `coords.ts`, `overrides.ts`)
-4. Add examples to `src/examples.ts` using the `create()` helper and data constants
-5. Run `npm run snapshots:generate` to create test fixtures
-6. Verify with `npm test` (includes coverage reporting)
+When implementing feature/fix changes:
 
-### Symbol Customization System
+1. Update logic in the relevant service module(s).
+2. Add/adjust focused unit tests in `src/__tests__/services/*`.
+3. Add/update snapshot-oriented coverage tests when behavior should be represented visually.
+4. Regenerate snapshots only when expected rendering changes:
+   - `npm run snapshots:generate`
+5. Validate:
+   - `npm test -- --runInBand`
+   - `yarn test snapshot`
+   - `npm run lint`
 
-- **Symbol Categories**: `axis` (coordinate system), `chart` (data visualization), `empty`/`background`, `thresholds`, `point`
-- **Override Pattern**: Via `Settings.symbols` - see `src/constants/index.ts` for complete defaults
-- **Advanced Styling**: Custom symbols via `lineFormatter` functions with `LineFormatterArgs`
-- **Color Integration**: Symbols combined with ANSI color codes in overrides
+## Build and Packaging
 
-### Coordinate System & Transformations
-
-- **Origin**: Bottom-left by default, customizable via `axisCenter: [x, y]`
-- **Two-Phase Transform**: Data coordinates → plot coordinates → ASCII grid via `toPlot()`
-- **Scaling**: `scaler()` function handles domain/range mapping with edge case handling
-- **Expansion Arrays**: `expansionX/Y` handle non-uniform scaling for better ASCII representation
-- **Bounds Filtering**: Points outside `yRange` filtered early, custom ticks filtered by min/max
-
-### Chart Mode Implementation
-
-- **Line Mode** (default): Connected paths using CHART symbols with direction-aware corners
-- **Point Mode**: Scatter plots using POINT symbols at exact coordinates
-- **Bar Modes**: Vertical/horizontal bars with axis-aware fill direction
-- **Fill Areas**: `fillArea: true` uses `area` symbol to fill below line charts
-
-### Performance & Memory Patterns
-
-- **String Building**: ASCII grid built via direct array access, not concatenation
-- **Coordinate Caching**: Transformations cached during single `plot()` call
-- **Lazy Filtering**: Data filtered progressively through pipeline stages
-- **Efficient Testing**: 600+ examples tested via single snapshot comparison loop
-
-### Error Handling & Edge Cases
-
-- **Bounds Checking**: `drawPosition()` includes try-catch with optional debug logging
-- **Data Validation**: Empty inputs return early, malformed points filtered
-- **Overflow Protection**: Large numbers formatted with k/M suffixes automatically (threshold: 1000)
-- **Axis Edge Cases**: Special handling for axis intersections and moved origins
-- **Silent Failures**: Drawing errors fail silently when `debugMode: false` to prevent noise
-- **Input Sanitization**: Coordinates filtered for `undefined` values and yRange boundaries
-
-## Critical Implementation Details
-
-### ANSI Color System
-
-- **Type Safety**: `Color = 'ansiRed' | 'ansiGreen' | ...` prevents invalid colors
-- **Multi-Series**: Colors can be arrays for different data series
-- **Dynamic Colors**: `ColorGetter` function type for programmatic color assignment
-- **Reset Codes**: Colors wrapped with `\u001b[0m` reset codes to prevent bleeding
-
-### Testing & Quality Assurance
-
-- **Snapshot Workflow**: Visual regression testing via ASCII text comparison
-- **Coverage Requirements**: Jest configured with coverage reporting to `coverage/`
-- **Example Data**: Predefined datasets in `examples.ts` (short, negativeMixed, simpleHigh, etc.)
-- **Boundary Testing**: Edge cases like single points, negative ranges, extreme values
-
-## Common Integration Points
-
-- **CLI Tool**: Separate package `simple-ascii-chart-cli` consumes this library
-- **Web API**: Deployed at `simple-ascii-chart.vercel.app/api` with JSON input/output
-- **Playground**: Interactive demo at `simple-ascii-chart.vercel.app/playground`
-- **Export Formats**: Supports both ESM `import` and CJS `require()` via dual build
+- Build command: `npm run build` (tsup)
+- Outputs: ESM + CJS bundles with declarations (`dist/`)
+- Package exports support both modern ESM and CommonJS consumers.

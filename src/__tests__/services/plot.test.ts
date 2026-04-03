@@ -86,6 +86,60 @@ describe('plot', () => {
       expect(chart).toStrictEqual('');
     });
   });
+
+  describe('regressions', () => {
+    it('does not mutate input order', () => {
+      const input: Coordinates = [
+        [3, 0],
+        [1, 5],
+        [2, 1],
+      ];
+      const original = JSON.parse(JSON.stringify(input));
+
+      plot(input, { width: 10, height: 6 });
+
+      expect(input).toEqual(original);
+    });
+
+    it('renders threshold when x is 0', () => {
+      const output = plot(
+        [
+          [-1, -1],
+          [0, 0],
+          [1, 1],
+        ],
+        {
+          width: 10,
+          height: 5,
+          mode: 'point',
+          thresholds: [{ x: 0 }],
+          symbols: { thresholds: { y: 'T' } },
+        },
+      );
+
+      expect(output).toContain('T');
+    });
+
+    it('renders threshold when y is 0', () => {
+      const output = plot(
+        [
+          [-1, -1],
+          [0, 0],
+          [1, 1],
+        ],
+        {
+          width: 10,
+          height: 5,
+          mode: 'point',
+          thresholds: [{ y: 0 }],
+          symbols: { thresholds: { x: 'H' } },
+        },
+      );
+
+      expect(output).toContain('H');
+    });
+  });
+
   describe.each([
     [
       'generates output with custom formatter',

@@ -4,8 +4,8 @@
     "allowJs": true,
     "esModuleInterop": true,
     "strict": true,
-    "moduleResolution": "node",
-    "downlevelIteration": true,
+    "types": ["node", "jest"],
+    "moduleResolution": "bundler",
     "target": "esnext",
     "declaration": true
   },
