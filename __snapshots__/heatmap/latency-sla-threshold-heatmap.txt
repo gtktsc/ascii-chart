@@ -1,0 +1,7 @@
+Latency SLA threshold heatmap
+          us-east  us-west  eu-west  eu-central  ap-south
+Gateway      [32m░[0m        [32m░[0m        [32m░[0m         [91m█[0m          [91m█[0m
+Search       [32m░[0m        [32m░[0m        [91m█[0m         [32m░[0m          [91m█[0m
+Checkout     [32m░[0m        [32m░[0m        [32m░[0m         [91m█[0m
+
+[32m░[0m Within SLA  [91m█[0m SLA breach

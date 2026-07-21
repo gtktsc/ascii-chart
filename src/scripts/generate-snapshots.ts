@@ -1,22 +1,23 @@
 import fs from 'fs';
 import path from 'path';
-import { plot } from '../services/plot';
-import { examples } from '../examples';
 
-const SNAPSHOT_DIR = path.resolve(__dirname, '../__snapshots__');
+import { assertUniqueSnapshotPaths, getSnapshotRelativePath, snapshotExamples } from '@examples';
+import { SNAPSHOT_DIRECTORY_NAME } from '@constants/snapshots';
 
-if (!fs.existsSync(SNAPSHOT_DIR)) {
-  fs.mkdirSync(SNAPSHOT_DIR);
-}
+const snapshotDirectory = path.resolve(__dirname, '..', SNAPSHOT_DIRECTORY_NAME);
 
-examples.forEach(([data, settings], index) => {
-  const output = plot(data, settings);
-  const fileName =
-    `${index.toString().padStart(2, '0')}_${settings.title || 'example'}`.replace(
-      /[^\w.-]+/g,
-      '_',
-    ) + '.txt';
+assertUniqueSnapshotPaths(snapshotExamples);
 
-  const filePath = path.join(SNAPSHOT_DIR, fileName);
+const snapshots = snapshotExamples.map((example) => ({
+  relativePath: getSnapshotRelativePath(example),
+  output: example.render(),
+}));
+
+fs.rmSync(snapshotDirectory, { recursive: true, force: true });
+fs.mkdirSync(snapshotDirectory, { recursive: true });
+
+snapshots.forEach(({ relativePath, output }) => {
+  const filePath = path.join(snapshotDirectory, relativePath);
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, output);
 });

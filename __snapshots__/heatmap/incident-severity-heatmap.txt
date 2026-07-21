@@ -1,0 +1,4 @@
+         Mon  Tue  Wed  Thu  Fri
+Auth           [33m2[0m              [31m1[0m
+Billing   [31m1[0m              [33m2[0m
+Search              [91m0[0m    [31m1[0m

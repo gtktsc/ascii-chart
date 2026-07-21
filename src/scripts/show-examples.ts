@@ -1,11 +1,11 @@
-import { plot } from '../services/plot';
-import { examples } from '../examples';
+import { snapshotExamples } from '@examples';
 
-const hasFilter = examples.some(([, { only }]) => only);
+const hasFilter = snapshotExamples.some(({ only }) => only);
 
 console.clear();
-examples
-  .filter(([, settings]) => (hasFilter ? settings.only : true))
-  .forEach(([data, options]) => {
-    console.log(plot(data, options));
+snapshotExamples
+  .filter(({ only }) => (hasFilter ? only : true))
+  .forEach(({ group, title, render }) => {
+    console.log(`${group}: ${title}`);
+    console.log(render());
   });

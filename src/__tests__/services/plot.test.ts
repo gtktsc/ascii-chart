@@ -1,12 +1,79 @@
-import { plot } from '../../services/plot';
-
-import { Coordinates, LineFormatterArgs, Settings, FormatterHelpers } from '../../types/index';
+import { Coordinates, FormatterHelpers, LineFormatterArgs, Settings } from '@types';
+import { plot, renderPlot } from '@services/plot/plot';
 
 describe('plot', () => {
   const mockedData = [
     [1, 1],
     [2, 2],
   ];
+
+  it('returns empty output for an internal empty structured series without domains', () => {
+    expect(renderPlot([[]], { seriesSettings: [{}] })).toBe('');
+  });
+
+  it('uses renderPlot defaults when internal settings are omitted', () => {
+    expect(renderPlot([[0, 0]])).toContain('━');
+  });
+
+  it('fills a series crossing both axes to the x axis', () => {
+    expect(
+      plot(
+        [
+          [-4, -1],
+          [-1, -1],
+          [1, 3],
+          [4, 3],
+        ],
+        {
+          width: 16,
+          height: 8,
+          fillArea: true,
+          hideXAxisTicks: true,
+          axisCenter: [0, 0],
+          xAxis: { domain: [-5, 5] },
+          yAxis: { domain: [-4, 4] },
+        },
+      ),
+    ).toBe(`
+        ▲         
+        │         
+       3┤███████  
+        │███████  
+────────┼────────▶
+   ███-1┤█        
+        │         
+        │         
+        │         
+        │         
+`);
+  });
+
+  it('uses data input and raw input as advanced bar color context fallbacks', () => {
+    const segment = {
+      seriesIndex: 0,
+      datumIndex: 0,
+      x: 0,
+      y: 1,
+      mode: 'bar' as const,
+      layout: 'overlap' as const,
+      value: 1,
+      category: 0,
+      start: 0,
+      end: 1,
+      slotIndex: 0,
+      slotCount: 1,
+    };
+    const settings = {
+      width: 2,
+      height: 2,
+      xRange: [0, 1] as const,
+      yRange: [0, 1] as [number, number],
+      barSegments: [segment],
+    };
+
+    expect(renderPlot([[]], { ...settings, dataInput: [[[0, 1]]] })).toContain('█');
+    expect(renderPlot([[]], settings)).toContain('█');
+  });
 
   describe('plot', () => {
     describe('plot with yRange', () => {
@@ -70,9 +137,9 @@ describe('plot', () => {
         const chart = plot(partialData, { width: 10, height: 5, yRange: [10, 30] });
         expect(chart).toBe(`
   ▲           
-30┤      ┏━┓  
-  │      ┃ ┃  
-20┤ ┏━━━━┛ ┃  
+30┤       ━┓  
+  │        ┃  
+20┤ ┏━     ┃  
 15┤ ┃      ┗━ 
 10┤━┛         
   └┬─┬────┬─┬▶

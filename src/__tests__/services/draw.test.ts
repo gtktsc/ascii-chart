@@ -1,17 +1,8 @@
-import {
-  drawXAxisEnd,
-  drawXAxisTick,
-  drawYAxisEnd,
-  drawAxis,
-  drawGraph,
-  drawChart,
-  drawCustomLine,
-  drawLine,
-  drawShift,
-  drawPosition,
-} from '../../services/draw';
-import { AXIS, CHART } from '../../constants';
-import { GraphMode, MultiLine, Point } from '../../types';
+import { AXIS, CHART } from '@constants';
+import { GraphMode, MultiLine, Point } from '@types';
+import { drawAxis, drawXAxisEnd, drawXAxisTick, drawYAxisEnd } from '@services/plot/draw/axis';
+import { drawChart, drawGraph, drawPosition, drawShift } from '@services/plot/draw/position';
+import { drawCustomLine, drawLine } from '@services/plot/draw/series';
 
 describe('Drawing functions', () => {
   describe('drawPosition', () => {

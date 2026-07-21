@@ -1,10 +1,20 @@
 {
   "compilerOptions": {
     "rootDir": "src",
-    "allowJs": true,
     "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
     "strict": true,
     "types": ["node", "jest"],
+    "paths": {
+      "@ascii-chart": ["./src/index.ts"],
+      "@constants": ["./src/constants/index.ts"],
+      "@constants/*": ["./src/constants/*"],
+      "@examples": ["./src/examples/index.ts"],
+      "@examples/*": ["./src/examples/*"],
+      "@helpers/*": ["./src/helpers/*"],
+      "@services/*": ["./src/services/*"],
+      "@types": ["./src/types/index.ts"]
+    },
     "moduleResolution": "bundler",
     "target": "esnext",
     "declaration": true

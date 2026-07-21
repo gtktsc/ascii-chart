@@ -1,6 +1,6 @@
-import { getAnsiColor, getChartSymbols } from '../../services/settings';
-import { Color } from '../../types';
-import { CHART } from '../../constants';
+import { CHART } from '@constants';
+import { Color } from '@types';
+import { getAnsiColor, getChartSymbols } from '@helpers/colors';
 
 describe('getAnsiColor', () => {
   describe.each([
@@ -12,6 +12,14 @@ describe('getAnsiColor', () => {
     ['ansiMagenta', '\u001b[35m'],
     ['ansiCyan', '\u001b[36m'],
     ['ansiWhite', '\u001b[37m'],
+    ['ansiBrightBlack', '\u001b[90m'],
+    ['ansiBrightRed', '\u001b[91m'],
+    ['ansiBrightGreen', '\u001b[92m'],
+    ['ansiBrightYellow', '\u001b[93m'],
+    ['ansiBrightBlue', '\u001b[94m'],
+    ['ansiBrightMagenta', '\u001b[95m'],
+    ['ansiBrightCyan', '\u001b[96m'],
+    ['ansiBrightWhite', '\u001b[97m'],
     ['default', '\u001b[37m'],
   ])('', (input, output) => {
     it(input, () => {
@@ -31,6 +39,14 @@ describe('getChartSymbols', () => {
     ['ansiMagenta', '\u001b[35m', 0],
     ['ansiCyan', '\u001b[36m', 0],
     ['ansiWhite', '\u001b[37m', 0],
+    ['ansiBrightBlack', '\u001b[90m', 0],
+    ['ansiBrightRed', '\u001b[91m', 0],
+    ['ansiBrightGreen', '\u001b[92m', 0],
+    ['ansiBrightYellow', '\u001b[93m', 0],
+    ['ansiBrightBlue', '\u001b[94m', 0],
+    ['ansiBrightMagenta', '\u001b[95m', 0],
+    ['ansiBrightCyan', '\u001b[96m', 0],
+    ['ansiBrightWhite', '\u001b[97m', 0],
     ['default', '\u001b[37m', 0],
     [['ansiBlack', 'ansiRed'], '\u001b[30m', 0],
     [['ansiBlack', 'ansiRed'], '\u001b[31m', 1],
@@ -45,6 +61,13 @@ describe('getChartSymbols', () => {
       expect(formatted.sne).toBe(`${output}┏\u001b[0m`);
       expect(formatted.area).toBe(`${output}█\u001b[0m`);
     });
+  });
+
+  it('accepts bright colors through the public Color type', () => {
+    const color: Color = 'ansiBrightCyan';
+    const formatted = getChartSymbols(color, 0, undefined, [[]], false);
+
+    expect(formatted.we).toBe(`\u001b[96m━\u001b[0m`);
   });
 
   it('applies fill area symbol when fillArea is true', () => {

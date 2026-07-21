@@ -1,0 +1,3 @@
+        Mon  Tue  Wed  Thu  Fri  Sat  Sun
+Week 1   ·    ░    █    ▒    ░    ·
+Week 2   ░    ▒    ▒    █    █    ░    ·

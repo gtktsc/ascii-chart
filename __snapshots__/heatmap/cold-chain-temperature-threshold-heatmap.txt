@@ -1,0 +1,7 @@
+Cold-chain temperature threshold heatmap
+           00:00  04:00  08:00  12:00  16:00  20:00
+Truck 7      [36m*[0m      [36m*[0m      [36m*[0m      [95m![0m      [95m![0m      [36m*[0m
+Truck 12     [36m*[0m      [36m*[0m      [36m*[0m      [95m![0m      [36m*[0m      [36m*[0m
+Warehouse    [36m*[0m      [36m*[0m             [36m*[0m      [95m![0m      [36m*[0m
+
+[36m*[0m Safe temperature  [95m![0m Temperature alert

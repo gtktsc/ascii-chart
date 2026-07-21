@@ -1,0 +1,8 @@
+Test coverage target heatmap
+            core  render  types  cli  examples
+Statements   [36m✓[0m      [36m✓[0m       [36m✓[0m     [91m×[0m      [36m✓[0m
+Branches     [36m✓[0m      [36m✓[0m       [36m✓[0m     [91m×[0m      [91m×[0m
+Functions    [36m✓[0m      [36m✓[0m       [36m✓[0m     [91m×[0m      [36m✓[0m
+Lines        [36m✓[0m      [36m✓[0m             [91m×[0m      [36m✓[0m
+
+[91m×[0m Below gate  [36m✓[0m Gate passed

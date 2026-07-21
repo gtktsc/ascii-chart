@@ -1,6 +1,6 @@
 {
   "name": "simple-ascii-chart",
-  "version": "5.4.0",
+  "version": "6.0.0",
   "description": "Simple ascii chart generator",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -16,19 +16,29 @@
       "require": "./dist/index.cjs"
     }
   },
+  "engines": {
+    "node": ">=22"
+  },
+  "tsdown": {
+    "outputOptions": {
+      "exports": "named"
+    }
+  },
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
-    "test": "jest --coverage",
+    "test": "jest --coverage && npm run build && node --disable-warning=ExperimentalWarning --experimental-strip-types --test src/scripts/performance-budget.ts",
     "test:watch": "jest --watch",
     "check-exports": "npx --yes @arethetypeswrong/cli --pack .",
-    "build": "tsup src/index.ts --format cjs,esm --clean --sourcemap && tsc -p tsconfig.build.json && node scripts/fix-dts-imports.mjs && cp dist/index.d.ts dist/index.d.cts",
-    "build:watch": "tsup src/index.ts --format cjs,esm --clean --sourcemap --watch",
-    "examples": "tsup src/scripts/show-examples.ts --watch --onSuccess \"clear && node dist/show-examples.cjs\"",
-    "snapshots:generate": "tsup src/scripts/generate-snapshots.ts --onSuccess \"node dist/generate-snapshots.cjs\"",
-    "prepare": "npm run build && npm test && npm run lint"
+    "build": "tsdown src/index.ts --format esm --format cjs --dts --no-fixed-extension",
+    "build:watch": "tsdown src/index.ts --format esm --format cjs --sourcemap --no-dts --no-fixed-extension --watch",
+    "examples": "tsdown src/scripts/show-examples.ts --format cjs --no-dts --no-clean --watch --on-success \"clear && node dist/show-examples.cjs\"",
+    "snapshots:generate": "tsdown src/scripts/generate-snapshots.ts --format cjs --no-dts --no-clean --on-success \"node dist/generate-snapshots.cjs\"",
+    "prepare": "npm test && npm run lint"
   },
   "devDependencies": {
+    "@eslint/compat": "^2.1.0",
+    "@eslint/js": "^10.0.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.5.2",
     "@typescript-eslint/eslint-plugin": "^8.32.0",
@@ -37,10 +47,11 @@
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-import": "^2.28.1",
     "eslint-plugin-jsdoc": "^62.9.0",
+    "globals": "^16.5.0",
     "jest": "^30.3.0",
     "prettier": "^3.5.3",
     "ts-jest": "^29.3.2",
-    "tsup": "^8.4.0",
+    "tsdown": "^0.22.8",
     "typescript": "^6.0.2"
   },
   "keywords": [
@@ -50,18 +61,20 @@
     "chart",
     "line chart",
     "bar chart",
+    "candlestick chart",
+    "ohlc",
     "plot"
   ],
   "author": "gtktsc",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gtktsc/ascii-chart.git"
+    "url": "git+https://github.com/gtktsc/simple-ascii-chart.git"
   },
   "bugs": {
-    "url": "https://github.com/gtktsc/ascii-chart/issues"
+    "url": "https://github.com/gtktsc/simple-ascii-chart/issues"
   },
-  "homepage": "https://github.com/gtktsc/ascii-chart#readme",
+  "homepage": "https://github.com/gtktsc/simple-ascii-chart#readme",
   "files": [
     "dist/**/*"
   ]

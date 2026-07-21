@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`renderChart renders a structured chart with fixed domains, exact ticks, color, and legend 1`] = `
+"
+   ▲                                                               [36m█[0m CPU
+100┤                                                                    
+   │                                                                    
+   │                                                                    
+ 75┤                                                                    
+   │                                                                    
+   │                                                                    
+   │                                                                    
+ 50┤                                                                    
+   │[36m┏[0m[36m━[0m                                                                  
+   │[36m┃[0m                                                                   
+ 25┤[36m┃[0m                                                                   
+   │[36m┛[0m                                                                   
+   │                                                                    
+   │                                                                    
+  0┤                                                                    
+   └┬───────────┬───────────┬──────────┬───────────┬───────────┬▶       
+    0          12          24         36          48          60        
+"
+`;
