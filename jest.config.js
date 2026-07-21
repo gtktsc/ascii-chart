@@ -14,11 +14,22 @@ export default {
     ],
   },
   moduleNameMapper: {
+    '^@ascii-chart$': '<rootDir>/src/index.ts',
+    '^@constants$': '<rootDir>/src/constants/index.ts',
+    '^@constants/(.*)$': '<rootDir>/src/constants/$1',
+    '^@examples$': '<rootDir>/src/examples/index.ts',
+    '^@examples/(.*)$': '<rootDir>/src/examples/$1',
+    '^@helpers/(.*)$': '<rootDir>/src/helpers/$1',
+    '^@services/(.*)$': '<rootDir>/src/services/$1',
+    '^@types$': '<rootDir>/src/types/index.ts',
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   coverageThreshold: {
     global: {
-      branches: 98,
+      statements: 99,
+      branches: 99,
+      functions: 99,
+      lines: 100,
     },
   },
 };

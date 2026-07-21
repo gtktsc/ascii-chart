@@ -1,0 +1,16 @@
+Security patch compliance
+           Dev  QA  Stage  Prod-US  Prod-EU  Prod-AP  DR  Sandbox
+edge        [90m-[0m   [31m×[0m     [33m![0m       [33m![0m        [32m✓[0m        [32m✓[0m     [32m✓[0m      [32m✓[0m
+gateway     [32m✓[0m   [32m✓[0m     [32m✓[0m       [32m✓[0m        [90m-[0m        [31m×[0m     [33m![0m      [33m![0m
+auth        [32m✓[0m   [31m×[0m     [33m![0m       [33m![0m        [32m✓[0m        [32m✓[0m     [32m✓[0m      [32m✓[0m
+catalog     [33m![0m   [32m✓[0m     [32m✓[0m       [32m✓[0m        [32m✓[0m        [31m×[0m     [33m![0m      [33m![0m
+search      [32m✓[0m   [90m-[0m     [31m×[0m       [33m![0m        [33m![0m        [32m✓[0m     [32m✓[0m      [32m✓[0m
+checkout    [33m![0m   [32m✓[0m     [32m✓[0m       [32m✓[0m        [32m✓[0m        [90m-[0m     [31m×[0m      [33m![0m
+payments    [32m✓[0m   [32m✓[0m     [31m×[0m       [33m![0m        [33m![0m        [32m✓[0m     [32m✓[0m      [32m✓[0m
+orders      [33m![0m   [33m![0m     [32m✓[0m       [32m✓[0m        [32m✓[0m        [32m✓[0m     [31m×[0m      [33m![0m
+worker      [32m✓[0m   [32m✓[0m     [90m-[0m       [31m×[0m        [33m![0m        [33m![0m     [32m✓[0m      [32m✓[0m
+scheduler   [33m![0m   [33m![0m     [32m✓[0m       [32m✓[0m        [32m✓[0m        [32m✓[0m     [90m-[0m      [31m×[0m
+analytics   [32m✓[0m   [32m✓[0m     [32m✓[0m       [31m×[0m        [33m![0m        [33m![0m     [32m✓[0m      [32m✓[0m
+admin       [31m×[0m   [33m![0m     [33m![0m       [32m✓[0m        [32m✓[0m        [32m✓[0m     [32m✓[0m      [31m×[0m
+
+[32m✓[0m Patched  [33m![0m Due soon  [31m×[0m Overdue  [90m-[0m Exempt

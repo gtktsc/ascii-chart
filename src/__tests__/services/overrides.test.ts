@@ -1,18 +1,15 @@
+import { CHART, EMPTY, POINT, THRESHOLDS } from '@constants';
+import { Formatter, FormatterHelpers, Graph, GraphPoint, Legend, Threshold } from '@types';
+import { getTransformLabel } from '@services/plot/overrides/formatting';
+import { addXLabel, addYLabel, setTitle } from '@services/plot/overrides/labels';
 import {
-  setTitle,
-  addXLabel,
-  addYLabel,
-  addLegend,
-  addBorder,
   addBackgroundSymbol,
-  addThresholds,
-  setFillArea,
+  addBorder,
   removeEmptyLines,
-  getTransformLabel,
-  addPoints,
-} from '../../services/overrides';
-import { CHART, EMPTY, THRESHOLDS, POINT } from '../../constants';
-import { Formatter, FormatterHelpers, Graph, Legend, Threshold, GraphPoint } from '../../types';
+  setFillArea,
+} from '@services/plot/overrides/layout';
+import { addLegend } from '@services/plot/overrides/legend';
+import { addPoints, addThresholds } from '@services/plot/overrides/overlays';
 
 describe('Graph Utility Functions', () => {
   let graph: Graph = [];
@@ -324,6 +321,25 @@ describe('Graph Utility Functions', () => {
       });
       expect(graph[2][3]).toContain(CHART.ns);
     });
+
+    it('records vertical threshold priority for every occupied cell', () => {
+      const cellPriorities = Array.from({ length: plotHeight }, () => Array(plotWidth).fill(0));
+
+      addThresholds({
+        thresholdSymbols,
+        graph,
+        thresholds: [{ x: 2 }],
+        axis: { x: 0, y: 0 },
+        plotWidth,
+        plotHeight,
+        expansionX,
+        expansionY,
+        cellPriorities,
+        priority: 7,
+      });
+
+      expect(cellPriorities.map((row) => row[3])).toEqual(Array(plotHeight).fill(7));
+    });
     it('should add thresholds correctly - y', () => {
       const thresholds = [{ y: 5 }] as Threshold[];
       const axis = { x: 0, y: 0 };
@@ -531,25 +547,46 @@ describe('Graph Utility Functions', () => {
   });
 
   describe('setFillArea', () => {
-    it('should set fill area correctly', () => {
-      const chartSymbols = { nse: CHART.nse, wsn: CHART.wsn, we: CHART.we, area: 'A' };
-      graph[1][1] = CHART.nse;
+    const chartSymbols = { ...CHART, area: 'A' };
 
-      setFillArea({ graph, chartSymbols });
+    it('fills downward from the chart line to the x axis', () => {
+      graph[1][2] = CHART.nse;
 
-      for (let y = 2; y < graph.length; y++) {
-        expect(graph[y][1]).toBe('A');
-      }
+      setFillArea({ graph, chartSymbols, axis: { x: 5, y: 5 }, fillAxis: 'x' });
+
+      expect(graph[1][2]).toBe(CHART.nse);
+      expect(graph.slice(2, 6).map((row) => row[2])).toEqual(['A', 'A', 'A', 'A']);
+      expect(graph[6][2]).toBe(backgroundSymbol);
     });
 
-    it('should use fill area correctly', () => {
-      const chartSymbols = { nse: CHART.nse, wsn: CHART.wsn, we: CHART.we };
-      graph[1][1] = CHART.nse;
-      setFillArea({ graph, chartSymbols });
+    it('fills upward from the chart line to the x axis', () => {
+      graph[6][2] = CHART.sne;
 
-      for (let y = 2; y < graph.length; y++) {
-        expect(graph[y][1]).toBe(CHART.area);
-      }
+      setFillArea({ graph, chartSymbols, axis: { x: 5, y: 2 }, fillAxis: 'x' });
+
+      expect(graph[6][2]).toBe(CHART.sne);
+      expect(graph.slice(2, 6).map((row) => row[2])).toEqual(['A', 'A', 'A', 'A']);
+      expect(graph[1][2]).toBe(backgroundSymbol);
+      expect(graph[7][2]).toBe(backgroundSymbol);
+    });
+
+    it('fills rightward from the chart line to the y axis', () => {
+      graph[3][1] = CHART.we;
+
+      setFillArea({ graph, chartSymbols, axis: { x: 5, y: 2 }, fillAxis: 'y' });
+
+      expect(graph[3].slice(1, 6)).toEqual([CHART.we, 'A', 'A', 'A', 'A']);
+      expect(graph[3][6]).toBe(backgroundSymbol);
+    });
+
+    it('fills leftward from the chart line to the y axis', () => {
+      graph[3][6] = CHART.we;
+
+      setFillArea({ graph, chartSymbols, axis: { x: 2, y: 2 }, fillAxis: 'y' });
+
+      expect(graph[3].slice(2, 7)).toEqual(['A', 'A', 'A', 'A', CHART.we]);
+      expect(graph[3][1]).toBe(backgroundSymbol);
+      expect(graph[3][7]).toBe(backgroundSymbol);
     });
   });
 

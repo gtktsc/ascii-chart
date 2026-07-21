@@ -1,0 +1,7 @@
+Deployment readiness
+        Dev  Stage  Prod
+API      [32m●[0m     [32m●[0m     [31m×[0m
+Worker   [32m●[0m     [33m![0m     [33m![0m
+Web      [32m●[0m     [32m●[0m     [32m●[0m
+
+[32m●[0m Ready  [33m![0m Warning  [31m×[0m Blocked

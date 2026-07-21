@@ -1,0 +1,12 @@
+
+custom ticks and axis center, hide y axis [ascii]
+                   ┏━ 
+               ┏━━━┛  
+               ┃      
+               ┃      
+               ┃      
+    ┏━┓        ┃      
+──┬─└─┬────┬─────────▶
+ ━2   4━┓  6 ┃ ┃      
+        ┃  ┃ ┃ ┃      
+        ┗━━┛ ┗━┛      

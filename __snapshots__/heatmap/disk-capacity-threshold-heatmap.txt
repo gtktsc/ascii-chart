@@ -1,0 +1,7 @@
+Disk capacity threshold heatmap
+        /var  /tmp  /data  /logs  /backup
+prod-1   [34m○[0m     [34m○[0m      [93m●[0m      [93m●[0m       [34m○[0m
+prod-2   [34m○[0m     [34m○[0m      [93m●[0m      [93m●[0m       [34m○[0m
+prod-3   [34m○[0m            [34m○[0m      [93m●[0m       [93m●[0m
+
+[34m○[0m Capacity available  [93m●[0m Capacity risk

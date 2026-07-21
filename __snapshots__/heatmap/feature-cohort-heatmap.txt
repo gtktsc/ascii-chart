@@ -1,0 +1,14 @@
+Feature rollout by cohort
+                 Search  Export  Alerts  Audit  Themes  Sharing  API v2  Offline  Mobile  Insights
+Staff              [90m□[0m       [33m◐[0m       [32m■[0m       [34m◔[0m      [32m■[0m        [34m◔[0m       [33m◐[0m        [32m■[0m       [33m◐[0m        [32m■[0m
+Internal           [34m◔[0m       [32m■[0m       [34m◔[0m       [33m◐[0m      [32m■[0m        [33m◐[0m       [32m■[0m        [34m◔[0m       [33m◐[0m        [90m□[0m
+Design partners    [33m◐[0m       [32m■[0m       [33m◐[0m       [32m■[0m      [34m◔[0m        [33m◐[0m       [90m□[0m        [33m◐[0m       [32m■[0m        [34m◔[0m
+Alpha              [32m■[0m       [34m◔[0m       [33m◐[0m       [90m□[0m      [33m◐[0m        [32m■[0m       [34m◔[0m        [32m■[0m       [34m◔[0m        [33m◐[0m
+Beta 1             [90m□[0m       [33m◐[0m       [32m■[0m       [34m◔[0m      [32m■[0m        [34m◔[0m       [33m◐[0m        [32m■[0m       [33m◐[0m        [32m■[0m
+Beta 2             [34m◔[0m       [32m■[0m       [34m◔[0m       [33m◐[0m      [32m■[0m        [33m◐[0m       [32m■[0m        [34m◔[0m       [33m◐[0m        [90m□[0m
+Pro                [33m◐[0m       [32m■[0m       [33m◐[0m       [32m■[0m      [34m◔[0m        [33m◐[0m       [90m□[0m        [33m◐[0m       [32m■[0m        [34m◔[0m
+Teams              [32m■[0m       [34m◔[0m       [33m◐[0m       [90m□[0m      [33m◐[0m        [32m■[0m       [34m◔[0m        [32m■[0m       [34m◔[0m        [33m◐[0m
+Enterprise         [90m□[0m       [33m◐[0m       [32m■[0m       [34m◔[0m      [32m■[0m        [34m◔[0m       [33m◐[0m        [32m■[0m       [33m◐[0m        [32m■[0m
+Public             [34m◔[0m       [32m■[0m       [34m◔[0m       [33m◐[0m      [32m■[0m        [33m◐[0m       [32m■[0m        [34m◔[0m       [33m◐[0m        [90m□[0m
+
+[90m□[0m Off  [34m◔[0m Pilot  [33m◐[0m Partial  [32m■[0m Enabled

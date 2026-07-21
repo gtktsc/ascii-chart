@@ -1,0 +1,12 @@
+Model evaluation matrix
+           Accuracy  Recall  Precision  F1  Latency  Memory  Robustness  Fairness  Drift  Cost
+baseline      [90m·[0m        [36m=[0m         [92m+[0m      [92m+[0m      [31m-[0m       [92m+[0m         [92m+[0m          [31m-[0m        [36m=[0m     [92m+[0m
+linear-v2     [92m+[0m        [90m·[0m         [36m=[0m      [92m+[0m      [92m+[0m       [31m-[0m         [92m+[0m          [92m+[0m        [31m-[0m     [36m=[0m
+tree-v4       [36m=[0m        [92m+[0m         [90m·[0m      [36m=[0m      [92m+[0m       [92m+[0m         [31m-[0m          [92m+[0m        [92m+[0m     [31m-[0m
+forest-v3     [31m-[0m        [36m=[0m         [92m+[0m      [90m·[0m      [36m=[0m       [92m+[0m         [92m+[0m          [31m-[0m        [92m+[0m     [92m+[0m
+boost-v5      [92m+[0m        [31m-[0m         [36m=[0m      [92m+[0m      [90m·[0m       [36m=[0m         [92m+[0m          [92m+[0m        [31m-[0m     [92m+[0m
+neural-s      [36m=[0m        [92m+[0m         [31m-[0m      [36m=[0m      [92m+[0m       [90m·[0m         [36m=[0m          [92m+[0m        [92m+[0m     [31m-[0m
+neural-m      [31m-[0m        [36m=[0m         [92m+[0m      [31m-[0m      [36m=[0m       [92m+[0m         [90m·[0m          [36m=[0m        [92m+[0m     [92m+[0m
+ensemble      [92m+[0m        [31m-[0m         [36m=[0m      [92m+[0m      [31m-[0m       [36m=[0m         [92m+[0m          [90m·[0m        [36m=[0m     [92m+[0m
+
+[92m+[0m Improved  [36m=[0m Equivalent  [31m-[0m Regressed  [90m·[0m N/A

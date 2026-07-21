@@ -1,0 +1,7 @@
+CPU saturation threshold heatmap
+          00:00  04:00  08:00  12:00  16:00  20:00
+API         [36m·[0m      [36m·[0m      [36m·[0m      [91m![0m      [91m![0m      [36m·[0m
+Workers     [36m·[0m      [36m·[0m      [36m·[0m      [91m![0m      [36m·[0m      [36m·[0m
+Database    [36m·[0m      [36m·[0m             [91m![0m      [91m![0m      [36m·[0m
+
+[36m·[0m Healthy (<80%)  [91m![0m Saturated (>=80%)

@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x, 22.x]
+        node-version: [22.x, 24.x]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js
@@ -24,7 +24,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
         run: yarn --frozen-lockfile
-      - name: Run tests and collect coverage
+      - name: Run lint
+        run: yarn lint
+      - name: Run tests, build package, and enforce performance budget
         run: yarn test
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4

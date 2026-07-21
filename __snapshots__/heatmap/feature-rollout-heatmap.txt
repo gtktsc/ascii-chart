@@ -1,0 +1,4 @@
+          Search  Export  Alerts
+Internal    [32m■[0m       [32m■[0m       [32m■[0m
+Beta        [32m■[0m       [33m◐[0m       [90m□[0m
+Public      [33m◐[0m       [90m□[0m       [90m□[0m

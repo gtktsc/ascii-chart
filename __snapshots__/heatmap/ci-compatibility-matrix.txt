@@ -1,0 +1,5 @@
+         Linux  macOS  Windows
+Node 22    [32m●[0m      [32m●[0m       [31m×[0m
+Node 24    [32m●[0m      [33m○[0m       [32m●[0m
+
+[32m●[0m Passed  [33m○[0m Pending  [31m×[0m Failed

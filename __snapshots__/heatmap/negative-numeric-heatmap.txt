@@ -1,0 +1,2 @@
+       negative  zero  positive
+delta     [31m-[0m       [33m0[0m       [32m+[0m

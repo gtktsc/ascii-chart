@@ -1,0 +1,7 @@
+Queue backlog threshold heatmap
+         00  04  08  12  16  20
+Email    [32m·[0m   [32m·[0m   [32m·[0m   [95m#[0m   [95m#[0m   [32m·[0m
+Billing  [32m·[0m   [32m·[0m   [95m#[0m   [95m#[0m   [32m·[0m   [32m·[0m
+Exports  [32m·[0m   [32m·[0m       [95m#[0m   [95m#[0m   [32m·[0m
+
+[32m·[0m Queue clear  [95m#[0m Backlog

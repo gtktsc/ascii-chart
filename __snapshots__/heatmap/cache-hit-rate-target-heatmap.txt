@@ -1,0 +1,7 @@
+Cache hit-rate target heatmap
+        edge-1  edge-2  edge-3  edge-4  edge-5
+Images    [91m↓[0m       [91m↓[0m       [92m↑[0m       [92m↑[0m       [92m↑[0m
+API       [91m↓[0m       [91m↓[0m       [92m↑[0m       [92m↑[0m       [91m↓[0m
+Pages     [91m↓[0m               [91m↓[0m       [92m↑[0m       [92m↑[0m
+
+[91m↓[0m Below target  [92m↑[0m Target met

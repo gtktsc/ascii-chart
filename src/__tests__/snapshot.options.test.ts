@@ -1,17 +1,12 @@
-import { plot } from '../index';
-import { THRESHOLDS } from '../constants';
-import {
-  fromPlot,
-  getExtrema,
-  padOrTrim,
-  toCoordinates,
-  toSorted,
-} from '../services/coords';
-import { getChartSize, getLegendData } from '../services/defaults';
-import { drawCustomLine, drawGraph, drawPosition } from '../services/draw';
-import { addLegend, addPoints } from '../services/overrides';
-import { getChartSymbols } from '../services/settings';
-import { Graph, GraphPoint, MultiLine, Point, Threshold } from '../types';
+import { plot } from '@ascii-chart';
+import { THRESHOLDS } from '@constants';
+import { Graph, GraphPoint, MultiLine, Point, Threshold } from '@types';
+import { getChartSymbols } from '@helpers/colors';
+import { fromPlot, getExtrema, toCoordinates, toSorted } from '@helpers/coordinates';
+import { drawGraph, drawPosition } from '@services/plot/draw/position';
+import { drawCustomLine } from '@services/plot/draw/series';
+import { addLegend } from '@services/plot/overrides/legend';
+import { addPoints } from '@services/plot/overrides/overlays';
 
 const toText = (graph: Graph) => graph.map((row) => row.join('')).join('\n');
 
@@ -29,7 +24,10 @@ describe('snapshot branch coverage', () => {
         color: (series) => (series === 0 ? 'ansiGreen' : 'ansiRed'),
         showTickLabel: true,
         points: [{ x: 0, y: 2, color: 'ansiBlue' }],
-        thresholds: [{ x: 0, color: 'ansiYellow' }, { y: 0, color: 'ansiMagenta' }],
+        thresholds: [
+          { x: 0, color: 'ansiYellow' },
+          { y: 0, color: 'ansiMagenta' },
+        ],
         symbols: { thresholds: { x: '-', y: '|' } },
         legend: {
           position: 'bottom',
@@ -49,9 +47,6 @@ describe('snapshot branch coverage', () => {
 
   it('covers coordinate helper branches', () => {
     const result = {
-      trim: padOrTrim(['a', 'b', 'c'], 2),
-      pad: padOrTrim(['a'], 3),
-      same: padOrTrim(['x'], 1),
       sortedWithEqualX: toSorted([
         [1, 4],
         [1, 2],
@@ -85,32 +80,6 @@ describe('snapshot branch coverage', () => {
     };
 
     expect(result).toMatchSnapshot();
-  });
-
-  it('covers chart-size and legend normalization branches', () => {
-    const input: MultiLine = [
-      [
-        [1, 2],
-        [2, 3],
-      ],
-    ];
-    const points: GraphPoint[] = [{ x: 1, y: 2 }];
-    const thresholds: Threshold[] = [{ x: 0 }];
-
-    const snapshot = {
-      tinyRangeSize: getChartSize({ input }),
-      legendData: getLegendData({
-        input,
-        points,
-        thresholds,
-        dataSeries: 'series',
-        pointsSeries: 'point',
-        thresholdsSeries: 'threshold',
-      }),
-      legendWithoutSeries: getLegendData({ input, points, thresholds }),
-    };
-
-    expect(snapshot).toMatchSnapshot();
   });
 
   it('covers drawPosition debug bounds checks', () => {

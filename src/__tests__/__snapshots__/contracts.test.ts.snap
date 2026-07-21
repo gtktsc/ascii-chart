@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`public validation contract keeps diverging stacked bars equivalent across plot and renderChart 1`] = `
+"
+▲             
+│[34m█[0m            
+│[34m█[0m            
+│[31m█[0m          [31m█[0m 
+├────────────▶
+│           [34m█[0m 
+│           [34m█[0m 
+│           [34m█[0m 
+│             
+│             
+"
+`;
+
+exports[`public validation contract keeps grouped bars equivalent across plot and renderChart 1`] = `
+"
+▲             
+│           [34m█[0m 
+│          [31m█[0m[34m█[0m 
+│[31m█[0m         [31m█[0m[34m█[0m 
+│[31m█[0m[34m█[0m        [31m█[0m[34m█[0m 
+│[31m█[0m[34m█[0m        [31m█[0m[34m█[0m 
+├────────────▶
+│             
+"
+`;

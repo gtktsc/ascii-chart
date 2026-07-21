@@ -10,41 +10,6 @@ exports[`snapshot branch coverage covers addPoints branch with colored point sym
 ......."
 `;
 
-exports[`snapshot branch coverage covers chart-size and legend normalization branches 1`] = `
-{
-  "legendData": {
-    "points": [
-      "point",
-    ],
-    "series": [
-      "series",
-    ],
-    "thresholds": [
-      "threshold",
-    ],
-  },
-  "legendWithoutSeries": {
-    "points": [],
-    "series": [],
-    "thresholds": [],
-  },
-  "tinyRangeSize": {
-    "expansionX": [
-      1,
-      2,
-    ],
-    "expansionY": [
-      2,
-      3,
-    ],
-    "minX": 1,
-    "minY": 2,
-    "plotHeight": 2,
-    "plotWidth": 2,
-  },
-}
-`;
-
 exports[`snapshot branch coverage covers coordinate helper branches 1`] = `
 {
   "extrema": {
@@ -61,14 +26,6 @@ exports[`snapshot branch coverage covers coordinate helper branches 1`] = `
       5,
     ],
   },
-  "pad": [
-    "a",
-    "",
-    "",
-  ],
-  "same": [
-    "x",
-  ],
   "sortedWithEqualX": [
     [
       0,
@@ -86,10 +43,6 @@ exports[`snapshot branch coverage covers coordinate helper branches 1`] = `
   "toCoordinates": [
     5,
     5,
-  ],
-  "trim": [
-    "a",
-    "b",
   ],
 }
 `;
@@ -223,8 +176,8 @@ exports[`snapshot branch coverage covers plot with function color, points and th
  -1     0    1 
 [32m█[0m line         
                
-[33m┃[0m zero-x       
-[35m┃[0m zero-y       
+[33m|[0m zero-x       
+[35m|[0m zero-y       
                
 [34m●[0m focus        
 "
