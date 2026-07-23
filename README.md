@@ -1170,6 +1170,10 @@ npm run check-exports
 
 Executable examples and snapshots cover every public renderer backend, configurable option surface, and closed variant.
 
+## Contributing
+
+Contributions are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for setup and pull request guidance, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community expectations.
+
 ## License
 
 [MIT](./LICENSE)
